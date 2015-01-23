@@ -3,15 +3,15 @@ import ../util/util
 import opengl
 
 type
-  Entity* = ref object
+  Entity* = ref object of RootObj
     collidable*: bool
     dynamic*: bool
     drawable*: bool
     shapes*: seq[Shape]
     position*: Vector2
-    rotation: Matrix2x2
-    velocity: Vector2
-    acceleration: Vector2
+    rotation*: Matrix2x2
+    velocity*: Vector2
+    acceleration*: Vector2
 
 method updateBehaviour*(self: Entity, dt: float) =
   discard
