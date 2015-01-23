@@ -25,7 +25,6 @@ var
   t = GetTicks()
 
 proc resize() =
-  # TODO: use real width and height instead of constant values
   let
     width: int32 = 640
     height: int32 = 480
@@ -33,8 +32,7 @@ proc resize() =
   glViewport(0, 0, width, height)                        # Set the viewport to cover the new window
   glMatrixMode(GL_PROJECTION)                       # To operate on the Projection matrix
   glLoadIdentity()                                  # Reset
-
-  glOrtho(-10*aspect, 10*aspect, -10, 10, 1, -1)
+  glOrtho(-10*aspect, 10*aspect, -10, 10, -1, 1)
 
 proc update() =
   let now = GetTicks()
@@ -54,7 +52,7 @@ proc render() =
 
   window.GL_SwapWindow()
 
-var ent = generateShip(vec2(0,0))
+var ent = generateShip(vec2(0,-7))
 entities.add(ent)
 
 while runGame:

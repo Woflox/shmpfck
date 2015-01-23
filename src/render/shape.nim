@@ -17,14 +17,14 @@ proc drawLine* (self: Shape) =
   glColor4d(self.lineColor.r, self.lineColor.g, self.lineColor.b, self.lineColor.a)
   for vertex in self.vertices:
     glVertex2d(vertex.x, vertex.y)
-    if self.drawStyle != DrawStyle.line:
-      glVertex2d(self.vertices[0].x, self.vertices[0].y)
+  if self.drawStyle != DrawStyle.line:
+    glVertex2d(self.vertices[0].x, self.vertices[0].y)
 
 proc drawSolid* (self: Shape) =
   glColor4d(self.fillColor.r, self.fillColor.g, self.fillColor.b, self.fillColor.a)
   for vertex in self.vertices:
     glVertex2d(vertex.x, vertex.y)
-    glVertex2d(self.vertices[0].x, self.vertices[0].y)
+  glVertex2d(self.vertices[0].x, self.vertices[0].y)
 
 proc render* (self: Shape) =
   if self.visible:
@@ -33,7 +33,7 @@ proc render* (self: Shape) =
         self.drawSolid()
         glEnd()
     if self.drawStyle != DrawStyle.solid:
-        glBegin(GL_LINES)
+        glBegin(GL_LINE_STRIP)
         self.drawLine()
         glEnd()
 

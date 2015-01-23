@@ -39,7 +39,7 @@ proc normalize*(a:Vector2) :Vector2 =
   result.y = a.y / length
 
 proc vec2*(x, y:float) :Vector2 =
-  result.x = x
-  result.y = y
+  result = Vector2(x:x, y:y)
 
-
+proc col*(r, g, b: float, a = 1.0): Color =
+  result = Color(r:r, g:g, b:b, a:a)
