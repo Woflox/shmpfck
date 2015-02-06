@@ -1,4 +1,3 @@
-
 import sdl2
 import opengl
 import util/util
@@ -7,7 +6,7 @@ import entity/ship
 
 # Initialize SDL
 discard SDL_Init(INIT_EVERYTHING)
-var window = CreateWindow("SHMPFCK", 100, 100, 640, 480, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
+var window = CreateWindow("SHMPFCK", 100, 100, 800, 600, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
 var context = window.GL_CreateContext()
 
 # Initialize OpenGL
@@ -26,8 +25,8 @@ var
 
 proc resize() =
   let
-    width: int32 = 640
-    height: int32 = 480
+    width: int32 = 800
+    height: int32 = 600
     aspect = float(width)/float(height)
   glViewport(0, 0, width, height)                        # Set the viewport to cover the new window
   glMatrixMode(GL_PROJECTION)                       # To operate on the Projection matrix
@@ -62,7 +61,7 @@ while runGame:
       break
     if evt.kind == WindowEvent:
       resize()
-    update()
-    render()
+  update()
+  render()
 
 destroy window
