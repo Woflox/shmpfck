@@ -3,6 +3,7 @@ import opengl
 import util/util
 import entity/entity
 import entity/ship
+from input/input import nil
 
 # Initialize SDL
 discard SDL_Init(INIT_EVERYTHING)
@@ -51,16 +52,20 @@ proc render() =
 
   window.GL_SwapWindow()
 
-var ent = generateShip(vec2(0,-7))
-entities.add(ent)
+proc newGame() =
+  var ship = generateShip(vec2(0,-7))
+  entities.add(ship)
 
 while runGame:
   while PollEvent(evt):
-    if evt.kind == QuitEvent:
-      runGame = false
-      break
-    if evt.kind == WindowEvent:
-      resize()
+    case evt.kind:
+      of QuitEvent:
+        runGame = false
+        break
+      of WindowEvent:
+        resize()
+      else:
+        input.handleEvent(evt)
   update()
   render()
 
