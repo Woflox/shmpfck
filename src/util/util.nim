@@ -55,6 +55,9 @@ proc `*`*(a:Matrix2x2, b:Vector2) :Vector2 =
   result = vec2(a[0][0] * b.x + a[0][1] * b.y,
                 a[1][0] * b.x + a[1][1] * b.y)
 
+proc nonZero(self:Vector2): bool =
+  result = self.x != 0 and self.y != 0
+
 proc matrixFromAngle*(a: float): Matrix2x2 =
   let
     sinA = sin(a)
@@ -74,3 +77,12 @@ proc matrixFromDirection*(dir: Vector2): Matrix2x2 =
 
 proc col*(r, g, b: float, a = 1.0): Color =
   result = Color(r:r, g:g, b:b, a:a)
+
+proc glMatrix*(self: Matrix2x2): array[16, float] =
+  result = [self[0][0], self[1][0], 0, 0,
+            self[0][1], self[1][1], 0, 0,
+            0         , 0         , 1, 0,
+            0         , 0         , 0, 1]
+
+proc radToDeg*(angle: float): float =
+  result = angle * 360 / (2 * Pi)

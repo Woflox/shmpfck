@@ -12,7 +12,7 @@ type
     drawable*: bool
     shapes*: seq[Shape]
     position*: Vector2
-    rotation*: Matrix2x2
+    rotation*: float
     velocity*: Vector2
     acceleration*: Vector2
 
@@ -38,7 +38,7 @@ proc updatePhysics (self: Entity, dt: float) =
         let deltaAngle = self.velocity.x * dt / length
         let newAngle = angleFromDirection(dirFromCenter) + deltaAngle
         let newDir = directionFromAngle(newAngle)
-        self.rotation = matrixFromDirection(newDir)
+        self.rotation = newAngle
         self.position = newDir * length
 
     of Physics.none:
@@ -54,5 +54,7 @@ proc render*(self: Entity) =
   if self.drawable:
     glLoadIdentity()
     glTranslated(self.position.x, self.position.y, 0)
+    if self.rotation != 0:
+      glRotated(radToDeg(-self.rotation), 0, 0, 1)
     for shape in self.shapes:
       shape.render()

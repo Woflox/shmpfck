@@ -20,7 +20,7 @@ var entities*: seq[Entity] = @[]
 # Main loop
 
 var
-  evt: TEvent
+  evt: Event
   runGame = true
   t = GetTicks()
 
@@ -39,6 +39,8 @@ proc update() =
   let dt = float(now - t) * 0.001
   t = now
 
+  input.update(dt)
+
   for entity in entities:
     entity.update(dt)
 
@@ -56,6 +58,8 @@ proc newGame() =
   var ship = generateShip(vec2(0,-7))
   entities.add(ship)
 
+newGame()
+
 while runGame:
   while PollEvent(evt):
     case evt.kind:
@@ -65,7 +69,7 @@ while runGame:
       of WindowEvent:
         resize()
       else:
-        input.handleEvent(evt)
+        input.addEvent(evt)
   update()
   render()
 
