@@ -1,11 +1,13 @@
 import sdl2
+import sdl2/joystick
+import sdl2/gamecontroller
 import ../util/util
-import ../sdl/constants
 import queues
 
 var
   stickMoveDir: Vector2
   buttonMoveDir: Vector2
+  controller: GameControllerPtr
 
 type
   Action* = enum
@@ -20,6 +22,7 @@ type
     action: Action
 
 const maxAxisValue = 32768.0
+const deadZone = 0.25
 
 var
   controls* = [Control(action: left,  key: K_LEFT,  button: SDL_CONTROLLER_BUTTON_DPAD_LEFT),
@@ -41,9 +44,11 @@ proc handleEvent(event: var Event) =
     of ControllerAxisMotion:
       case event.caxis.axis:
         of uint8(SDL_CONTROLLER_AXIS_LEFTX):
-          stickMoveDir.x = float(event.caxis.value) / maxAxisValue
+          let axisValue = float(event.caxis.value) / maxAxisValue
+          stickMoveDir.x = if abs(axisValue) > deadZone: axisValue else: 0
         of uint8(SDL_CONTROLLER_AXIS_LEFTY):
-          stickMoveDir.y = float(event.caxis.value) / maxAxisValue
+          let axisValue = float(event.caxis.value) / maxAxisValue
+          stickMoveDir.y = if abs(axisValue) > deadZone: -axisValue else: 0
         else:
           discard
 
@@ -86,6 +91,12 @@ proc buttonReleased*(action: Action): bool =
 
 proc moveDir*(): Vector2 =
   result = if stickMoveDir == vec2(0, 0): buttonMoveDir else: stickMoveDir
+
+proc init*() =
+  for i in 0..(numJoysticks() -1):
+    if isGameController(i):
+      controller = gameControllerOpen(i)
+
 
 proc update*(dt: float) =
   for control in controls:
