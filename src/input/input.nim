@@ -22,7 +22,7 @@ type
     action: Action
 
 const maxAxisValue = 32768.0
-const deadZone = 0.25
+const deadZone = 0.2
 
 var
   controls* = [Control(action: left,  key: K_LEFT,  button: SDL_CONTROLLER_BUTTON_DPAD_LEFT),
@@ -90,7 +90,7 @@ proc buttonReleased*(action: Action): bool =
   result = controls[int(action)].released
 
 proc moveDir*(): Vector2 =
-  result = if stickMoveDir == vec2(0, 0): buttonMoveDir else: stickMoveDir
+  result = if stickMoveDir == vec2(0, 0): buttonMoveDir else: stickMoveDir.normalize()
 
 proc init*() =
   for i in 0..(numJoysticks() -1):
