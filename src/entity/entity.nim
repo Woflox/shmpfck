@@ -55,6 +55,6 @@ proc render*(self: Entity) =
     glLoadIdentity()
     glTranslated(self.position.x, self.position.y, 0)
     if self.rotation != 0:
-      glRotated(radToDeg(-self.rotation), 0, 0, 1)
+      glRotated(radToDeg(self.rotation), 0, 0, -1)
     for shape in self.shapes:
       shape.render()
