@@ -6,9 +6,9 @@ import entity/ship
 from input/input import nil
 
 # Initialize SDL
-discard SDL_Init(INIT_EVERYTHING)
-var window = CreateWindow("SHMPFCK", 100, 100, 800, 600, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
-var context = window.GL_CreateContext()
+discard init(INIT_EVERYTHING)
+var window = createWindow("SHMPFCK", 100, 100, 800, 600, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
+var context = window.glCreateContext()
 
 # Initialize OpenGL
 loadExtensions()
@@ -16,13 +16,6 @@ glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to blac
 glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST) # Nice perspective corrections
 
 var entities*: seq[Entity] = @[]
-
-# Main loop
-
-var
-  evt: Event
-  runGame = true
-  t = GetTicks()
 
 proc resize() =
   let
@@ -34,8 +27,15 @@ proc resize() =
   glLoadIdentity()                                  # Reset
   glOrtho(-10*aspect, 10*aspect, -10, 10, -1, 1)
 
+# Main loop
+
+var
+  evt: Event = Event(kind:UserEvent)
+  runGame = true
+  t = getTicks()
+
 proc update() =
-  let now = GetTicks()
+  let now = getTicks()
   let dt = float(now - t) * 0.001
   t = now
 
@@ -52,16 +52,17 @@ proc render() =
   for entity in entities:
     entity.render()
 
-  window.GL_SwapWindow()
+  window.glSwapWindow()
 
 proc newGame() =
   var ship = generateShip(vec2(0,-7))
   entities.add(ship)
 
+input.init()
 newGame()
 
 while runGame:
-  while PollEvent(evt):
+  while pollEvent(evt):
     case evt.kind:
       of QuitEvent:
         runGame = false
