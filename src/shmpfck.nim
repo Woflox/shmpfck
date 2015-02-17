@@ -18,10 +18,10 @@ glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST) # Nice perspective corrections
 var entities*: seq[Entity] = @[]
 
 proc resize() =
-  let
-    width: int32 = 800
-    height: int32 = 600
-    aspect = float(width)/float(height)
+  var width, height: cint
+  window.getSize(width, height)
+  let aspect = float(width)/float(height)
+
   glViewport(0, 0, width, height)                        # Set the viewport to cover the new window
   glMatrixMode(GL_PROJECTION)                       # To operate on the Projection matrix
   glLoadIdentity()                                  # Reset
@@ -30,7 +30,7 @@ proc resize() =
 # Main loop
 
 var
-  evt: Event = Event(kind:UserEvent)
+  event: Event = Event(kind:UserEvent)
   runGame = true
   t = getTicks()
 
@@ -62,15 +62,15 @@ input.init()
 newGame()
 
 while runGame:
-  while pollEvent(evt):
-    case evt.kind:
+  while pollEvent(event):
+    case event.kind:
       of QuitEvent:
         runGame = false
         break
       of WindowEvent:
         resize()
       else:
-        input.addEvent(evt)
+        input.addEvent(event)
   update()
   render()
 
