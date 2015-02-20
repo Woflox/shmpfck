@@ -1,9 +1,8 @@
 import sdl2
 import opengl
 import util/util
-import entity/entity
-import entity/ship
 from input/input import nil
+from world/world import nil
 
 # Initialize SDL
 discard init(INIT_EVERYTHING)
@@ -14,8 +13,6 @@ var context = window.glCreateContext()
 loadExtensions()
 glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to black and opaque
 glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST) # Nice perspective corrections
-
-var entities*: seq[Entity] = @[]
 
 proc resize() =
   var width, height: cint
@@ -40,26 +37,19 @@ proc update() =
   t = now
 
   input.update(dt)
-
-  for entity in entities:
-    entity.update(dt)
+  world.update(dt)
 
 proc render() =
   glClear(GL_COLOR_BUFFER_BIT)
   glMatrixMode(GL_MODELVIEW)
   glLoadIdentity()
 
-  for entity in entities:
-    entity.render()
+  world.render()
 
   window.glSwapWindow()
 
-proc newGame() =
-  var ship = generateShip(vec2(0,-7))
-  entities.add(ship)
-
 input.init()
-newGame()
+world.generate()
 
 while runGame:
   while pollEvent(event):

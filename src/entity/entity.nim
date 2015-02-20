@@ -19,6 +19,20 @@ type
 method updateBehaviour*(self: Entity, dt: float) =
   discard
 
+var
+  entities* : seq[Entity] = @[]
+
+proc entitiesOfType[T](): seq[T] =
+  result = @[]
+  for entity in entities:
+    if entity is T:
+      result.add(entity)
+
+proc entityOfType[T](): T =
+  for entity in entities:
+    if entity is T:
+      return entity
+
 proc updatePhysics (self: Entity, dt: float) =
   case self.physics
     of Physics.full:

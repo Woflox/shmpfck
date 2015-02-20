@@ -6,7 +6,6 @@ type
   Color* = object
     r*, g*, b*, a*: float
   Matrix2x2* = array[2, array[2, float]]
-  Transform* = tuple[position: Vector2, rotation: Matrix2x2]
 
 proc `+`*(a, b:Vector2) :Vector2 =
   result.x = a.x + b.x
