@@ -4,17 +4,16 @@ import opengl
 import math
 
 type
-  Physics* {.pure.} = enum
-    none, full, velocity, polar
+  Movement* {.pure.} = enum
+    none, normal, polar
   Entity* = ref object of RootObj
     collidable*: bool
-    physics*: Physics
+    movement*: Movement
     drawable*: bool
     shapes*: seq[Shape]
     position*: Vector2
     rotation*: float
     velocity*: Vector2
-    acceleration*: Vector2
 
 method updateBehaviour*(self: Entity, dt: float) =
   discard
@@ -34,15 +33,11 @@ proc entityOfType[T](): T =
       return entity
 
 proc updatePhysics (self: Entity, dt: float) =
-  case self.physics
-    of Physics.full:
-      self.velocity = self.velocity + self.acceleration * dt
+  case self.movement:
+    of Movement.normal:
       self.position += self.velocity * dt
 
-    of Physics.velocity:
-      self.position += self.velocity * dt
-
-    of Physics.polar:
+    of Movement.polar:
       let dirFromCenter = normalize(self.position)
       self.position += self.velocity.y * dt * dirFromCenter
       let length =  self.position.length
@@ -55,20 +50,27 @@ proc updatePhysics (self: Entity, dt: float) =
         self.rotation = newAngle
         self.position = newDir * length
 
-    of Physics.none:
+    of Movement.none:
       discard
 
 proc update*(self: Entity, dt: float) =
     self.updateBehaviour(dt)
-    if self.collidable or self.physics != Physics.none:
-      self.updatePhysics(dt)
+    self.updatePhysics(dt)
 
+proc getVelocity*(self:Entity): Vector2 =
+  if self.movement == Movement.polar:
+    let dirFromCenter = normalize(self.position)
+    result = dirFromCenter * self.velocity.y +
+             vec2(dirFromCenter.y, -dirFromCenter.x) * self.velocity.x
+  else:
+    result = self.velocity
 
 proc render*(self: Entity) =
   if self.drawable:
-    glLoadIdentity()
+    glPushMatrix()
     glTranslated(self.position.x, self.position.y, 0)
     if self.rotation != 0:
       glRotated(radToDeg(self.rotation), 0, 0, -1)
     for shape in self.shapes:
       shape.render()
+    glPopMatrix()
