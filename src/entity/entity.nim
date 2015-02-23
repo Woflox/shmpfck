@@ -14,6 +14,7 @@ type
     position*: Vector2
     rotation*: float
     velocity*: Vector2
+    minPolarY*: float
 
 method updateBehaviour*(self: Entity, dt: float) =
   discard
@@ -40,15 +41,17 @@ proc updatePhysics (self: Entity, dt: float) =
     of Movement.polar:
       let dirFromCenter = normalize(self.position)
       self.position += self.velocity.y * dt * dirFromCenter
-      let length =  self.position.length
+      var length =  self.position.length
       # circumference is 2 * Pi * length, but the 2pi cancels out because
       # deltaAngle is 2 * Pi * (velocity.y / circumference)
-      if length != 0:
-        let deltaAngle = self.velocity.x * dt / length
-        let newAngle = angleFromDirection(dirFromCenter) + deltaAngle
-        let newDir = directionFromAngle(newAngle)
-        self.rotation = newAngle
-        self.position = newDir * length
+      if length < self.minPolarY:
+        length = self.minPolary
+        self.velocity.y = 0
+      let deltaAngle = self.velocity.x * dt / length
+      let newAngle = angleFromDirection(dirFromCenter) + deltaAngle
+      let newDir = directionFromAngle(newAngle)
+      self.rotation = newAngle
+      self.position = newDir * length
 
     of Movement.none:
       discard

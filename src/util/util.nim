@@ -92,3 +92,9 @@ proc glMatrix*(self: Matrix2x2): array[16, float] =
 
 proc radToDeg*(angle: float): float =
   angle * 360 / (2 * Pi)
+
+proc makeAnglesNear* (a: float, b: var float) =
+  while b > a + Pi:
+    b -= Pi * 2
+  while b < a - Pi:
+    b += Pi * 2

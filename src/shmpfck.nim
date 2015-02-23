@@ -22,7 +22,7 @@ proc resize() =
   glViewport(0, 0, width, height)                        # Set the viewport to cover the new window
   glMatrixMode(GL_PROJECTION)                       # To operate on the Projection matrix
   glLoadIdentity()                                  # Reset
-  glOrtho(-10*aspect, 10*aspect, -10, 10, -1, 1)
+  glOrtho(-20*aspect, 20*aspect, -20, 20, -1, 1)
 
 # Main loop
 

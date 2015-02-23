@@ -45,8 +45,8 @@ var p = [151,160,137,91,90,15,
   138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
   # To remove the need for index wrapping, double the permutation table length
 
-var perm: array[int, 0..511]
-var permMod12: array[int, 0..511]
+var perm: array[0..511, int]
+var permMod12: array[0..511, int]
 
 for i in 0..511:
   perm[i]=p[i mod p.len];
@@ -57,8 +57,6 @@ const F2 = 0.5*(sqrt(3.0)-1.0);
 const G2 = (3.0-sqrt(3.0))/6.0;
 const F3 = 1.0/3.0;
 const G3 = 1.0/6.0;
-const F4 = (sqrt(5.0)-1.0)/4.0;
-const G4 = (5.0-sqrt(5.0))/20.0;
 
 proc dot(g: Grad, x, y: float): float =
     return g.x*x + g.y*y
@@ -79,10 +77,10 @@ proc noise* (xin, yin: float): float =
       i = fastfloor(xin+s)
       j = fastfloor(yin+s)
       t = float(i+j)*G2
-      X0 = float(i)-t # Unskew the cell origin back to (x,y) space
-      Y0 = float(j)-t
-      x0 = xin-X0 # The x,y distances from the cell origin
-      y0 = yin-Y0
+      X0a = float(i)-t # Unskew the cell origin back to (x,y) space
+      Y0a = float(j)-t
+      x0 = xin-X0a # The x,y distances from the cell origin
+      y0 = yin-Y0a
     # For the 2D case, the simplex shape is an equilateral triangle.
     # Determine which simplex we are in.
     var i1, j1: int # Offsets for second (middle) corner of simplex in (i,j) coords
@@ -135,12 +133,12 @@ proc noise* (xin, yin, zin: float): float =
       j = fastfloor(yin+s)
       k = fastfloor(zin+s)
       t = float(i+j+k)*G3
-      X0 = float(i)-t # Unskew the cell origin back to (x,y,z) space
-      Y0 = float(j)-t
-      Z0 = float(k)-t
-      x0 = xin-X0 # The x,y,z distances from the cell origin
-      y0 = yin-Y0
-      z0 = zin-Z0
+      X0a = float(i)-t # Unskew the cell origin back to (x,y,z) space
+      Y0a = float(j)-t
+      Z0a = float(k)-t
+      x0 = xin-X0a # The x,y,z distances from the cell origin
+      y0 = yin-Y0a
+      z0 = zin-Z0a
     # For the 3D case, the simplex shape is a slightly irregular tetrahedron.
     # Determine which simplex we are in.
     var
@@ -209,3 +207,21 @@ proc noise* (xin, yin, zin: float): float =
   #1D slice of 2D simplex noise
 proc noise* (xin: float): float =
   noise(xin, 0.0)
+
+proc fractalNoise* (xin: float, octaves: int): float =
+  var scale = 1.0
+  for i in 1..octaves:
+    result += noise(xin / scale) * scale
+    scale /= 2
+
+proc fractalNoise* (xin: float, yin: float, octaves: int): float =
+  var scale = 1.0
+  for i in 1..octaves:
+    result += noise(xin / scale, yin / scale) * scale
+    scale /= 2
+
+proc fractalNoise* (xin: float, yin: float, zin: float, octaves: int): float =
+  var scale = 1.0
+  for i in 1..octaves:
+    result += noise(xin / scale, yin / scale, zin / scale) * scale
+    scale /= 2
