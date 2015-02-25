@@ -73,11 +73,12 @@ proc update* (dt: float) =
   position.y += fractalNoise(1000 + t / noiseFrequency, noiseOctaves) * posShake
 
   #update rotation
-  makeAnglesNear(target.rotation, smoothTargetRotation)
+  let targetRotation = angleFromMatrix(target.rotation)
+  makeAnglesNear(targetRotation, smoothTargetRotation)
 
-  if abs(target.rotation - smoothTargetRotation) < rotationSpeed * dt:
-    smoothTargetRotation = target.rotation
-  elif target.rotation > rotation:
+  if abs(targetRotation - smoothTargetRotation) < rotationSpeed * dt:
+    smoothTargetRotation = targetRotation
+  elif targetRotation > rotation:
     smoothTargetRotation += rotationSpeed * dt
   else:
     smoothTargetRotation -= rotationSpeed * dt

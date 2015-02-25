@@ -12,9 +12,13 @@ type
     drawable*: bool
     shapes*: seq[Shape]
     position*: Vector2
-    rotation*: float
+    rotation*: Matrix2x2
     velocity*: Vector2
     minPolarY*: float
+    test:bool
+
+proc transform(self: Entity): Transform =
+  Transform(position: self.position, rotation: self.rotation)
 
 method updateBehaviour*(self: Entity, dt: float) =
   discard
@@ -22,16 +26,20 @@ method updateBehaviour*(self: Entity, dt: float) =
 var
   entities* : seq[Entity] = @[]
 
-proc entitiesOfType[T](): seq[T] =
+proc entitiesOfType* [T](): seq[T] =
   result = @[]
   for entity in entities:
     if entity is T:
       result.add(entity)
 
-proc entityOfType[T](): T =
+proc entityOfType* [T](): T =
   for entity in entities:
     if entity is T:
       return entity
+
+proc updateShapeTransforms(self: Entity) =
+  for i in 0..self.shapes.len-1:
+    self.shapes[i].setTransform(self.transform)
 
 proc updatePhysics (self: Entity, dt: float) =
   case self.movement:
@@ -48,17 +56,24 @@ proc updatePhysics (self: Entity, dt: float) =
         length = self.minPolary
         self.velocity.y = 0
       let deltaAngle = self.velocity.x * dt / length
-      let newAngle = angleFromDirection(dirFromCenter) + deltaAngle
-      let newDir = directionFromAngle(newAngle)
-      self.rotation = newAngle
-      self.position = newDir * length
+      self.rotation = matrixFromDirection(dirFromCenter) * matrixFromAngle(deltaAngle)
+      self.position = directionFromMatrix(self.rotation) * length
 
     of Movement.none:
       discard
 
+  if self.collidable and not (self.movement == Movement.none):
+    self.updateShapeTransforms()
+
+proc init*(self: Entity) =
+  self.rotation = identity()
+  self.updateShapeTransforms()
+
 proc update*(self: Entity, dt: float) =
-    self.updateBehaviour(dt)
-    self.updatePhysics(dt)
+  self.updateBehaviour(dt)
+  self.updatePhysics(dt)
+  if (not self.collidable) and not (self.movement == Movement.none):
+    self.updateShapeTransforms()
 
 proc getVelocity*(self:Entity): Vector2 =
   if self.movement == Movement.polar:
@@ -68,12 +83,10 @@ proc getVelocity*(self:Entity): Vector2 =
   else:
     result = self.velocity
 
-proc render*(self: Entity) =
-  if self.drawable:
-    glPushMatrix()
-    glTranslated(self.position.x, self.position.y, 0)
-    if self.rotation != 0:
-      glRotated(radToDeg(self.rotation), 0, 0, -1)
-    for shape in self.shapes:
-      shape.render()
-    glPopMatrix()
+proc renderLine*(self: Entity) =
+  for shape in self.shapes:
+      shape.renderLine()
+
+proc renderSolid*(self: Entity) =
+  for shape in self.shapes:
+      shape.renderSolid()

@@ -14,12 +14,12 @@ proc generateShip* (position: Vector2): Ship =
                 movement: Movement.polar,
                 drawable: true,
                 position: position,
-                minPolarY: 5)
+                minPolarY: 10)
 
   let shape = createIsoTriangle(width = 0.61803398875, height = 1.0, drawStyle = DrawStyle.filledOutline,
-                                lineColor = col(0, 1, 0), fillColor = col(0, 0.5, 0))
+                                lineColor = col(0, 1, 0), fillColor = col(0, 0.375, 0))
   result.shapes = @[shape]
-
+  result.init()
 
 method updateBehaviour*(self: Ship, dt: float) =
   self.velocity = input.moveDir() * moveSpeed
