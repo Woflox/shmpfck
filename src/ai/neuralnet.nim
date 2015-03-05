@@ -14,11 +14,12 @@ type
 proc newNeuralNet* (inputs: int, outputs: int,
                   hiddenLayers: int, hiddenLayerSize: int): NeuralNet =
   #initialize sequence
-  result = NeuralNet(layers: @[])
-  result.layers.add(newSeq[Neuron](inputs))
+  result = NeuralNet()
+  result.layers = newSeq[seq[Neuron]](hiddenLayers + 2)
+  result.layers[0] = (newSeq[Neuron](inputs))
   for i in 1..hiddenLayers:
-    result.layers.add(newSeq[Neuron](hiddenLayerSize))
-  result.layers.add(newSeq[Neuron](outputs))
+    result.layers[i] = (newSeq[Neuron](hiddenLayerSize))
+  result.layers[hiddenLayers + 1] = (newSeq[Neuron](outputs))
 
   for i in 0..high(result.layers):
     for j in 0..high(result.layers[i]):
@@ -36,7 +37,7 @@ proc randomize* (self: NeuralNet) =
       for synapse in neuron.synapses:
         synapse.weight = random(-1.0, 1.0)
 
-proc sigmoid(t: float): float =
+proc activation(t: float): float =
   2 / (1 + exp(-t)) - 1
 
 proc simulate* (self: NeuralNet, inputs: varargs[float]) =
@@ -52,7 +53,7 @@ proc simulate* (self: NeuralNet, inputs: varargs[float]) =
       for synapse in neuron.synapses:
         synapse.child.value += neuron.value * synapse.weight
     for neuron in self.layers[i+1]:
-      neuron.value = sigmoid(neuron.value)
+      neuron.value = activation(neuron.value)
 
 proc output* (self: NeuralNet, index): float =
   self.layers[self.layers.len-1][index].value

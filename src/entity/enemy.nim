@@ -45,8 +45,8 @@ proc generateTestEnemy* (position: Vector2): Enemy =
   let shape = createIsoTriangle(width = 0.61803398875, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = col(1, 0, 1), fillColor = col(0.375, 0, 0.375))
   info.shapes = @[shape]
-  info.brain = newNeuralNet(inputs = 6, outputs = 2,
-                            hiddenLayers = 2, hiddenLayerSize = 5)
+  info.brain = newNeuralNet(inputs = 7, outputs = 2,
+                            hiddenLayers = 10, hiddenLayerSize = 8)
   info.brain.randomize()
   result = generateEnemy(info, position)
 
@@ -59,8 +59,8 @@ method updateBehaviour*(self: Enemy, dt: float) =
   let noiseVal = fractalNoise(self.t / noiseFrequency, noiseOctaves)
   let noiseVal2 = fractalNoise((self.t + 100) / noiseFrequency, noiseOctaves)
 
-  self.brain.simulate(noiseVal, noiseVal2, dirToShip.x, dirToShip.y,
-                                shipMoveDir.x, shipMoveDir.y)
+  self.brain.simulate(1.0, noiseVal, noiseVal2, dirToShip.x,
+                      dirToShip.y, shipMoveDir.x, shipMoveDir.y)
 
   let moveDir = vec2(self.brain.output(0), self.brain.output(1)).normalize
 
