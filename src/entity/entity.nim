@@ -45,7 +45,7 @@ proc updateShapeTransforms(self: Entity) =
   for i in 0..self.shapes.len-1:
     self.shapes[i].setTransform(self.transform)
 
-proc updatePhysics (self: Entity, dt: float) =
+proc updatePhysics(self: Entity, dt: float) =
   case self.movement:
     of Movement.normal:
       self.position += self.velocity * dt
@@ -69,17 +69,17 @@ proc updatePhysics (self: Entity, dt: float) =
   if self.collidable and not (self.movement == Movement.none):
     self.updateShapeTransforms()
 
-proc init*(self: Entity) =
+proc init* (self: Entity) =
   self.rotation = identity()
   self.updateShapeTransforms()
 
-proc update*(self: Entity, dt: float) =
+proc update* (self: Entity, dt: float) =
   self.updateBehaviour(dt)
   self.updatePhysics(dt)
   if (not self.collidable) and not (self.movement == Movement.none):
     self.updateShapeTransforms()
 
-proc getVelocity*(self:Entity): Vector2 =
+proc getVelocity* (self:Entity): Vector2 =
   if self.movement == Movement.polar:
     let dirFromCenter = normalize(self.position)
     result = dirFromCenter * self.velocity.y +
@@ -87,10 +87,10 @@ proc getVelocity*(self:Entity): Vector2 =
   else:
     result = self.velocity
 
-proc renderLine*(self: Entity) =
+proc renderLine* (self: Entity) =
   for shape in self.shapes:
       shape.renderLine()
 
-proc renderSolid*(self: Entity) =
+proc renderSolid* (self: Entity) =
   for shape in self.shapes:
       shape.renderSolid()

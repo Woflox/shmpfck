@@ -2,6 +2,7 @@ import opengl
 import ../entity/entity
 import ../entity/ship
 import ../entity/enemy
+import ../entity/playership
 import ../util/util
 import ../util/random
 import ../render/shape
@@ -38,7 +39,7 @@ proc generate* () =
   for x in -25..25:
     for y in -25..25:
       entities.add(testShape(vec2(float(x*4),float(y*4))))
-  let ship = generateShip(vec2(0,10))
+  let ship = generatePlayerShip(vec2(0,10))
   camera.init(ship.position)
   camera.target = ship
 

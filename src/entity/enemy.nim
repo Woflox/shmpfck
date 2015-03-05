@@ -4,6 +4,7 @@ import ../util/noise
 import ../ai/neuralnet
 import entity
 import ship
+import playership
 import weapon
 
 type
@@ -12,18 +13,12 @@ type
     shapes*: seq[Shape]
     brain*: NeuralNet
     weapon*: Weapon
-  Enemy = ref object of Entity
+  Enemy = ref object of Ship
     info *: EnemyType
     t: float
 
 proc brain(self: Enemy): NeuralNet {.inline.} =
   self.info.brain
-
-proc weapon(self: Enemy): Weapon {.inline.} =
-  self.info.weapon
-
-proc moveSpeed(self: Enemy): float {.inline.} =
-  self.info.moveSpeed
 
 const
   noiseFrequency = 2
@@ -37,6 +32,8 @@ proc generateEnemy* (info: EnemyType, position: Vector2): Enemy =
                 minPolarY: 10,
                 info: info)
   result.shapes = info.shapes
+  result.moveSpeed = info.moveSpeed
+  result.weapons = @[info.weapon]
   result.init()
 
 proc generateTestEnemy* (position: Vector2): Enemy =
@@ -53,7 +50,7 @@ proc generateTestEnemy* (position: Vector2): Enemy =
 method updateBehaviour*(self: Enemy, dt: float) =
   self.t += dt
 
-  let ship = entityOfType[Ship]()
+  let ship = entityOfType[PlayerShip]()
   let dirToShip = (ship.position - self.position).normalize()
   let shipMoveDir = ship.velocity.normalize()
   let noiseVal = fractalNoise(self.t / noiseFrequency, noiseOctaves)
@@ -62,6 +59,6 @@ method updateBehaviour*(self: Enemy, dt: float) =
   self.brain.simulate(1.0, noiseVal, noiseVal2, dirToShip.x,
                       dirToShip.y, shipMoveDir.x, shipMoveDir.y)
 
-  let moveDir = vec2(self.brain.output(0), self.brain.output(1)).normalize
+  self.moveDir = vec2(self.brain.output(0), self.brain.output(1)).normalize
 
-  self.velocity = moveDir * self.moveSpeed
+  procCall Ship(self).updateBehaviour(dt)

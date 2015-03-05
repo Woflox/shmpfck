@@ -1,25 +1,22 @@
-import ../render/shape
 import ../util/util
+import weapon
 import opengl
 import entity
 from ../input/input import nil
 
 type
   Ship* = ref object of Entity
+    moveDir* : Vector2
+    moveSpeed* : float
+    weapons* : seq[Weapon]
+    currentWeapon* : Weapon
+    firePoint* : Vector2
 
-const moveSpeed = 20.0
+proc startFiring* (self: Ship, index: int) =
+  self.currentWeapon = self.weapons[index]
 
-proc generateShip* (position: Vector2): Ship =
-  result = Ship(collidable: true,
-                movement: Movement.polar,
-                drawable: true,
-                position: position,
-                minPolarY: 10)
+proc stopFiring* (self: Ship, index: int) =
+  discard
 
-  let shape = createIsoTriangle(width = 0.61803398875, height = 1.0, drawStyle = DrawStyle.filledOutline,
-                                lineColor = col(0, 1, 0), fillColor = col(0, 0.375, 0))
-  result.shapes = @[shape]
-  result.init()
-
-method updateBehaviour*(self: Ship, dt: float) =
-  self.velocity = input.moveDir() * moveSpeed
+method updateBehaviour* (self: Ship, dt: float) =
+  self.velocity = self.moveDir * self.moveSpeed
