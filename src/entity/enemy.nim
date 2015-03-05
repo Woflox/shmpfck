@@ -1,6 +1,7 @@
 import ../render/shape
 import ../util/util
 import ../util/noise
+import ../util/random
 import ../ai/neuralnet
 import entity
 import ship
@@ -29,11 +30,12 @@ proc generateEnemy* (info: EnemyType, position: Vector2): Enemy =
                 movement: Movement.polar,
                 drawable: true,
                 position: position,
-                minPolarY: 10,
+                minPolarY: 1,
                 info: info)
   result.shapes = info.shapes
   result.moveSpeed = info.moveSpeed
   result.weapons = @[info.weapon]
+  result.t = random(0.0, 1000.0)
   result.init()
 
 proc generateTestEnemy* (position: Vector2): Enemy =
