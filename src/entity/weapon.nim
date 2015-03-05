@@ -1,0 +1,2 @@
+type
+  Weapon* = ref object

@@ -1,7 +1,9 @@
 import opengl
 import ../entity/entity
 import ../entity/ship
+import ../entity/enemy
 import ../util/util
+import ../util/random
 import ../render/shape
 from ../entity/camera import nil
 
@@ -33,10 +35,15 @@ proc testShape (pos: Vector2): Entity =
 
 proc generate* () =
   entities = @[]
-  for x in -50..50:
-    for y in -50..50:
-      entities.add(testShape(vec2(float(x*2),float(y*2))))
+  for x in -25..25:
+    for y in -25..25:
+      entities.add(testShape(vec2(float(x*4),float(y*4))))
   let ship = generateShip(vec2(0,10))
   camera.init(ship.position)
   camera.target = ship
+
+  for i in 0..200:
+    let pos = vec2(random(-100.0, 100.0), random(-100.0, 100.0))
+    entities.add(generateTestEnemy(pos))
+
   entities.add(ship)

@@ -1,6 +1,5 @@
 import ../render/shape
 import ../util/util
-import opengl
 import math
 
 type
@@ -15,9 +14,11 @@ type
     rotation*: Matrix2x2
     velocity*: Vector2
     minPolarY*: float
+    boundingBox*: BoundingBox
     test:bool
 
-proc transform(self: Entity): Transform =
+
+proc transform(self: Entity): Transform {.inline.} =
   Transform(position: self.position, rotation: self.rotation)
 
 method updateBehaviour*(self: Entity, dt: float) =
@@ -29,15 +30,18 @@ var
 proc entitiesOfType* [T](): seq[T] =
   result = @[]
   for entity in entities:
-    if entity is T:
-      result.add(entity)
+    if entity of T:
+      result.add(T(entity))
 
 proc entityOfType* [T](): T =
   for entity in entities:
-    if entity is T:
-      return entity
+    if entity of T:
+      return T(entity)
 
 proc updateShapeTransforms(self: Entity) =
+  if self.collidable:
+    self.boundingBox.minPos = vec2(100000, 100000)
+    self.boundingBox.maxPos = vec2(-100000, -100000)
   for i in 0..self.shapes.len-1:
     self.shapes[i].setTransform(self.transform)
 

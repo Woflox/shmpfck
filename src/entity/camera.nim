@@ -30,7 +30,7 @@ const
   noiseFrequency = 2
   noiseOctaves = 3
   speedShakeBoost = 0.375
-  rotationSpeedShakeBoost = 4
+  rotationSpeedShakeBoost = 8
 
 proc init* (pos: Vector2) =
   position = pos

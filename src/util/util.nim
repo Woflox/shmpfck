@@ -9,6 +9,8 @@ type
   Transform* = object
     position*: Vector2
     rotation*: Matrix2x2
+  BoundingBox* = object
+    minPos*, maxPos*: Vector2
 
 proc `+`*(a, b: Vector2): Vector2 =
   result.x = a.x + b.x

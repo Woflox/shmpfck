@@ -4,7 +4,6 @@ import ../util/util
 type
   DrawStyle* {.pure.} = enum
     line, outline, filledOutline, solid
-  Vertex* = object
   Shape* = object
     vertices : seq[Vector2]
     transformedVertices : seq[Vector2]
