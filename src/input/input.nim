@@ -29,10 +29,10 @@ var
                Control(action: right, key: K_RIGHT, button: SDL_CONTROLLER_BUTTON_DPAD_RIGHT),
                Control(action: up,    key: K_UP,    button: SDL_CONTROLLER_BUTTON_DPAD_UP),
                Control(action: down,  key: K_DOWN,  button: SDL_CONTROLLER_BUTTON_DPAD_DOWN),
-               Control(action: fire1, key: K_Z,     button: SDL_CONTROLLER_BUTTON_X),
-               Control(action: fire2, key: K_C,     button: SDL_CONTROLLER_BUTTON_B),
-               Control(action: fire3, key: K_S,     button: SDL_CONTROLLER_BUTTON_Y),
-               Control(action: fire4, key: K_X,     button: SDL_CONTROLLER_BUTTON_A)]
+               Control(action: fire1, key: K_S,     button: SDL_CONTROLLER_BUTTON_A),
+               Control(action: fire2, key: K_D,     button: SDL_CONTROLLER_BUTTON_B),
+               Control(action: fire3, key: K_A,     button: SDL_CONTROLLER_BUTTON_X),
+               Control(action: fire4, key: K_W,     button: SDL_CONTROLLER_BUTTON_Y)]
 
   events = initQueue[Event]()
 

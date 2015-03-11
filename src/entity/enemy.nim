@@ -53,7 +53,7 @@ method updateBehaviour*(self: Enemy, dt: float) =
   self.t += dt
 
   let ship = entityOfType[PlayerShip]()
-  let dirToShip = (ship.position - self.position).normalize()
+  let dirToShip = self.rotation.transpose * (ship.position - self.position).normalize()
   let shipMoveDir = ship.velocity.normalize()
   let noiseVal = fractalNoise(self.t / noiseFrequency, noiseOctaves)
   let noiseVal2 = fractalNoise((self.t + 100) / noiseFrequency, noiseOctaves)

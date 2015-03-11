@@ -12,10 +12,10 @@ type
     currentWeapon* : Weapon
     firePoint* : Vector2
 
-proc startFiring* (self: Ship, index: int) =
+proc startWeaponAction* (self: Ship, index: int) =
   self.currentWeapon = self.weapons[index]
 
-proc stopFiring* (self: Ship, index: int) =
+proc stopWeaponAction* (self: Ship, index: int) =
   discard
 
 method updateBehaviour* (self: Ship, dt: float) =

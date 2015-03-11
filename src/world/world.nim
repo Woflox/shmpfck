@@ -44,7 +44,7 @@ proc generate* () =
   camera.target = ship
 
   for i in 0..200:
-    let pos = vec2(random(-100.0, 100.0), random(-100.0, 100.0))
+    let pos = randomDirection() * 100
     entities.add(generateTestEnemy(pos))
 
   entities.add(ship)

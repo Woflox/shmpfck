@@ -77,13 +77,13 @@ proc lerp* (a, b: auto, ratio: float): auto =
 proc lerp* (a, b: auto, ratio, dt: float): auto =
   a*(pow(ratio, dt)) + b*(1-pow(ratio, dt))
 
-proc angleFromDirection*(dir: Vector2): float =
+proc angleFromDirection* (dir: Vector2): float =
   arctan2(dir.x, dir.y)
 
-proc directionFromAngle*(a: float): Vector2 =
+proc directionFromAngle* (a: float): Vector2 =
   vec2(sin(a), cos(a))
 
-proc matrixFromDirection*(dir: Vector2): Matrix2x2 =
+proc matrixFromDirection* (dir: Vector2): Matrix2x2 =
   [[ dir.y, dir.x],
    [-dir.x, dir.y]]
 
@@ -94,10 +94,15 @@ proc matrixFromDirection*(dir: Vector2): Matrix2x2 =
 #  result = [[ cosA, sinA],
 #            [-sinA, cosA]]
 
-proc matrixFromAngle*(a: float): Matrix2x2 =
+proc matrixFromAngle* (a: float): Matrix2x2 =
   matrixFromDirection(directionFromAngle(a))
 
-proc identity*: Matrix2x2 =
+proc transpose* (a: Matrix2x2): Matrix2x2 =
+  for x in 0..1:
+    for y in 0..1:
+      result[x][y] = a[y][x]
+
+proc identity* : Matrix2x2 =
   [[1.0, 0.0],
    [0.0, 1.0]]
 

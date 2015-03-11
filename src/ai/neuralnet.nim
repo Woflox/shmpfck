@@ -37,7 +37,7 @@ proc randomize* (self: NeuralNet) =
       for synapse in neuron.synapses:
         synapse.weight = random(-1.0, 1.0)
 
-proc activation(t: float): float =
+proc activate(t: float): float =
   2 / (1 + exp(-t)) - 1
 
 proc simulate* (self: NeuralNet, inputs: varargs[float]) =
@@ -53,7 +53,7 @@ proc simulate* (self: NeuralNet, inputs: varargs[float]) =
       for synapse in neuron.synapses:
         synapse.child.value += neuron.value * synapse.weight
     for neuron in self.layers[i+1]:
-      neuron.value = activation(neuron.value)
+      neuron.value = activate(neuron.value)
 
 proc output* (self: NeuralNet, index): float =
   self.layers[self.layers.len-1][index].value
