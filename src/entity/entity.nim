@@ -5,6 +5,8 @@ import math
 type
   Movement* {.pure.} = enum
     none, normal, polar
+  CollisionTag* {.pure.} = enum
+    none, playerWeapon, enemyWeapon, player, enemy
   Entity* = ref object of RootObj
     collidable*: bool
     movement*: Movement
@@ -16,6 +18,7 @@ type
     minPolarY*: float
     boundingBox*: BoundingBox
     test:bool
+    collisionTag*: CollisionTag
 
 
 proc transform(self: Entity): Transform {.inline.} =
