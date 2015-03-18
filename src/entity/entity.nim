@@ -8,7 +8,6 @@ type
   CollisionTag* {.pure.} = enum
     none, playerWeapon, enemyWeapon, player, enemy
   Entity* = ref object of RootObj
-    collidable*: bool
     movement*: Movement
     drawable*: bool
     shapes*: seq[Shape]
@@ -30,6 +29,9 @@ method updateBehaviour*(self: Entity, dt: float) =
 var
   entities* : seq[Entity] = @[]
 
+proc collidable(self: Entity): bool =
+  self.collisionTag != CollisionTag.none
+
 proc entitiesOfType* [T](): seq[T] =
   result = @[]
   for entity in entities:
@@ -43,10 +45,13 @@ proc entityOfType* [T](): T =
 
 proc updateShapeTransforms(self: Entity) =
   if self.collidable:
-    self.boundingBox.minPos = vec2(100000, 100000)
-    self.boundingBox.maxPos = vec2(-100000, -100000)
+    self.boundingBox = minimalBoundingBox()
   for i in 0..self.shapes.len-1:
     self.shapes[i].setTransform(self.transform)
+    if self.collidable:
+      self.boundingBox.expandTo(self.shapes[i].boundingBox)
+
+
 
 proc updatePhysics(self: Entity, dt: float) =
   case self.movement:
@@ -71,6 +76,32 @@ proc updatePhysics(self: Entity, dt: float) =
 
   if self.collidable and not (self.movement == Movement.none):
     self.updateShapeTransforms()
+
+proc collides(tag1: CollisionTag, tag2: CollisionTag): bool =
+  case tag1:
+    of CollisionTag.playerWeapon:
+      return tag2 == CollisionTag.enemy
+    of CollisionTag.enemyWeapon:
+      return tag2 == CollisionTag.player
+    of CollisionTag.player:
+      return tag2 == CollisionTag.enemy or tag2 == CollisionTag.enemyWeapon
+    of CollisionTag.enemy:
+      return tag2 == CollisionTag.playerWeapon or tag2 == CollisionTag.player
+    else:
+      return false
+
+method onCollision* (self: Entity, other: Entity) =
+  discard
+
+proc checkForCollisions* (self: Entity, index: int, dt: float) =
+  if not self.collidable:
+    return
+  for i in index+1..high(entities):
+    if entities[i].collidable and self.collisionTag.collides(entities[i].collisionTag):
+      if self.boundingBox.overlaps(entities[i].boundingBox):
+       #TODO: detailed shape collision
+        self.onCollision(entities[i])
+        entities[i].onCollision(self)
 
 proc init* (self: Entity) =
   self.rotation = identity()

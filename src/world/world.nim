@@ -20,6 +20,17 @@ proc testShape (pos: Vector2): Entity =
   result.shapes = @[shape]
   result.init()
 
+var intros = ["Try harder",
+              "Welcome back. I missed you.",
+              "Did you have a good run?",
+              "How are you today?",
+              "Maybe you should just give up.",
+              "Just go for a short walk",
+              "A challenger approaches",
+              "How many days have we been trapped here?",
+              "Game over.",
+              "Hello"]
+
 proc generate* () =
   entities = @[]
   for x in -25..25:
@@ -29,9 +40,12 @@ proc generate* () =
   camera.init(ship.position)
   camera.target = ship
 
-  for i in 0..200:
-    let pos = randomDirection() * 100
-    entities.add(generateTestEnemy(pos))
+  for i in 0..20:
+    let speciesPos = randomDirection() * 100
+    var species = generateTestSpecies()
+    for j in 0..10:
+      let pos = speciesPos + randomDirection() * random(0.0, 10.0)
+      entities.add(generateEnemy(species, pos))
 
   entities.add(ship)
 
@@ -47,10 +61,19 @@ proc update* (dt: float) =
     inc i
   i = 0
   while i <= high(entities):
+    entities[i].checkForCollisions(i, dt)
+    inc i
+  i = 0
+  while i <= high(entities):
     if entities[i].destroyed:
       entities.del(i)
     else:
       inc i
+
+  if entityOfType[PlayerShip]() == nil:
+    generate()
+    playSound(newVoiceNode(intros.randomChoice()), 0.0, 0.0)
+
   camera.update(dt)
 
 proc render* () =

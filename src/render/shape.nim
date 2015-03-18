@@ -6,17 +6,20 @@ type
     line, outline, filledOutline, solid
   Shape* = object
     vertices : seq[Vector2]
-    transformedVertices : seq[Vector2]
+    transformedVertices* : seq[Vector2]
     drawStyle: DrawStyle
     lineColor* : Color
     fillColor* : Color
     visible* :bool
     position* :Vector2
     rotation* :Matrix2x2
+    boundingBox*: BoundingBox
 
 proc setTransform* (self: var Shape, transform: Transform) =
+  self.boundingBox = minimalBoundingBox()
   for i in 0..self.vertices.len - 1:
     self.transformedVertices[i] = transform.apply(self.vertices[i])
+    self.boundingBox.expandTo(self.transformedVertices[i])
 
 proc glVertex2d(v:Vector2) =
   glVertex2d(v.x, v.y)

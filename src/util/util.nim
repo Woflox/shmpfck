@@ -129,3 +129,22 @@ proc makeAnglesNear* (a: float, b: var float) =
     b -= Pi * 2
   while b < a - Pi:
     b += Pi * 2
+
+proc minimalBoundingBox*(): BoundingBox =
+  BoundingBox(minPos: vec2(100000, 100000), maxPos: vec2(-100000, -100000))
+
+proc expandTo* (self: var BoundingBox, point: Vector2) =
+  self.minPos.x = min(self.minPos.x, point.x)
+  self.minPos.y = min(self.minPos.y, point.y)
+  self.maxPos.x = max(self.maxPos.x, point.x)
+  self.maxPos.y = max(self.maxPos.y, point.y)
+
+proc expandTo* (self: var BoundingBox, box: BoundingBox) =
+  self.minPos.x = min(self.minPos.x, box.minPos.x)
+  self.minPos.y = min(self.minPos.y, box.minPos.y)
+  self.maxPos.x = max(self.maxPos.x, box.maxPos.x)
+  self.maxPos.y = max(self.maxPos.y, box.maxPos.y)
+
+proc overlaps* (a: BoundingBox, b: BoundingBox): bool =
+  a.minPos.x < b.maxPos.x and a.maxPos.x > b.minPos.x and
+    a.minPos.y < b.maxPos.y and a.maxPos.y > b.minPos.y

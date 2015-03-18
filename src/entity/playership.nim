@@ -13,12 +13,12 @@ type
     wantsToShoot: bool
 
 proc generatePlayerShip* (position: Vector2): PlayerShip =
-  result = PlayerShip(collidable: true,
-                movement: Movement.polar,
+  result = PlayerShip(movement: Movement.polar,
                 drawable: true,
                 position: position,
                 minPolarY: 10,
-                moveSpeed: 20)
+                moveSpeed: 20,
+                collisionTag: CollisionTag.player)
 
   let shape = createIsoTriangle(width = 0.61803398875, height = 1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = col(0, 1, 0), fillColor = col(0, 0.375, 0))
@@ -32,8 +32,8 @@ method updateBehaviour* (self: PlayerShip, dt: float) =
 
 
   self.wantsToShoot = input.buttonDown(input.fire1)
-  if self.wantsToShoot and self.timeSinceShoot > 0.25:
-    entities.add(newProjectile(self.position + self.rotation*vec2(0,1)))
+  if self.wantsToShoot and self.timeSinceShoot > 0.2:
+    entities.add(newProjectile(self.position + self.rotation*vec2(0,1), self.getVelocity()))
     playSound(newShotNode(), -6, 0.0)
     self.timeSinceshoot = 0
 

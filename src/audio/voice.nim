@@ -19,7 +19,6 @@ proc newVoiceNode*(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
   result[] = VoiceNodeObj()
   result.wave = fliteTextToWave(text, voice)
-  echo "NEWVOICENODE"
   if result.wave != nil:
     echo "Sample rate: ", result.wave.sampleRate
     echo "Num channels: ", result.wave.numChannels
