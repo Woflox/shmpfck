@@ -1,6 +1,7 @@
 import sdl2
 import opengl
 import util/util
+from audio/audio import nil
 from input/input import nil
 from world/world import nil
 
@@ -49,6 +50,7 @@ proc render() =
   window.glSwapWindow()
 
 input.init()
+audio.init()
 world.generate()
 
 while runGame:
