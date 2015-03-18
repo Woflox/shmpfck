@@ -55,5 +55,9 @@ proc simulate* (self: NeuralNet, inputs: varargs[float]) =
     for neuron in self.layers[i+1]:
       neuron.value = activate(neuron.value)
 
-proc output* (self: NeuralNet, index): float =
+proc getOutput* (self: NeuralNet, index): float =
   self.layers[self.layers.len-1][index].value
+
+iterator outputs* (self: NeuralNet): float =
+  for neuron in self.layers[high(self.layers)]:
+    yield neuron.value
