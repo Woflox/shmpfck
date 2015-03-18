@@ -22,10 +22,13 @@ type
     speed: float
     spawnEffect: WeaponEffect
 
-  projectile = ref object of Entity
-  blast = ref object of Entity
-  obstruction = ref object of Entity
+  Projectile = ref object of Entity
+  Blast = ref object of Entity
+  Obstruction = ref object of Entity
 
   Weapon* = ref object
     fireType* : FireType
     effect* : WeaponEffect
+
+proc newProjectile(pos: Vector2): Projectile =
+  Projectile(position: pos)

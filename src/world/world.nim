@@ -52,4 +52,4 @@ proc generate* () =
 
   entities.add(ship)
   playSound(newAmbientNode(), -3.0, 0.0)
-  #playSound(newVoiceNode("Welcome to SHMPFCK"), 0.0, 0.0)
+  playSound(newVoiceNode("You awake to a brand new color"), 0.0, 0.0)
