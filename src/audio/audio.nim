@@ -74,7 +74,7 @@ method updateOutputs*(self: MixerNode, dt: float) =
     self.output[0] += input.node.output[0] * input.volume * sqrt((-input.pan + 1) / 2)
     self.output[1] += input.node.output[1] * input.volume * sqrt((input.pan + 1) / 2)
 
-proc stop(self: AudioNode) =
+proc stop*(self: AudioNode) =
   self.stopped = true
 
 proc setUnvisited(self: AudioNode) =

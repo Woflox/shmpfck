@@ -9,25 +9,9 @@ import ../render/shape
 import ../audio/audio
 import ../audio/ambient
 import ../audio/voice
+from ../input/input import nil
 from ../entity/camera import nil
 
-proc update* (dt: float) =
-  for entity in entities:
-    entity.update(dt)
-  camera.update(dt)
-
-proc render* () =
-  camera.applyTransform()
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-  glBegin(GL_TRIANGLES)
-  for entity in entities:
-    entity.renderSolid()
-  glEnd()
-  glBegin(GL_LINES)
-  for entity in entities:
-    entity.renderLine()
-  glEnd()
 
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
@@ -35,7 +19,6 @@ proc testShape (pos: Vector2): Entity =
                                  fillColor = col(0.25, 0.25, 0.25))
   result.shapes = @[shape]
   result.init()
-
 
 proc generate* () =
   entities = @[]
@@ -51,5 +34,34 @@ proc generate* () =
     entities.add(generateTestEnemy(pos))
 
   entities.add(ship)
-  playSound(newAmbientNode(), -3.0, 0.0)
-  playSound(newVoiceNode("You awake to a brand new color"), 0.0, 0.0)
+
+
+playSound(newAmbientNode(), -3.0, 0.0)
+
+proc update* (dt: float) =
+  if (input.buttonPressed(input.restart)):
+    generate()
+  var i = 0
+  while i <= high(entities):
+    entities[i].update(dt)
+    inc i
+  i = 0
+  while i <= high(entities):
+    if entities[i].destroyed:
+      entities.del(i)
+    else:
+      inc i
+  camera.update(dt)
+
+proc render* () =
+  camera.applyTransform()
+  glEnable (GL_BLEND);
+  glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+  glBegin(GL_TRIANGLES)
+  for entity in entities:
+    entity.renderSolid()
+  glEnd()
+  glBegin(GL_LINES)
+  for entity in entities:
+    entity.renderLine()
+  glEnd()

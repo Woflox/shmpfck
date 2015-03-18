@@ -11,7 +11,7 @@ var
 
 type
   Action* = enum
-    left, right, up, down, fire1, fire2, fire3, fire4
+    left, right, up, down, fire1, fire2, fire3, fire4, restart
 
   Control = ref object
     key: cint
@@ -32,7 +32,8 @@ var
                Control(action: fire1, key: K_S,     button: SDL_CONTROLLER_BUTTON_A),
                Control(action: fire2, key: K_D,     button: SDL_CONTROLLER_BUTTON_B),
                Control(action: fire3, key: K_A,     button: SDL_CONTROLLER_BUTTON_X),
-               Control(action: fire4, key: K_W,     button: SDL_CONTROLLER_BUTTON_Y)]
+               Control(action: fire4, key: K_W,     button: SDL_CONTROLLER_BUTTON_Y),
+               Control(action: restart, key: K_RETURN, button: SDL_CONTROLLER_BUTTON_START)]
 
   events = initQueue[Event]()
 

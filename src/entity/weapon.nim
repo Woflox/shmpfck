@@ -1,5 +1,6 @@
 import ../util/util
 import entity
+import ../render/shape
 
 type
   FireType{.pure.} = enum
@@ -30,5 +31,19 @@ type
     fireType* : FireType
     effect* : WeaponEffect
 
-proc newProjectile(pos: Vector2): Projectile =
-  Projectile(position: pos)
+const
+  speed = 60.0
+
+proc newProjectile*(position: Vector2): Projectile =
+  result = Projectile(collidable: true,
+                      movement: Movement.polar,
+                      drawable: true,
+                      position: position,
+                      minPolarY: 10)
+  let shape = createIsoTriangle(width = 0, height = speed / 60, drawStyle = DrawStyle.line,
+                                lineColor = col(1, 1, 0.5))
+  result.shapes = @[shape]
+  result.init()
+
+method updateBehaviour(self: Projectile, dt: float) =
+  self.velocity = vec2(0, speed)

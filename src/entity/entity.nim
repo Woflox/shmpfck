@@ -15,7 +15,7 @@ type
     velocity*: Vector2
     minPolarY*: float
     boundingBox*: BoundingBox
-    test:bool
+    destroyed*: bool
 
 
 proc transform(self: Entity): Transform {.inline.} =
