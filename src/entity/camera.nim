@@ -27,7 +27,7 @@ const
   rotationSmoothing = 0.25
   positionShake = 0.2
   rotationShake = 0.005
-  noiseFrequency = 2
+  noiseFrequency = 0.5
   noiseOctaves = 3
   speedShakeBoost = 0.375
   rotationSpeedShakeBoost = 8
@@ -69,8 +69,8 @@ proc update* (dt: float) =
   let speed = ((smoothPos - lastSmoothPos) / dt).length
   let posShake = positionShake * (1 + speedShakeBoost * speed)
 
-  position.x += fractalNoise(t / noiseFrequency, noiseOctaves) * positionShake
-  position.y += fractalNoise(1000 + t / noiseFrequency, noiseOctaves) * posShake
+  position.x += fractalNoise(t * noiseFrequency, noiseOctaves) * positionShake
+  position.y += fractalNoise(1000 + t * noiseFrequency, noiseOctaves) * posShake
 
   #update rotation
   let targetRotation = angleFromMatrix(target.rotation)
@@ -92,7 +92,7 @@ proc update* (dt: float) =
   let rotationSpeed = abs((smoothRotation - lastSmoothRotation) / dt)
   let rotShake = rotationShake * (1 + rotationSpeedShakeBoost * rotationSpeed)
 
-  rotation += fractalNoise(t / noiseFrequency, noiseOctaves) * rotShake
+  rotation += fractalNoise(t * noiseFrequency, noiseOctaves) * rotShake
 
   if target != nil:
     lastTargetPos = target.position

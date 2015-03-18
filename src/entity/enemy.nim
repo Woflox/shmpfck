@@ -22,7 +22,7 @@ proc brain(self: Enemy): NeuralNet {.inline.} =
   self.species.brain
 
 const
-  noiseFrequency = 2
+  noiseFrequency = 0.5
   noiseOctaves = 3
 
 proc generateEnemy* (species: Species, position: Vector2): Enemy =
@@ -55,8 +55,8 @@ method updateBehaviour*(self: Enemy, dt: float) =
   let ship = entityOfType[PlayerShip]()
   let dirToShip = self.rotation.transpose * (ship.position - self.position).normalize()
   let shipMoveDir = ship.velocity.normalize()
-  let noiseVal = fractalNoise(self.t / noiseFrequency, noiseOctaves)
-  let noiseVal2 = fractalNoise((self.t + 100) / noiseFrequency, noiseOctaves)
+  let noiseVal = fractalNoise(self.t * noiseFrequency, noiseOctaves)
+  let noiseVal2 = fractalNoise((self.t + 100) * noiseFrequency, noiseOctaves)
 
   self.brain.simulate(1.0, noiseVal, noiseVal2, dirToShip.x,
                       dirToShip.y, shipMoveDir.x, shipMoveDir.y)

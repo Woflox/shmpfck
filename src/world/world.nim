@@ -6,6 +6,9 @@ import ../entity/playership
 import ../util/util
 import ../util/random
 import ../render/shape
+import ../audio/audio
+import ../audio/ambient
+import ../audio/voice
 from ../entity/camera import nil
 
 proc update* (dt: float) =
@@ -48,3 +51,5 @@ proc generate* () =
     entities.add(generateTestEnemy(pos))
 
   entities.add(ship)
+  playSound(newAmbientNode(), -3.0, 0.0)
+  #playSound(newVoiceNode("Welcome to SHMPFCK"), 0.0, 0.0)

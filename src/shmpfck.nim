@@ -50,7 +50,7 @@ proc render() =
   window.glSwapWindow()
 
 input.init()
-audio.init()
+audio.initAudio()
 world.generate()
 
 while runGame:
