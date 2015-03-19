@@ -44,6 +44,15 @@ proc dot*(a, b: Vector2): float =
 proc length*(a: Vector2): float =
   sqrt(a.x*a.x + a.y*a.y)
 
+proc lengthSquared*(a: Vector2): float =
+  a.x*a.x + a.y*a.y
+
+proc distance*(a:Vector2, b:Vector2): float =
+  length(a-b)
+
+proc distanceSquared*(a: Vector2, b:Vector2): float =
+  lengthSquared(a-b)
+
 proc normalize*(a: Vector2): Vector2 =
   let length = a.length
   if (length != 0):

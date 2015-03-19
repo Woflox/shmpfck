@@ -9,6 +9,7 @@ import entity
 import ship
 import playership
 import weapon
+import math
 
 type
   Species* = ref object
@@ -26,6 +27,8 @@ proc brain(self: Enemy): NeuralNet {.inline.} =
 const
   noiseFrequency = 0.5
   noiseOctaves = 3
+  waveFrequency = 1.0
+  closeRange = pow(5, 2)
 
 method onCollision(self: Enemy, other: PlayerShip) =
   playSound(newExplosionNode(), 0.0, 0.0)
@@ -58,22 +61,42 @@ proc generateTestSpecies* (): Species =
   let shape = createIsoTriangle(width = 0.61803398875, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
-  species.brain = newNeuralNet(inputs = 7, outputs = 2,
-                            hiddenLayers = 10, hiddenLayerSize = 8)
+  species.brain = newNeuralNet(inputs = 16, outputs = 2,
+                            hiddenLayers = 2, hiddenLayerSize = 10)
   species.brain.randomize()
   result = species
 
 method updateBehaviour*(self: Enemy, dt: float) =
   self.t += dt
 
+  let inverseRotation = self.rotation.transpose
+
   let ship = entityOfType[PlayerShip]()
-  let dirToShip = self.rotation.transpose * (ship.position - self.position).normalize()
-  let shipMoveDir = ship.velocity.normalize()
+  let dirToShip = inverseRotation * (ship.position - self.position).normalize()
+  let shipMoveDir = inverseRotation * ship.getVelocity().normalize()
+  let waveVal = sin((self.t / (2 * Pi)) * waveFrequency)
   let noiseVal = fractalNoise(self.t * noiseFrequency, noiseOctaves)
   let noiseVal2 = fractalNoise((self.t + 100) * noiseFrequency, noiseOctaves)
+  let closeShipDir = if self.position.distanceSquared(ship.position) < closeRange:
+                        dirToShip else: vec2(0,0)
+  var obstacle: Entity
+  var obstacleDistance = 1000000.0
+  for entity in entitiesByTag[int(CollisionTag.playerWeapon)]:
+    let distance = self.position.distanceSquared(entity.position)
+    if distance < obstacleDistance:
+      obstacle = entity
+      obstacleDistance = distance
+  let obstacleDir = if obstacle == nil: vec2(0,0) else:
+         inverseRotation * (obstacle.position - self.position).normalize()
+  let closeObstacleDir = if obstacleDistance < closeRange: obstacleDir else: vec2(0,0)
+  let obstacleMoveDir = if obstacle == nil: vec2(0,0) else:
+    inverseRotation * obstacle.getVelocity().normalize()
 
-  self.brain.simulate(1.0, noiseVal, noiseVal2, dirToShip.x,
-                      dirToShip.y, shipMoveDir.x, shipMoveDir.y)
+  self.brain.simulate(1.0, waveVal, noiseVal, noiseVal2, dirToShip.x,
+                      dirToShip.y, shipMoveDir.x, shipMoveDir.y,
+                      closeShipDir.x, closeShipDir.y, obstacleDir.x,
+                      obstacleDir.y, closeObstacleDir.x, closeObstacleDir.y,
+                      obstacleMoveDir.x, obstacleMoveDir.y)
 
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
 
