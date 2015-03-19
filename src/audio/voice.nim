@@ -12,7 +12,7 @@ let fliteSuccess = fliteInit()
 let voice = registerCmuUsKal(nil)
 
 const speed = 0.95
-const saturation = 0.5
+const saturation = 0
 
 proc newVoiceNode*(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)

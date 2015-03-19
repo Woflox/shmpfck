@@ -19,6 +19,8 @@ type
     destroyed*: bool
     collisionTag*: CollisionTag
 
+const
+  numTags = 4
 
 proc transform(self: Entity): Transform {.inline.} =
   Transform(position: self.position, rotation: self.rotation)
@@ -27,7 +29,25 @@ method updateBehaviour*(self: Entity, dt: float) =
   discard
 
 var
-  entities* : seq[Entity] = @[]
+  entities* : seq[Entity]
+  entitiesByTag* : array[1..numTags, seq[Entity]]
+
+proc clearEntities* =
+  entities = @[]
+  for i in low(entitiesByTag)..high(entitiesByTag):
+    entitiesByTag[i] = @[]
+
+proc addEntity*(entity: Entity) =
+  entities.add(entity)
+  if entity.collisionTag != CollisionTag.none:
+    entitiesByTag[int(entity.collisionTag)].add(entity)
+
+proc removeEntity*(index: int) =
+  var entity = entities[index]
+  entities.del(index)
+  if entity.collisionTag != CollisionTag.none:
+    entitiesByTag[int(entity.collisionTag)].del(
+      find(entitiesByTag[int(entity.collisionTag)], entity))
 
 proc collidable(self: Entity): bool =
   self.collisionTag != CollisionTag.none
@@ -84,9 +104,7 @@ proc collides(tag1: CollisionTag, tag2: CollisionTag): bool =
     of CollisionTag.enemyWeapon:
       return tag2 == CollisionTag.player
     of CollisionTag.player:
-      return tag2 == CollisionTag.enemy or tag2 == CollisionTag.enemyWeapon
-    of CollisionTag.enemy:
-      return tag2 == CollisionTag.playerWeapon or tag2 == CollisionTag.player
+      return tag2 == CollisionTag.enemy
     else:
       return false
 
@@ -94,14 +112,14 @@ method onCollision* (self: Entity, other: Entity) =
   discard
 
 proc checkForCollisions* (self: Entity, index: int, dt: float) =
-  if not self.collidable:
-    return
-  for i in index+1..high(entities):
-    if entities[i].collidable and self.collisionTag.collides(entities[i].collisionTag):
-      if self.boundingBox.overlaps(entities[i].boundingBox):
-       #TODO: detailed shape collision
-        self.onCollision(entities[i])
-        entities[i].onCollision(self)
+  for tag in low(entitiesByTag)..high(entitiesByTag):
+    if collides(self.collisionTag, CollisionTag(tag)):
+      for i in 0..high(entitiesByTag[tag]):
+        var entity = entitiesByTag[tag][i]
+        if self.boundingBox.overlaps(entity.boundingBox):
+           #TODO: detailed shape collision
+          self.onCollision(entity)
+          entity.onCollision(self)
 
 proc init* (self: Entity) =
   self.rotation = identity()

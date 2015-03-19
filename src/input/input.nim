@@ -14,12 +14,12 @@ type
     left, right, up, down, fire1, fire2, fire3, fire4, restart
 
   Control = ref object
+    action: Action
     key: cint
     button: uint8
     down: bool
     pressed: bool
     released: bool
-    action: Action
 
 const maxAxisValue = 32768.0
 const deadZone = 0.2

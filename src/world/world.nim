@@ -32,10 +32,10 @@ var intros = ["Try harder",
               "Hello"]
 
 proc generate* () =
-  entities = @[]
+  clearEntities()
   for x in -25..25:
     for y in -25..25:
-      entities.add(testShape(vec2(float(x*4),float(y*4))))
+      addEntity(testShape(vec2(float(x*4),float(y*4))))
   let ship = generatePlayerShip(vec2(0,10))
   camera.init(ship.position)
   camera.target = ship
@@ -45,9 +45,9 @@ proc generate* () =
     var species = generateTestSpecies()
     for j in 0..10:
       let pos = speciesPos + randomDirection() * random(0.0, 25.0)
-      entities.add(generateEnemy(species, pos))
+      addEntity(generateEnemy(species, pos))
 
-  entities.add(ship)
+  addEntity(ship)
 
 
 playSound(newAmbientNode(), -3.0, 0.0)
@@ -59,14 +59,15 @@ proc update* (dt: float) =
   while i <= high(entities):
     entities[i].update(dt)
     inc i
-  i = 0
-  while i <= high(entities):
-    entities[i].checkForCollisions(i, dt)
-    inc i
+  for entityList in entitiesByTag:
+    i = 0
+    while i <= high(entityList):
+      entityList[i].checkForCollisions(i, dt)
+      inc i
   i = 0
   while i <= high(entities):
     if entities[i].destroyed:
-      entities.del(i)
+      removeEntity(i)
     else:
       inc i
 
