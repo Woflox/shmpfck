@@ -45,9 +45,8 @@ proc simulate* (self: NeuralNet, inputs: varargs[float]) =
     let previousLayer = self.layers[i-1]
     for neuron in self.layers[i]:
       neuron.value = 0
-      var index = 0
       for j in 0..high(previousLayer):
-        neuron.value += previousLayer[j].value * neuron.weights[index]
+        neuron.value += previousLayer[j].value * neuron.weights[j]
       neuron.value = activate(neuron.value)
 
 proc getOutput* (self: NeuralNet, index): float =
