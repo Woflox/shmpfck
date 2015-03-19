@@ -182,8 +182,3 @@ proc initAudio* =
   let b = int16(masterNode.output[0] * float(high(int16)))
   let d = int16(masterNode.output[1] * float(high(int16)))
   pauseAudio(0)
-
-proc testAudio*() =
-  let dt = 1.0 / float(obtained.freq)
-  masterNode.setUnvisited()
-  masterNode.update(dt)

@@ -4,12 +4,11 @@ import ../util/random
 type
   Neuron = ref object
     value: float
-    synapses: seq[Synapse]
-  Synapse = ref object
-    weight: float
-    child: Neuron
+    weights: seq[float]
   NeuralNet* = ref object
     layers: seq[seq[Neuron]]
+
+const activationThreshold = 0.1
 
 proc newNeuralNet* (inputs: int, outputs: int,
                   hiddenLayers: int, hiddenLayerSize: int): NeuralNet =
@@ -21,38 +20,34 @@ proc newNeuralNet* (inputs: int, outputs: int,
     result.layers[i] = (newSeq[Neuron](hiddenLayerSize))
   result.layers[hiddenLayers + 1] = (newSeq[Neuron](outputs))
 
-  for i in 0..high(result.layers):
+  for j in 0..high(result.layers[0]):
+    result.layers[0][j] = Neuron()
+  for i in 1..high(result.layers):
     for j in 0..high(result.layers[i]):
-      result.layers[i][j] = Neuron(synapses: @[])
-
-  #create synapse structure
-  for i in 0..hiddenLayers:
-    for neuron in result.layers[i]:
-      for childNeuron in result.layers[i+1]:
-        neuron.synapses.add(Synapse(child: childNeuron))
+      result.layers[i][j] = Neuron(weights: newSeq[float](result.layers[i-1].len))
 
 proc randomize* (self: NeuralNet) =
-  for layer in self.layers:
-    for neuron in layer:
-      for synapse in neuron.synapses:
-        synapse.weight = random(-1.0, 1.0)
+  for i in 1..high(self.layers):
+    for neuron in self.layers[i]:
+      for j in 0..high(neuron.weights):
+        neuron.weights[j] = random(-1.0, 1.0)
 
 proc activate(t: float): float =
-  2 / (1 + exp(-t)) - 1
+  result = t / (1 + abs(t))
+  if abs(result) < activationThreshold:
+    result = 0
 
 proc simulate* (self: NeuralNet, inputs: varargs[float]) =
   for i in 0..inputs.len-1:
     self.layers[0][i].value = inputs[i]
 
   for i in 1..high(self.layers):
+    let previousLayer = self.layers[i-1]
     for neuron in self.layers[i]:
       neuron.value = 0
-
-  for i in 0..high(self.layers)-1:
-    for neuron in self.layers[i]:
-      for synapse in neuron.synapses:
-        synapse.child.value += neuron.value * synapse.weight
-    for neuron in self.layers[i+1]:
+      var index = 0
+      for j in 0..high(previousLayer):
+        neuron.value += previousLayer[j].value * neuron.weights[index]
       neuron.value = activate(neuron.value)
 
 proc getOutput* (self: NeuralNet, index): float =
