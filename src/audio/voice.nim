@@ -10,7 +10,6 @@ type
 
 let fliteSuccess = fliteInit()
 let voice = registerCmuUsKal(nil)
-echo voice.name
 
 const speed = 0.95
 const saturation = 0.5
@@ -20,16 +19,22 @@ proc newVoiceNode*(text: string): VoiceNode =
   result[] = VoiceNodeObj()
   result.wave = fliteTextToWave(text, voice)
   if result.wave != nil:
+    echo "Voice: ", voice.name
     echo "Sample rate: ", result.wave.sampleRate
     echo "Num channels: ", result.wave.numChannels
+
+method destruct*(self: VoiceNode) =
+  self.wave.delete()
 
 method updateOutputs*(self: VoiceNode, dt: float) =
   self.output = [0.0, 0.0]
   if self.wave == nil:
+    self.stop()
     return
 
   let index = int(self.t * speed * float(self.wave.sampleRate))
   if index >= self.wave.numSamples:
+    self.stop()
     return
 
   var output = float(self.wave[index]) / float(high(int16))

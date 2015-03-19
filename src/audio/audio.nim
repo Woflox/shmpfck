@@ -15,12 +15,15 @@ type
     node: AudioNode
     volume, pan: float
     next: AudioInput
+    previous: AudioInput
   AudioInput* = ptr AudioInputObj
   AudioNodeObj* = object of RootObj
     input*: AudioInput
+    lastInput*: AudioInput
     output*: AudioSample
     visited: bool
     stopped: bool
+    refCount: int
   AudioNode* = ptr AudioNodeObj
   MixerNodeObj* = object of AudioNodeObj
   MixerNode* = ptr MixerNodeObj
@@ -47,17 +50,31 @@ proc getInputNode(self: AudioNode, index): AudioNode =
     inc i
   return nil
 
+method destruct*(self:AudioNode) =
+  discard
+
+proc addRef(self: AudioNode) =
+  inc self.refCount
+
+proc releaseRef(self: AudioNode) =
+  dec self.refCount
+  if self.refCount == 0:
+    self.destruct()
+    freeShared(self)
+
 proc addInput(self: AudioNode, node: AudioNode, volume = 1.0, pan = 0.0) =
   var toAdd = createShared(AudioInputObj)
   toAdd[] = AudioInputObj(node: node, volume: volume, pan: pan)
 
   if self.input == nil:
     self.input = toAdd
+    self.lastInput = toAdd
   else:
-    var input = self.input
-    while input.next != nil:
-      input = input.next
-    input.next = toAdd
+    self.lastInput.next = toAdd
+    toAdd.previous = self.lastInput
+    self.lastInput = toAdd
+
+  toAdd.node.addRef()
 
 proc amplitudeToDb*(amplitude: float): float =
   log10(amplitude) * 10
@@ -84,9 +101,27 @@ proc setUnvisited(self: AudioNode) =
 
 proc update(self: AudioNode, dt: float) =
   self.visited = true
-  for input in self.inputs:
+  var input = self.input
+  while input != nil:
     if not input.node.visited:
       input.node.update(dt)
+    if input.node.stopped:
+      if input.previous == nil:
+        self.input = input.next
+      else:
+        input.previous.next = input.next
+      if input.next == nil:
+        self.lastInput = input.previous
+      else:
+        input.next.previous = input.previous
+      if input.previous == nil:
+        self.input = input.next
+      input.node.releaseRef()
+      var toFree = input
+      input = input.next
+      freeShared(toFree)
+    else:
+      input = input.next
   self.updateOutputs(dt)
 
 
