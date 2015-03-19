@@ -35,7 +35,7 @@ type
     effect* : WeaponEffect
 
 const
-  speed = 75.0
+  speed = 60.0
   lifetime = 0.5
 
 method onCollision*(self: Projectile, other: Entity) =

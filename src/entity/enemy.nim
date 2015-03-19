@@ -45,7 +45,7 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
   result.init()
 
 proc generateTestSpecies* (): Species =
-  var species = Species(moveSpeed: 10)
+  var species = Species(moveSpeed: random(5.0,15.0))
   var color = col(uniformRandom(),uniformRandom(),uniformRandom())
   let index = random(0, 2)
   case index:

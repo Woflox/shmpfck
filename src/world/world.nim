@@ -27,7 +27,7 @@ var intros = ["Try harder",
               "Maybe you should just give up.",
               "Just go for a short walk",
               "A challenger approaches",
-              "How many days have we been trapped here?",
+              "How many days have we been stuck here?",
               "Game over.",
               "Hello"]
 
@@ -44,7 +44,7 @@ proc generate* () =
     let speciesPos = randomDirection() * 100
     var species = generateTestSpecies()
     for j in 0..10:
-      let pos = speciesPos + randomDirection() * random(0.0, 10.0)
+      let pos = speciesPos + randomDirection() * random(0.0, 25.0)
       entities.add(generateEnemy(species, pos))
 
   entities.add(ship)
