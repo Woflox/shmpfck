@@ -4,19 +4,20 @@ import opengl
 import entity
 import math
 
-var
-  target*: Entity
-  lastTargetPos: Vector2
-  offsetTargetPos: Vector2
-  smoothedTargetPos: Vector2
-  smoothPos: Vector2
-  position: Vector2
-  smoothTargetRotation: float
-  smoothRotation: float
-  rotation: float
-  shakeBoost: float
-  zoom*: float
-  t: float
+type
+  Camera = ref object
+    target*: Entity
+    lastTargetPos: Vector2
+    offsetTargetPos: Vector2
+    smoothedTargetPos: Vector2
+    smoothPos: Vector2
+    smoothTargetRotation: float
+    smoothRotation: float
+    shakeBoost: float
+    zoom*: float
+    t: float
+    rotation: float
+    position: Vector2
 
 const
   smoothing = 0.25
@@ -32,72 +33,72 @@ const
   speedShakeBoost = 0.375
   rotationSpeedShakeBoost = 8
 
-proc init* (pos: Vector2) =
-  position = pos
-  offsetTargetPos = pos
-  smoothedTargetPos = pos
-  lastTargetPos = pos
+var mainCamera*: Camera
 
-proc shake* (shakeAmount: float) =
-  shakeBoost = max(shakeBoost, shakeAmount)
+proc newCamera* (pos: Vector2): Camera =
+  result = Camera(position: pos, offsetTargetPos: pos, smoothedTargetPos: pos, lastTargetPos: pos)
+  mainCamera = result
 
-proc update* (dt: float) =
+proc shake* (self: Camera, shakeAmount: float) =
+  self.shakeBoost = max(self.shakeBoost, shakeAmount)
+
+proc update* (self: Camera, dt: float) =
   if dt == 0:
     return
 
-  t += dt
+  self.t += dt
 
   #update position
-  if target != nil:
-    let targetMovement = target.position -  lastTargetPos
-    let velocityOffset = target.getVelocity() * velocityOffsetCoefficient
-    offsetTargetPos = target.position + velocityOffset
-    offsetTargetPos += offsetTargetPos.normalize() * polarOffset
-    smoothedTargetPos += targetMovement
-    let delta = (offsetTargetPos - smoothedTargetPos)
+  if self.target != nil:
+    let targetMovement = self.target.position - self.lastTargetPos
+    let velocityOffset = self.target.getVelocity() * velocityOffsetCoefficient
+    self.offsetTargetPos = self.target.position + velocityOffset
+    self.offsetTargetPos += self.offsetTargetPos.normalize() * polarOffset
+    self.smoothedTargetPos += targetMovement
+    let delta = (self.offsetTargetPos - self.smoothedTargetPos)
     let distance = delta.length
     let direction = delta.normalize
     if targetMoveSpeed * dt > distance:
-      smoothedTargetPos = offsetTargetPos
+      self.smoothedTargetPos = self.offsetTargetPos
     else:
-      smoothedTargetPos += targetMoveSpeed * dt * direction
-  let lastSmoothPos = smoothPos
-  smoothPos = lerp(smoothPos, smoothedTargetPos, smoothing, dt)
+      self.smoothedTargetPos += targetMoveSpeed * dt * direction
+  let lastSmoothPos = self.smoothPos
+  self.smoothPos = lerp(self.smoothPos, self.smoothedTargetPos, smoothing, dt)
 
-  position = smoothPos
+  self.position = self.smoothPos
 
-  let speed = ((smoothPos - lastSmoothPos) / dt).length
+  let speed = ((self.smoothPos - lastSmoothPos) / dt).length
   let posShake = positionShake * (1 + speedShakeBoost * speed)
 
-  position.x += fractalNoise(t * noiseFrequency, noiseOctaves) * positionShake
-  position.y += fractalNoise(1000 + t * noiseFrequency, noiseOctaves) * posShake
+  self.position.x += fractalNoise(self.t * noiseFrequency, noiseOctaves) * posShake
+  self.position.y += fractalNoise(1000 + self.t * noiseFrequency, noiseOctaves) * posShake
 
   #update rotation
-  let targetRotation = angleFromMatrix(target.rotation)
-  makeAnglesNear(targetRotation, smoothTargetRotation)
+  let targetRotation = angleFromMatrix(self.target.rotation)
+  makeAnglesNear(targetRotation, self.smoothTargetRotation)
 
-  if abs(targetRotation - smoothTargetRotation) < rotationSpeed * dt:
-    smoothTargetRotation = targetRotation
-  elif targetRotation > rotation:
-    smoothTargetRotation += rotationSpeed * dt
+  if abs(targetRotation - self.smoothTargetRotation) < rotationSpeed * dt:
+    self.smoothTargetRotation = targetRotation
+  elif targetRotation > self.rotation:
+    self.smoothTargetRotation += rotationSpeed * dt
   else:
-    smoothTargetRotation -= rotationSpeed * dt
+    self.smoothTargetRotation -= rotationSpeed * dt
 
-  makeAnglesNear(smoothTargetRotation, smoothRotation)
-  let lastSmoothRotation = smoothRotation
-  smoothRotation = lerp(smoothRotation, smoothTargetRotation, rotationSmoothing, dt)
+  makeAnglesNear(self.smoothTargetRotation, self.smoothRotation)
+  let lastSmoothRotation = self.smoothRotation
+  self.smoothRotation = lerp(self.smoothRotation, self.smoothTargetRotation, rotationSmoothing, dt)
 
-  rotation = smoothRotation
+  self.rotation = self.smoothRotation
 
-  let rotationSpeed = abs((smoothRotation - lastSmoothRotation) / dt)
+  let rotationSpeed = abs((self.smoothRotation - lastSmoothRotation) / dt)
   let rotShake = rotationShake * (1 + rotationSpeedShakeBoost * rotationSpeed)
 
-  rotation += fractalNoise(t * noiseFrequency, noiseOctaves) * rotShake
+  self.rotation += fractalNoise(self.t * noiseFrequency, noiseOctaves) * rotShake
 
-  if target != nil:
-    lastTargetPos = target.position
+  if self.target != nil:
+    self.lastTargetPos = self.target.position
 
-proc applyTransform* () =
+proc applyTransform* (self: Camera) =
   glLoadIdentity()
-  glRotated(radToDeg(-rotation), 0, 0, -1)
-  glTranslated(-position.x, -position.y, 0)
+  glRotated(radToDeg(-self.rotation), 0, 0, -1)
+  glTranslated(-self.position.x, -self.position.y, 0)

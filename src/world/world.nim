@@ -3,13 +3,13 @@ import ../entity/entity
 import ../entity/ship
 import ../entity/enemy
 import ../entity/playership
+import ../entity/camera
 import ../util/util
 import ../util/random
 import ../render/shape
 import ../audio/audio
 import ../audio/ambient
 import ../audio/poetry
-import math
 from ../input/input import nil
 from ../entity/camera import nil
 
@@ -27,7 +27,7 @@ proc generate* () =
     for y in -25..25:
       addEntity(testShape(vec2(float(x*4),float(y*4))))
   let ship = generatePlayerShip(vec2(0,10))
-  camera.init(ship.position)
+  var camera = newCamera(ship.position)
   camera.target = ship
 
   for i in 0..20:
@@ -66,10 +66,10 @@ proc update* (dt: float) =
     generate()
     sayProse()
 
-  camera.update(dt)
+  mainCamera.update(dt)
 
 proc render* () =
-  camera.applyTransform()
+  mainCamera.applyTransform()
   glEnable (GL_BLEND);
   glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
   glBegin(GL_TRIANGLES)
