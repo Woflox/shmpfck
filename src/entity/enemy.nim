@@ -81,21 +81,31 @@ method updateBehaviour*(self: Enemy, dt: float) =
                         dirToShip else: vec2(0,0)
   var obstacle: Entity
   var obstacleDistance = 1000000.0
+  var weightedObstaclePos = vec2(0,0)
+  var weightedCloseObstaclePos = vec2(0,0)
+  var totalWeight = 0.0
+  var totalCloseWeight =0.0
   for entity in entitiesByTag[int(CollisionTag.playerWeapon)]:
     let distance = self.position.distanceSquared(entity.position)
-    if distance < obstacleDistance:
+    let weight = 1.0 / distance
+    if distance < closeRange:
       obstacle = entity
       obstacleDistance = distance
-  let obstacleDir = if obstacle == nil: vec2(0,0) else:
-         inverseRotation * (obstacle.position - self.position).normalize()
-  let closeObstacleDir = if obstacleDistance < closeRange: obstacleDir else: vec2(0,0)
+    weightedObstaclePos += entity.position * weight
+    totalWeight += weight
+  if totalWeight > 0.0:
+    weightedObstaclePos = weightedObstaclePos / totalWeight
+  let weightedObstacleDir = if obstacle == nil: vec2(0,0) else:
+         inverseRotation * (weightedObstaclePos - self.position).normalize()
+  let closeObstacleDir = if obstacleDistance < closeRange:
+    inverseRotation * (obstacle.position - self.position).normalize() else: vec2(0,0)
   let obstacleMoveDir = if obstacle == nil: vec2(0,0) else:
     inverseRotation * obstacle.getVelocity().normalize()
 
   self.brain.simulate(1.0, waveVal, noiseVal, noiseVal2, dirToShip.x,
                       dirToShip.y, shipMoveDir.x, shipMoveDir.y,
-                      closeShipDir.x, closeShipDir.y, obstacleDir.x,
-                      obstacleDir.y, closeObstacleDir.x, closeObstacleDir.y,
+                      closeShipDir.x, closeShipDir.y, weightedObstacleDir.x,
+                      weightedObstacleDir.y, closeObstacleDir.x, closeObstacleDir.y,
                       obstacleMoveDir.x, obstacleMoveDir.y)
 
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
