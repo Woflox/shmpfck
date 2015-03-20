@@ -21,7 +21,7 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
                 collisionTag: CollisionTag.player)
 
   let shape = createIsoTriangle(width = 0.61803398875, height = 1.0, drawStyle = DrawStyle.filledOutline,
-                                lineColor = col(0, 1, 0), fillColor = col(0, 0.375, 0))
+                                lineColor = color(0, 1, 0), fillColor = color(0, 0.375, 0))
   result.shapes = @[shape]
   result.init()
 

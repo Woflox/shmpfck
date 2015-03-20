@@ -48,13 +48,13 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
                       drawable: true,
                       position: position,
                       collisionTag: CollisionTag.playerWeapon)
-  let shape = createIsoTriangle(width = 0, height = speed / 60, drawStyle = DrawStyle.line,
-                                lineColor = col(1, 1, 0.5))
+  let fireDir = position.normalize()
+  result.velocity = sourceVelocity + fireDir * speed
+  let shape = createIsoTriangle(width = 0, height = result.velocity.length / 60, drawStyle = DrawStyle.line,
+                                lineColor = color(1, 1, 0.5))
   result.shapes = @[shape]
   result.init()
-  let dir = position.normalize()
-  result.velocity = sourceVelocity + dir * speed
-  result.rotation = matrixFromDirection(dir)
+  result.rotation = matrixFromDirection(result.velocity.normalize)
 
 method updateBehaviour(self: Projectile, dt: float) =
   self.t += dt

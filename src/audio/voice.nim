@@ -2,7 +2,7 @@ import audio
 import flite
 import flite/rms
 import math
-import audioutil
+import common
 
 type
   VoiceNodeObj = object of AudioNodeObj

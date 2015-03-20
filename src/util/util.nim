@@ -23,6 +23,9 @@ proc `-`*(a, b: Vector2): Vector2 =
   result.x = a.x - b.x
   result.y = a.y - b.y
 
+proc `-=`*(a: var Vector2, b: Vector2) =
+  a = a-b
+
 proc `*`*(a, b: Vector2): Vector2 =
   result.x = a.x * b.x
   result.y = a.y * b.y
@@ -31,12 +34,18 @@ proc `*`*(a: Vector2, b: float): Vector2 =
   result.x = a.x * b
   result.y = a.y * b
 
+proc `*=`*(a: var Vector2, b: float): Vector2 =
+  a = a * b
+
 proc `*`*(a: float, b: Vector2): Vector2 =
   b*a
 
 proc `/`*(a: Vector2, b: float): Vector2 =
   result.x = a.x / b
   result.y = a.y / b
+
+proc `/=`*(a: var Vector2, b: float): Vector2 =
+  a = a / b
 
 proc dot*(a, b: Vector2): float =
   (a.x * b.x) + (a.y * b.y)
@@ -121,7 +130,7 @@ proc directionFromMatrix*(m: Matrix2x2): Vector2 =
 proc angleFromMatrix*(m: Matrix2x2): float =
   angleFromDirection(directionFromMatrix(m))
 
-proc col*(r, g, b: float, a = 1.0): Color =
+proc color*(r, g, b: float, a = 1.0): Color =
   Color(r:r, g:g, b:b, a:a)
 
 proc glMatrix*(self: Matrix2x2): array[16, float] =
@@ -139,8 +148,17 @@ proc makeAnglesNear* (a: float, b: var float) =
   while b < a - Pi:
     b += Pi * 2
 
+proc boundingBox* (minPos, maxPos: Vector2): BoundingBox =
+  BoundingBox(minPos: minPos, maxPos: maxPos)
+
 proc minimalBoundingBox*(): BoundingBox =
-  BoundingBox(minPos: vec2(100000, 100000), maxPos: vec2(-100000, -100000))
+  boundingBox(vec2(100000, 100000), vec2(-100000, -100000))
+
+proc center*(self: BoundingBox): Vector2 =
+  (self.minPos + self.maxPos) / 2
+
+proc size*(self: BoundingBox): Vector2 =
+  self.maxPos - self.minPos
 
 proc expandTo* (self: var BoundingBox, point: Vector2) =
   self.minPos.x = min(self.minPos.x, point.x)

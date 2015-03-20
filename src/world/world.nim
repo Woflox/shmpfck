@@ -17,7 +17,7 @@ from ../entity/camera import nil
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
   let shape = createIsoTriangle(width =0.2, height = 0.2, drawStyle = DrawStyle.solid,
-                                 fillColor = col(0.25, 0.25, 0.25))
+                                 fillColor = color(0.25, 0.25, 0.25))
   result.shapes = @[shape]
   result.init()
 
