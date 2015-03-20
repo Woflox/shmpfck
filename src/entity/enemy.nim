@@ -62,7 +62,7 @@ proc generateTestSpecies* (): Species =
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
   species.brain = newNeuralNet(inputs = 16, outputs = 2,
-                            hiddenLayers = 2, hiddenLayerSize = 10)
+                            hiddenLayers = 5, hiddenLayerSize = 16)
   species.brain.randomize()
   result = species
 

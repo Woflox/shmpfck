@@ -8,7 +8,7 @@ type
   NeuralNet* = ref object
     layers: seq[seq[Neuron]]
 
-const activationThreshold = 0.1
+const activationThreshold = 0.15
 
 proc newNeuralNet* (inputs: int, outputs: int,
                   hiddenLayers: int, hiddenLayerSize: int): NeuralNet =
