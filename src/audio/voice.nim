@@ -2,6 +2,7 @@ import audio
 import flite
 import flite/rms
 import math
+import audioutil
 
 type
   VoiceNodeObj = object of AudioNodeObj
@@ -12,8 +13,9 @@ type
 let fliteSuccess = fliteInit()
 let voice = registerCmuUsRms(nil)
 
-const speed = 0.95
-const saturation = 0
+const speed = 1.0
+const volumeBoost = 4.0
+const saturation = -1.0
 
 proc newVoiceNode*(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
@@ -40,10 +42,9 @@ method updateOutputs*(self: VoiceNode, dt: float) =
 
   var output = float(self.wave[index]) / float(high(int16))
 
-  if output > 0:
-    output = pow(output, 1 - saturation)
-  else:
-    output = -pow(-output, 1 - saturation)
+  output = saturate(output, saturation)
+
+  output = clamp(output*volumeBoost, -1, 1)
 
   self.output[0] = output
   self.output[1] = output

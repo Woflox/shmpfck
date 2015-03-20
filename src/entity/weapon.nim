@@ -41,7 +41,7 @@ const
 method onCollision*(self: Projectile, other: Entity) =
   other.destroyed = true
   self.destroyed = true
-  playSound(newExplosionNode(), -1, 0)
+  playSound(newExplosionNode(), -2, 0)
 
 proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result = Projectile(movement: Movement.normal,

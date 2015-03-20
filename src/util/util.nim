@@ -157,3 +157,6 @@ proc expandTo* (self: var BoundingBox, box: BoundingBox) =
 proc overlaps* (a: BoundingBox, b: BoundingBox): bool =
   a.minPos.x < b.maxPos.x and a.maxPos.x > b.minPos.x and
     a.minPos.y < b.maxPos.y and a.maxPos.y > b.minPos.y
+
+proc clamp* (val, minVal, maxVal: float): float =
+  max(minVal, min(maxVal, val))

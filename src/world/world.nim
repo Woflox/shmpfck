@@ -8,7 +8,8 @@ import ../util/random
 import ../render/shape
 import ../audio/audio
 import ../audio/ambient
-import ../audio/voice
+import ../audio/poetry
+import math
 from ../input/input import nil
 from ../entity/camera import nil
 
@@ -19,17 +20,6 @@ proc testShape (pos: Vector2): Entity =
                                  fillColor = col(0.25, 0.25, 0.25))
   result.shapes = @[shape]
   result.init()
-
-var intros = ["Try harder",
-              "Welcome back. I missed you.",
-              "Did you have a good run?",
-              "How are you today?",
-              "Maybe you should just give up.",
-              "Just go for a short walk",
-              "A challenger approaches",
-              "How many days have we been stuck here?",
-              "Game over.",
-              "Hello"]
 
 proc generate* () =
   clearEntities()
@@ -50,7 +40,8 @@ proc generate* () =
   addEntity(ship)
 
 
-playSound(newAmbientNode(), -3.0, 0.0)
+playSound(newAmbientNode(), -4.0, 0.0)
+sayProse()
 
 proc update* (dt: float) =
   if (input.buttonPressed(input.restart)):
@@ -73,7 +64,7 @@ proc update* (dt: float) =
 
   if entityOfType[PlayerShip]() == nil:
     generate()
-    playSound(newVoiceNode(intros.randomChoice()), 0.0, 0.0)
+    sayProse()
 
   camera.update(dt)
 
