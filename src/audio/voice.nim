@@ -1,5 +1,6 @@
 import audio
 import flite
+import flite/rms
 import math
 
 type
@@ -9,7 +10,7 @@ type
   VoiceNode* = ptr VoiceNodeObj
 
 let fliteSuccess = fliteInit()
-let voice = registerCmuUsKal(nil)
+let voice = registerCmuUsRms(nil)
 
 const speed = 0.95
 const saturation = 0
