@@ -12,14 +12,14 @@ var obtained: AudioSpec # Actual audio parameters SDL returns
 type
   AudioSample* = array[0..1, float]
   AudioInputObj* = object
-    node: AudioNode
-    volume, pan: float
+    node*: AudioNode
+    volume*, pan*: float
     next: AudioInput
     previous: AudioInput
   AudioInput* = ptr AudioInputObj
   AudioNodeObj* = object of RootObj
-    input*: AudioInput
-    lastInput*: AudioInput
+    input: AudioInput
+    lastInput: AudioInput
     output*: AudioSample
     visited: bool
     stopped: bool
@@ -32,17 +32,14 @@ type
   CompressorNode* = object of AudioNode
     threshold, release, attack, ratio, gain: float
 
-proc getSampleRate(): int =
-  obtained.freq
-
-iterator inputs(self: AudioNode): AudioInput =
+iterator inputs*(self: AudioNode): AudioInput =
   discard
   var input = self.input
   while input != nil:
     yield input
     input = input.next
 
-proc getInputNode(self: AudioNode, index): AudioNode =
+proc getInputNode*(self: AudioNode, index): AudioNode =
   var i = 0
   for input in self.inputs:
     if i == index:
@@ -126,7 +123,7 @@ proc update(self: AudioNode, dt: float) =
 
 
 
-proc newMixerNode(): MixerNode =
+proc newMixerNode*(): MixerNode =
   result = createShared(MixerNodeObj)
   result[] = MixerNodeObj()
 
