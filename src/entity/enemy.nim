@@ -27,7 +27,7 @@ proc brain(self: Enemy): NeuralNet {.inline.} =
 const
   noiseFrequency = 0.5
   noiseOctaves = 3
-  waveFrequency = 1.0
+  waveFrequency = 0.25
   closeRange = pow(5, 2)
 
 method onCollision(self: Enemy, other: PlayerShip) =
@@ -74,7 +74,7 @@ method updateBehaviour*(self: Enemy, dt: float) =
   let ship = entityOfType[PlayerShip]()
   let dirToShip = inverseRotation * (ship.position - self.position).normalize()
   let shipMoveDir = inverseRotation * ship.getVelocity().normalize()
-  let waveVal = sin((self.t / (2 * Pi)) * waveFrequency)
+  let waveVal = sin(self.t * waveFrequency * Pi * 2 )
   let noiseVal = fractalNoise(self.t * noiseFrequency, noiseOctaves)
   let noiseVal2 = fractalNoise((self.t + 100) * noiseFrequency, noiseOctaves)
   let closeShipDir = if self.position.distanceSquared(ship.position) < closeRange:
