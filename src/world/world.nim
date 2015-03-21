@@ -46,10 +46,9 @@ sayProse()
 proc update* (dt: float) =
   if (input.buttonPressed(input.restart)):
     generate()
-  var i = 0
-  while i <= high(entities):
+  for i in 0..high(entities):
     entities[i].update(dt)
-    inc i
+  var i = 0
   for entityList in entitiesByTag:
     i = 0
     while i <= high(entityList):

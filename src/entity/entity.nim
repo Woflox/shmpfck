@@ -28,6 +28,9 @@ proc transform*(self: Entity): Transform {.inline.} =
 method updateBehaviour*(self: Entity, dt: float) =
   discard
 
+method updatePostPhysics*(self: Entity, dt: float) =
+  discard
+
 var
   entities* : seq[Entity]
   entitiesByTag* : array[1..numTags, seq[Entity]]
@@ -121,13 +124,18 @@ proc checkForCollisions* (self: Entity, index: int, dt: float) =
           self.onCollision(entity)
           entity.onCollision(self)
 
-proc init* (self: Entity) =
-  self.rotation = identity()
+proc init* (self: Entity, rotation = identity()) =
+  if self.movement == Movement.polar:
+    self.rotation = matrixFromDirection(self.position.normalize)
+  else:
+    self.rotation = rotation
   self.updateShapeTransforms()
+
 
 proc update* (self: Entity, dt: float) =
   self.updateBehaviour(dt)
   self.updatePhysics(dt)
+  self.updatePostPhysics(dt)
   if (not self.collidable) and not (self.movement == Movement.none):
     self.updateShapeTransforms()
 

@@ -110,4 +110,7 @@ method updateBehaviour*(self: Enemy, dt: float) =
 
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
 
+  if length(self.position) <= self.minPolarY + 0.1:
+    self.destroyed = true
+
   procCall Ship(self).updateBehaviour(dt)

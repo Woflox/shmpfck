@@ -53,8 +53,7 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   let shape = createIsoTriangle(width = 0, height = result.velocity.length / 60, drawStyle = DrawStyle.line,
                                 lineColor = color(1, 1, 0.5))
   result.shapes = @[shape]
-  result.init()
-  result.rotation = matrixFromDirection(result.velocity.normalize)
+  result.init(matrixFromDirection(result.velocity.normalize))
 
 method updateBehaviour(self: Projectile, dt: float) =
   self.t += dt
