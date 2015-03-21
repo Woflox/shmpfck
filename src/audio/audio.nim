@@ -1,5 +1,7 @@
 import sdl2
 import sdl2/audio
+import ../util/util
+import common
 import math
 import flite
 
@@ -18,23 +20,19 @@ type
     previous: AudioInput
   AudioInput* = ptr AudioInputObj
   AudioNodeObj* = object of RootObj
-    input: AudioInput
+    firstInput: AudioInput
     lastInput: AudioInput
     output*: AudioSample
     visited: bool
     stopped: bool
+    stopOnNoInput: bool
     refCount: int
   AudioNode* = ptr AudioNodeObj
-  MixerNodeObj* = object of AudioNodeObj
-  MixerNode* = ptr MixerNodeObj
-  LimiterNode* = object of AudioNode
-    threshold, release: float
   CompressorNode* = object of AudioNode
     threshold, release, attack, ratio, gain: float
 
 iterator inputs*(self: AudioNode): AudioInput =
-  discard
-  var input = self.input
+  var input = self.firstInput
   while input != nil:
     yield input
     input = input.next
@@ -63,8 +61,8 @@ proc addInput(self: AudioNode, node: AudioNode, volume = 1.0, pan = 0.0) =
   var toAdd = createShared(AudioInputObj)
   toAdd[] = AudioInputObj(node: node, volume: volume, pan: pan)
 
-  if self.input == nil:
-    self.input = toAdd
+  if self.firstInput == nil:
+    self.firstInput = toAdd
     self.lastInput = toAdd
   else:
     self.lastInput.next = toAdd
@@ -82,12 +80,6 @@ proc dbToAmplitude*(db: float): float =
 method updateOutputs*(self: AudioNode, dt: float) =
   discard
 
-method updateOutputs*(self: MixerNode, dt: float) =
-  self.output = [0.0, 0.0]
-  for input in self.inputs:
-    self.output[0] += input.node.output[0] * input.volume * sqrt((-input.pan + 1) / 2)
-    self.output[1] += input.node.output[1] * input.volume * sqrt((input.pan + 1) / 2)
-
 proc stop*(self: AudioNode) =
   self.stopped = true
 
@@ -98,41 +90,99 @@ proc setUnvisited(self: AudioNode) =
 
 proc update(self: AudioNode, dt: float) =
   self.visited = true
-  var input = self.input
+  var input = self.firstInput
   while input != nil:
     if not input.node.visited:
       input.node.update(dt)
     if input.node.stopped:
       if input.previous == nil:
-        self.input = input.next
+        self.firstInput = input.next
       else:
         input.previous.next = input.next
       if input.next == nil:
         self.lastInput = input.previous
       else:
         input.next.previous = input.previous
-      if input.previous == nil:
-        self.input = input.next
       input.node.releaseRef()
       var toFree = input
       input = input.next
       freeShared(toFree)
     else:
       input = input.next
-  self.updateOutputs(dt)
+  if self.stopOnNoInput and self.firstInput == nil:
+    self.stop()
+  else:
+    self.updateOutputs(dt)
 
 
+####################
+#
+#  MixerNode
 
-proc newMixerNode*(): MixerNode =
+type
+  MixerNodeObj = object of AudioNodeObj
+  MixerNode = ptr MixerNodeObj
+
+proc newMixerNode(): MixerNode =
   result = createShared(MixerNodeObj)
   result[] = MixerNodeObj()
 
-var masterNode = newMixerNode()
+method updateOutputs(self: MixerNode, dt: float) =
+  self.output = [0.0, 0.0]
+  for input in self.inputs:
+    self.output[0] += input.node.output[0] * input.volume * sqrt((-input.pan + 1) / 2)
+    self.output[1] += input.node.output[1] * input.volume * sqrt((input.pan + 1) / 2)
+
+####################
+#
+#  LimiterNode
+
+type
+  LimiterNodeObj = object of AudioNodeObj
+    threshold, release, limit, timeSinceLimit: float
+
+  LimiterNode = ptr LimiterNodeObj
+
+proc newLimiterNode(threshold: float, release: float): LimiterNode =
+  result = createShared(LimiterNodeObj)
+  result[] = LimiterNodeObj(threshold: dbToAmplitude(threshold),
+                            release: release,
+                            timeSinceLimit: release,
+                            stopOnNoInput: true)
+
+method updateOutputs(self: LimiterNode, dt: float) =
+  let input = self.getInputNode(0).output
+  self.timeSinceLimit += dt
+  var multiplier = 1.0
+
+  if self.timeSinceLimit < self.release:
+    let releaseCurve = sCurve(self.timeSinceLimit / self.release)
+    multiplier = lerp(self.limit, 1, releaseCurve)
+
+  let peak = max(input[0], input[1])
+  if peak > self.threshold:
+    let newLimit = self.threshold / peak
+    if newLimit < multiplier:
+      self.limit = newLimit
+      multiplier = newLimit
+      self.timeSinceLimit = 0
+
+  self.output[0] = input[0] * multiplier
+  self.output[1] = input[1] * multiplier
+
+
+
+###################
+
+#signal chain setup
+var masterLimiter = newLimiterNode(0, 2)
+var masterMixer = newMixerNode()
+masterLimiter.addInput(masterMixer)
 
 proc playSound*(node: AudioNode, volume, pan: float) =
   #TODO: add ducking priority param to choose parent node; side chain compression
   lockAudio()
-  masterNode.addInput(node, dbToAmplitude(volume), pan)
+  masterMixer.addInput(node, dbToAmplitude(volume), pan)
   unlockAudio()
 
 var t = 0.0
@@ -140,15 +190,14 @@ var t = 0.0
 proc audioCallback(userdata: pointer; stream: ptr uint8; len: cint) {.cdecl, thread, gcsafe.} =
   let dt = 1.0 / float(obtained.freq)
   var i = 0
-  #var testNode = newMixerNode()
   while i < int16(obtained.samples)*2-1:
     t += dt
     var leftSamplePtr = cast[ptr int16](cast[int](stream) + i * bytesPerSample)
     var rightSamplePtr = cast[ptr int16](cast[int](leftSamplePtr) + bytesPersample)
-    masterNode.setUnvisited()
-    masterNode.update(dt)
-    leftSamplePtr[] = int16(masterNode.output[0] * float(high(int16)))
-    rightSamplePtr[] = int16(masterNode.output[1] * float(high(int16)))
+    masterLimiter.setUnvisited()
+    masterLimiter.update(dt)
+    leftSamplePtr[] = int16(masterLimiter.output[0] * float(high(int16)))
+    rightSamplePtr[] = int16(masterLimiter.output[1] * float(high(int16)))
     i += 2
 
 proc initAudio* =
@@ -176,6 +225,4 @@ proc initAudio* =
     echo("Couldn't open stereo audio channels.")
     return
 
-  let b = int16(masterNode.output[0] * float(high(int16)))
-  let d = int16(masterNode.output[1] * float(high(int16)))
   pauseAudio(0)
