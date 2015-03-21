@@ -20,7 +20,7 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
                 moveSpeed: 20,
                 collisionTag: CollisionTag.player)
 
-  let shape = createIsoTriangle(width = 0.61803398875, height = 1.0, drawStyle = DrawStyle.filledOutline,
+  let shape = createIsoTriangle(width = goldenRatio, height = 1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color(0, 1, 0), fillColor = color(0, 0.375, 0))
   result.shapes = @[shape]
   result.init()

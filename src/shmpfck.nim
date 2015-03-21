@@ -1,6 +1,7 @@
 import sdl2
 import opengl
 import util/util
+import globals/globals
 from audio/audio import nil
 from input/input import nil
 from world/world import nil
@@ -23,9 +24,9 @@ proc resize() =
   glViewport(0, 0, width, height)                        # Set the viewport to cover the new window
   glMatrixMode(GL_PROJECTION)                       # To operate on the Projection matrix
   glLoadIdentity()                                  # Reset
-  glOrtho(-20*aspect, 20*aspect, -20, 20, -1, 1)
+  glOrtho(-aspect, aspect, -1, 1, -1, 1)
 
-# Main loop
+  screenSize = vec2(float(width), float(height))
 
 var
   event: Event = Event(kind:UserEvent)

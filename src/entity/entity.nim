@@ -22,7 +22,7 @@ type
 const
   numTags = 4
 
-proc transform(self: Entity): Transform {.inline.} =
+proc transform*(self: Entity): Transform {.inline.} =
   Transform(position: self.position, rotation: self.rotation)
 
 method updateBehaviour*(self: Entity, dt: float) =

@@ -49,16 +49,16 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
 
 proc generateTestSpecies* (): Species =
   var species = Species(moveSpeed: random(5.0,15.0))
-  var color = col(uniformRandom(),uniformRandom(),uniformRandom())
+  var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   let index = random(0, 2)
   case index:
     of 0: color.r = 1
     of 1: color.g = 1
     of 2: color.b = 1
     else: discard
-  var fillColor = col(color.r * 0.375, color.g * 0.375, color.b * 0.375)
+  var fillColor = color(color.r * 0.375, color.g * 0.375, color.b * 0.375)
 
-  let shape = createIsoTriangle(width = 0.61803398875, height = -1.0, drawStyle = DrawStyle.filledOutline,
+  let shape = createIsoTriangle(width = goldenRatio, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
   species.brain = newNeuralNet(inputs = 16, outputs = 2,

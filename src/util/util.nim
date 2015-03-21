@@ -1,5 +1,8 @@
 import math
 
+const
+  goldenRatio* = 0.61803398875
+
 type
   Vector2* = object
     x*, y*: float
@@ -46,6 +49,9 @@ proc `/`*(a: Vector2, b: float): Vector2 =
 
 proc `/=`*(a: var Vector2, b: float): Vector2 =
   a = a / b
+
+proc `-`*(a: Vector2): Vector2 =
+  a * (-1)
 
 proc dot*(a, b: Vector2): float =
   (a.x * b.x) + (a.y * b.y)
@@ -175,6 +181,10 @@ proc expandTo* (self: var BoundingBox, box: BoundingBox) =
 proc overlaps* (a: BoundingBox, b: BoundingBox): bool =
   a.minPos.x < b.maxPos.x and a.maxPos.x > b.minPos.x and
     a.minPos.y < b.maxPos.y and a.maxPos.y > b.minPos.y
+
+proc contains* (a: BoundingBox, b: Vector2): bool =
+  b.x > a.minPos.x and b.x < a.maxPos.x and
+    b.y > a.minPos.y and b.y < a.maxPos.y
 
 proc clamp* (val, minVal, maxVal: float): float =
   max(minVal, min(maxVal, val))
