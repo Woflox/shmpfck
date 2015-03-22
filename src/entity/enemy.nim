@@ -61,9 +61,8 @@ proc generateTestSpecies* (): Species =
   let shape = createIsoTriangle(width = goldenRatio, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
-  species.brain = newNeuralNet(inputs = 16, outputs = 2,
-                            hiddenLayers = 2, hiddenLayerSize = 10)
-  species.brain.randomize()
+  species.brain = newNeuralNet(inputs = 15, outputs = 2, hiddenNeurons = 30, activationThreshold = 0.15)
+  species.brain.randomize(connectionsPerNeuron = 8)
   result = species
 
 method updateBehaviour*(self: Enemy, dt: float) =
@@ -102,7 +101,7 @@ method updateBehaviour*(self: Enemy, dt: float) =
   let obstacleMoveDir = if obstacle == nil: vec2(0,0) else:
     inverseRotation * obstacle.getVelocity().normalize()
 
-  self.brain.simulate(1.0, waveVal, noiseVal, noiseVal2, dirToShip.x,
+  self.brain.simulate(dt, waveVal, noiseVal, noiseVal2, dirToShip.x,
                       dirToShip.y, shipMoveDir.x, shipMoveDir.y,
                       closeShipDir.x, closeShipDir.y, weightedObstacleDir.x,
                       weightedObstacleDir.y, closeObstacleDir.x, closeObstacleDir.y,
@@ -111,6 +110,6 @@ method updateBehaviour*(self: Enemy, dt: float) =
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
 
   if length(self.position) <= self.minPolarY + 0.1:
-    self.destroyed = true
+    self.position = self.position.normalize * 100
 
   procCall Ship(self).updateBehaviour(dt)
