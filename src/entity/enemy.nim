@@ -82,28 +82,28 @@ method updateBehaviour*(self: Enemy, dt: float) =
   var weightedObstaclePos = vec2(0,0)
   var weightedCloseObstaclePos = vec2(0,0)
   var totalWeight = 0.0
-  var totalCloseWeight =0.0
   for entity in entitiesByTag[int(CollisionTag.playerWeapon)]:
     let distance = self.position.distanceSquared(entity.position)
     let weight = 1.0 / distance
-    if distance < closeRange:
-      obstacle = entity
-      obstacleDistance = distance
+    if distance < obstacleDistance:
+        obstacle = entity
+        obstacleDistance = distance
     weightedObstaclePos += entity.position * weight
     totalWeight += weight
   if totalWeight > 0.0:
     weightedObstaclePos = weightedObstaclePos / totalWeight
-  let weightedObstacleDir = if obstacle == nil: vec2(0,0) else:
-         inverseRotation * (weightedObstaclePos - self.position).normalize()
+  let weightedObstacleDir = if obstacle != nil:
+    inverseRotation * (weightedObstaclePos - self.position).normalize() else: vec2(0,0)
   let closeObstacleDir = if obstacleDistance < closeRange:
     inverseRotation * (obstacle.position - self.position).normalize() else: vec2(0,0)
-  let obstacleMoveDir = if obstacle == nil: vec2(0,0) else:
-    inverseRotation * obstacle.getVelocity().normalize()
+  let obstacleMoveDir = if obstacle != nil:
+    inverseRotation * obstacle.getVelocity().normalize() else: vec2(0,0)
 
-  self.brain.simulate(dt, waveVal, noiseVal, noiseVal2, dirToShip.x,
-                      dirToShip.y, shipMoveDir.x, shipMoveDir.y,
-                      closeShipDir.x, closeShipDir.y, weightedObstacleDir.x,
-                      weightedObstacleDir.y, closeObstacleDir.x, closeObstacleDir.y,
+  self.brain.simulate(dt, 1.0, waveVal, noiseVal, noiseVal2,
+                      dirToShip.x, dirToShip.y, shipMoveDir.x, shipMoveDir.y,
+                      closeShipDir.x, closeShipDir.y,
+                      weightedObstacleDir.x, weightedObstacleDir.y,
+                      closeObstacleDir.x, closeObstacleDir.y,
                       obstacleMoveDir.x, obstacleMoveDir.y)
 
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
