@@ -5,8 +5,8 @@ const
   activationThreshold = 0.15
   numNeurons = 50
   numSynapsesPerNeuron = 8
-  updateRate = 1 / 60.0
-  maxUpdates = 4
+  updateRate = 1 / 300.0
+  maxUpdates = 10
 
 type
   Neuron* = object
