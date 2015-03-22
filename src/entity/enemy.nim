@@ -60,7 +60,7 @@ proc generateTestSpecies* (): Species =
   let shape = createIsoTriangle(width = goldenRatio, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
-  species.brain = newNeuralNet(inputs = 16, outputs = 2)
+  species.brain = newNeuralNet(inputs = 15, outputs = 2)
   species.brain.randomize()
   result = species
 
@@ -99,7 +99,7 @@ method updateBehaviour*(self: Enemy, dt: float) =
   let obstacleMoveDir = if obstacle != nil:
     inverseRotation * obstacle.getVelocity().normalize() else: vec2(0,0)
 
-  self.brain.simulate(dt, 1.0, waveVal, noiseVal, noiseVal2,
+  self.brain.simulate(dt, waveVal, noiseVal, noiseVal2,
                       dirToShip.x, dirToShip.y, shipMoveDir.x, shipMoveDir.y,
                       closeShipDir.x, closeShipDir.y,
                       weightedObstacleDir.x, weightedObstacleDir.y,
