@@ -28,8 +28,6 @@ type
     stopOnNoInput: bool
     refCount: int
   AudioNode* = ptr AudioNodeObj
-  CompressorNode* = object of AudioNode
-    threshold, release, attack, ratio, gain: float
 
 iterator inputs*(self: AudioNode): AudioInput =
   var input = self.firstInput
@@ -159,7 +157,7 @@ method updateOutputs(self: LimiterNode, dt: float) =
     let releaseCurve = sCurve(self.timeSinceLimit / self.release)
     multiplier = lerp(self.limit, 1, releaseCurve)
 
-  let peak = max(input[0], input[1])
+  let peak = max(abs(input[0]), abs(input[1]))
   if peak > self.threshold:
     let newLimit = self.threshold / peak
     if newLimit < multiplier:
@@ -170,12 +168,19 @@ method updateOutputs(self: LimiterNode, dt: float) =
   self.output[0] = input[0] * multiplier
   self.output[1] = input[1] * multiplier
 
+###################
+#
+#  CompressorNode
+
+type
+  CompressorNodeObj = object of AudioNodeObj
+    threshold, ratio, attack, release, gain: float
 
 
 ###################
 
 #signal chain setup
-var masterLimiter = newLimiterNode(0, 2)
+var masterLimiter = newLimiterNode(threshold = 0, release = 2)
 var masterMixer = newMixerNode()
 masterLimiter.addInput(masterMixer)
 
