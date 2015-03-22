@@ -1,59 +1,57 @@
 import math
 import ../util/random
 
+const
+  activationThreshold = 0.15
+  numNeurons = 50
+  numSynapsesPerNeuron = 8
+  updateRate = 1 / 300.0
+  maxUpdates = 10
+
 type
-  Neuron = ref object
+  Neuron* = object
     value: float
-    synapses: seq[Synapse]
+    synapses: array[numSynapsesPerNeuron, Synapse]
   Synapse = object
-    neuron: Neuron
+    neuronIndex: int
     weight: float
-  NeuralNet* = ref object
-    neurons: seq[Neuron]
+  NeuralNet* = object
+    neurons: array[numNeurons, Neuron]
     inputs: int
     outputs: int
     timeSinceUpdate: float
-    activationThreshold: float
 
-const
-  updateRate = 1.0 / 60.0
+proc newNeuralNet* (inputs: int, outputs: int): NeuralNet =
+  result = NeuralNet(inputs: inputs, outputs: outputs)
 
-proc newNeuralNet* (inputs: int, outputs: int, hiddenNeurons: int, activationThreshold: float): NeuralNet =
-  #initialize sequence
-  result = NeuralNet(inputs: inputs, outputs: outputs, activationThreshold: activationThreshold)
-  result.neurons = newSeq[Neuron](inputs+outputs+hiddenNeurons)
-
-  for i in 0..high(result.neurons):
-    result.neurons[i] = Neuron()
-
-proc randomize* (self: NeuralNet, connectionsPerNeuron: int) =
+proc randomize* (self: var NeuralNet) =
   for i in self.inputs..high(self.neurons):
-    let neuron = self.neurons[i]
-    self.neurons[i].synapses = newSeq[Synapse](connectionsPerNeuron)
-    for j in 0..high(neuron.synapses):
-      neuron.synapses[j].neuron = self.neurons.randomChoice
-      neuron.synapses[j].weight = random(-1.0, 1.0)
-  self.timeSinceUpdate = random(0, updateRate)
+    for j in 0..high(self.neurons[i].synapses):
+      self.neurons[i].synapses[j].neuronIndex = random(0, high(self.neurons))
+      self.neurons[i].synapses[j].weight = random(-1.0, 1.0)
 
-proc activate(t: float, threshold: float): float =
-  result = t / (1 + abs(t))
-  if abs(result) < threshold:
-    result = 0
+proc activate(self: var Neuron) =
+  self.value = self.value / (1 + abs(self.value))
+  if abs(self.value) < activationThreshold:
+    self.value = 0
 
-proc simulate* (self: NeuralNet, dt: float, inputs: varargs[float]) =
+proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
   self.timeSinceUpdate += dt
-  while self.timeSinceUpdate >= updateRate:
-    self.timeSinceUpdate -= updateRate
+  var numUpdates = 0
 
-    for i in 0..self.inputs-1:
-      self.neurons[i].value = inputs[i]
+  for i in 0..self.inputs-1:
+    self.neurons[i].value = inputs[i]
+
+  while self.timeSinceUpdate > updateRate and numUpdates < maxUpdates:
+    self.timeSinceUpdate -= updateRate
+    inc numUpdates
 
     for i in self.inputs..high(self.neurons):
-      let neuron = self.neurons[i]
-      neuron.value = 0
-      for synapse in neuron.synapses:
-        neuron.value += synapse.neuron.value * synapse.weight
-      neuron.value = activate(neuron.value, self.activationThreshold)
+      self.neurons[i].value = 0
+      for j in 0..high(self.neurons[i].synapses):
+        self.neurons[i].value += self.neurons[self.neurons[i].synapses[j].neuronIndex].value *
+                                 self.neurons[i].synapses[j].weight
+      self.neurons[i].activate()
 
 proc getOutput* (self: NeuralNet, index): float =
   self.neurons[index + self.neurons.len - self.outputs].value

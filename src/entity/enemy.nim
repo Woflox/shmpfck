@@ -19,10 +19,8 @@ type
     weapon*: Weapon
   Enemy = ref object of Ship
     species *: Species
+    brain: NeuralNet
     t: float
-
-proc brain(self: Enemy): NeuralNet {.inline.} =
-  self.species.brain
 
 const
   noiseFrequency = 0.5
@@ -42,6 +40,7 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
                 species: species,
                 collisionTag: CollisionTag.enemy)
   result.shapes = species.shapes
+  result.brain = species.brain
   result.moveSpeed = species.moveSpeed
   result.weapons = @[species.weapon]
   result.t = random(0.0, 1000.0)
@@ -61,8 +60,8 @@ proc generateTestSpecies* (): Species =
   let shape = createIsoTriangle(width = goldenRatio, height = -1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
-  species.brain = newNeuralNet(inputs = 15, outputs = 2, hiddenNeurons = 30, activationThreshold = 0.15)
-  species.brain.randomize(connectionsPerNeuron = 8)
+  species.brain = newNeuralNet(inputs = 16, outputs = 2)
+  species.brain.randomize()
   result = species
 
 method updateBehaviour*(self: Enemy, dt: float) =
