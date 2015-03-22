@@ -48,7 +48,7 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
   result.init()
 
 proc generateTestSpecies* (): Species =
-  var species = Species(moveSpeed: random(5.0,15.0))
+  var species = Species(moveSpeed: random(5.0,20.0))
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   let index = random(0, 2)
   case index:
@@ -62,7 +62,7 @@ proc generateTestSpecies* (): Species =
                                 lineColor = color, fillColor = fillColor)
   species.shapes = @[shape]
   species.brain = newNeuralNet(inputs = 16, outputs = 2,
-                            hiddenLayers = 5, hiddenLayerSize = 16)
+                            hiddenLayers = 2, hiddenLayerSize = 10)
   species.brain.randomize()
   result = species
 
