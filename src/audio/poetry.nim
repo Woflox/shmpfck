@@ -1,5 +1,4 @@
 import ../util/random
-import audio
 import voice
 
 let poem = [
@@ -60,4 +59,4 @@ let poem = [
   "Ye know on earth, and all ye need to know." ]
 
 proc sayProse* () =
-  playSound(newVoiceNode(poem.randomChoice()), -1.0, 0.0)
+  say(poem.randomChoice())

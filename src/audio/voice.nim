@@ -17,7 +17,7 @@ const speed = 1.0
 const volumeBoost = 4.0
 const saturation = -1.0
 
-proc newVoiceNode*(text: string): VoiceNode =
+proc newVoiceNode(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
   result[] = VoiceNodeObj()
   result.wave = fliteTextToWave(text, voice)
@@ -50,3 +50,12 @@ method updateOutputs*(self: VoiceNode, dt: float) =
   self.output[1] = output
 
   self.t += dt
+
+proc createAndPlayVoiceNode(text: string) =
+  let node = newVoiceNode(text)
+  playSound(node, -1.0, 0.0)
+
+
+proc say*(text: string) =
+  #TODO: Separate thread. Spawn is Segfaulting...
+  createAndPlayVoiceNode(text)
