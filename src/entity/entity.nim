@@ -1,4 +1,4 @@
-import ../render/shape
+import ../geometry/shape
 import ../util/util
 import math
 
@@ -70,9 +70,8 @@ proc updateShapeTransforms(self: Entity) =
   if self.collidable:
     self.boundingBox = minimalBoundingBox()
   for i in 0..self.shapes.len-1:
-    self.shapes[i].setTransform(self.transform)
-    if self.collidable:
-      self.boundingBox.expandTo(self.shapes[i].boundingBox)
+    self.shapes[i].update(self.transform)
+    self.boundingBox.expandTo(self.shapes[i].boundingBox)
 
 
 
@@ -114,15 +113,24 @@ proc collides(tag1: CollisionTag, tag2: CollisionTag): bool =
 method onCollision* (self: Entity, other: Entity) =
   discard
 
+proc isColliding (self: Entity, other: Entity): bool =
+  if not self.boundingBox.overlaps(other.boundingBox):
+    return false
+
+  for shape in self.shapes:
+    if shape.collisionType != CollisionType.none:
+      for otherShape in other.shapes:
+        if shape.intersects(otherShape):
+          return true
+
 proc checkForCollisions* (self: Entity, index: int, dt: float) =
   for tag in low(entitiesByTag)..high(entitiesByTag):
     if collides(self.collisionTag, CollisionTag(tag)):
       for i in 0..high(entitiesByTag[tag]):
-        var entity = entitiesByTag[tag][i]
-        if self.boundingBox.overlaps(entity.boundingBox):
-           #TODO: detailed shape collision
-          self.onCollision(entity)
-          entity.onCollision(self)
+        var other = entitiesByTag[tag][i]
+        if self.isColliding(other):
+          self.onCollision(other)
+          other.onCollision(self)
 
 proc init* (self: Entity, rotation = identity()) =
   if self.movement == Movement.polar:

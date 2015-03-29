@@ -56,6 +56,9 @@ proc `-`*(a: Vector2): Vector2 =
 proc dot*(a, b: Vector2): float =
   (a.x * b.x) + (a.y * b.y)
 
+proc cross*(a, b: Vector2): float =
+  a.x * b.y - a.y * b.x
+
 proc length*(a: Vector2): float =
   sqrt(a.x*a.x + a.y*a.y)
 

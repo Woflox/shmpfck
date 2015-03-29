@@ -1,4 +1,4 @@
-import ../render/shape
+import ../geometry/shape
 import ../util/util
 import ../util/noise
 import ../util/random
@@ -57,8 +57,9 @@ proc generateTestSpecies* (): Species =
     else: discard
   var fillColor = color(color.r * 0.375, color.g * 0.375, color.b * 0.375)
 
-  let shape = createIsoTriangle(width = goldenRatio, height = -1.0, drawStyle = DrawStyle.filledOutline,
-                                lineColor = color, fillColor = fillColor)
+  let shape = createIsoTriangle(width = random(0.5, 1.5), height = -random(0.5, 1.5), drawStyle = DrawStyle.filledOutline,
+                                lineColor = color, fillColor = fillColor,
+                                collisionType = CollisionType.continuous)
   species.shapes = @[shape]
   species.brain = newNeuralNet(inputs = 15, outputs = 2)
   species.brain.randomize()

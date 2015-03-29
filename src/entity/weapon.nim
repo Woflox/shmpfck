@@ -1,6 +1,6 @@
 import ../util/util
 import entity
-import ../render/shape
+import ../geometry/shape
 import ../audio/audio
 import ../audio/explosion
 
@@ -27,6 +27,7 @@ type
 
   Projectile = ref object of Entity
     t: float
+    origin: Vector2
   Blast = ref object of Entity
   Obstruction = ref object of Entity
 
@@ -35,7 +36,7 @@ type
     effect* : WeaponEffect
 
 const
-  speed = 60.0
+  speed = 360.0
   lifetime = 0.5
 
 method onCollision*(self: Projectile, other: Entity) =
@@ -47,15 +48,24 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result = Projectile(movement: Movement.normal,
                       drawable: true,
                       position: position,
+                      origin: position,
                       collisionTag: CollisionTag.playerWeapon)
   let fireDir = position.normalize()
   result.velocity = sourceVelocity + fireDir * speed
-  let shape = createIsoTriangle(width = 0, height = result.velocity.length / 60, drawStyle = DrawStyle.line,
-                                lineColor = color(1, 1, 0.5))
-  result.shapes = @[shape]
+  let renderShape = newShape(vertices = @[vec2(0,0),vec2(0,0)],
+                             drawStyle = DrawStyle.line,
+                             lineColor = color(1, 1, 0.5))
+  let collisionShape = newShape(vertices = @[vec2(0,0)],
+                                collisionType = CollisionType.continuous)
+  result.shapes = @[renderShape, collisionShape]
   result.init(matrixFromDirection(result.velocity.normalize))
 
 method updateBehaviour(self: Projectile, dt: float) =
   self.t += dt
   if (self.t > lifetime):
     self.destroyed = true
+
+  #update render shape
+  let originDistance = ((self.position + self.velocity * dt) - self.origin).length
+  let stretch = min(speed / 60, originDistance)
+  self.shapes[0].relativeVertices[0] = vec2(0, -stretch)

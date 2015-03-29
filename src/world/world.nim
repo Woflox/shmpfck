@@ -6,7 +6,7 @@ import ../entity/playership
 import ../entity/camera
 import ../util/util
 import ../util/random
-import ../render/shape
+import ../geometry/shape
 import ../audio/audio
 import ../audio/ambient
 import ../audio/poetry
@@ -46,9 +46,10 @@ sayProse()
 proc update* (dt: float) =
   if (input.buttonPressed(input.restart)):
     generate()
-  for i in 0..high(entities):
-    entities[i].update(dt)
   var i = 0
+  while i <= high(entities):
+    entities[i].update(dt)
+    inc i
   for entityList in entitiesByTag:
     i = 0
     while i <= high(entityList):

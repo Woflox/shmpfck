@@ -1,5 +1,5 @@
 import ../util/util
-import ../render/shape
+import ../geometry/shape
 import ship
 import entity
 import weapon
@@ -21,7 +21,8 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
                 collisionTag: CollisionTag.player)
 
   let shape = createIsoTriangle(width = goldenRatio, height = 1.0, drawStyle = DrawStyle.filledOutline,
-                                lineColor = color(0, 1, 0), fillColor = color(0, 0.375, 0))
+                                lineColor = color(0, 1, 0), fillColor = color(0, 0.375, 0),
+                                collisionType = CollisionType.continuous)
   result.shapes = @[shape]
   result.init()
 
