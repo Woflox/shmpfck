@@ -3,6 +3,7 @@ import entity
 import ../geometry/shape
 import ../audio/audio
 import ../audio/explosion
+import camera
 
 type
   FireType{.pure.} = enum
@@ -68,5 +69,6 @@ method updateBehaviour(self: Projectile, dt: float) =
 
   #update render shape
   let originDistance = ((self.position + self.velocity * dt) - self.origin).length
-  let stretch = min(speed / 60, originDistance)
-  self.shapes[0].relativeVertices[0] = vec2(0, -stretch)
+  let stretch = min(self.velocity.length / 60, originDistance)
+  self.shapes[0].relativeVertices[0] = (vec2(0, -stretch)) +
+    (self.rotation.transpose * mainCamera.velocity) / 120

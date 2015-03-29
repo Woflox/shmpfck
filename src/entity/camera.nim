@@ -20,6 +20,7 @@ type
     t: float
     rotation: float
     position: Vector2
+    velocity*: Vector2
 
 const
   smoothing = 0.25
@@ -55,6 +56,7 @@ proc update* (self: Camera, dt: float) =
     return
 
   self.t += dt
+  let lastPos = self.position
 
   #update position
   let targetMovement = self.target.position - self.lastTargetPos
@@ -160,6 +162,8 @@ proc update* (self: Camera, dt: float) =
 
   if self.target != nil:
     self.lastTargetPos = self.target.position
+
+  self.velocity = (self.position - lastPos) / dt
 
 proc applyTransform* (self: Camera) =
   glLoadIdentity()
