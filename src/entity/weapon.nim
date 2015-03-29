@@ -56,7 +56,8 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
                              drawStyle = DrawStyle.line,
                              lineColor = color(1, 1, 0.5))
   let collisionShape = newShape(vertices = @[vec2(0,0)],
-                                collisionType = CollisionType.continuous)
+                                collisionType = CollisionType.continuous,
+                                closed = false)
   result.shapes = @[renderShape, collisionShape]
   result.init(matrixFromDirection(result.velocity.normalize))
 

@@ -17,28 +17,43 @@ type
     absolutePosition* : bool
     closed* : bool
     boundingBox*: BoundingBox
+  Line* = array[2, Vector2]
+  Triangle* = array[3, Vector2]
 
-iterator collisionLines(self: Shape): array[2, Vector2] =
+iterator collisionLines(self: Shape): Line =
   for i in 0..high(self.vertices)-1:
     yield [self.vertices[i], self.vertices[i+1]]
   if self.closed:
     yield [self.vertices[high(self.vertices)], self.vertices[0]]
   if self.collisionType == CollisionType.continuous:
-    for i in 0..high(self.lastVertices)-1:
-      yield [self.lastVertices[i], self.lastVertices[i+1]]
+    yield [self.vertices[0], self.lastVertices[0]]
+
+iterator collisionTriangles(self: Shape): Triangle =
+  if self.closed:
+    for i in 1..high(self.vertices)-1:
+      yield [self.vertices[0], self.vertices[i], self.vertices[i+1]]
+  if self.collisionType == CollisionType.continuous:
+    for i in 0..high(self.vertices)-1:
+      yield [self.vertices[i], self.lastVertices[i], self.lastVertices[i+1]]
+      yield [self.vertices[i], self.vertices[i+1], self.lastVertices[i+1]]
     if self.closed:
-      yield [self.lastVertices[high(self.lastVertices)], self.lastVertices[0]]
-    for i in 0..high(self.vertices):
-      yield [self.vertices[i], self.lastVertices[i]]
+      yield [self.vertices[high(self.vertices)],
+             self.lastVertices[high(self.vertices)],
+             self.lastVertices[0]]
+      yield [self.vertices[high(self.vertices)],
+             self.vertices[0],
+             self.lastVertices[0]]
 
+proc hasCollisionTriangles(self: Shape): bool =
+  self.closed or (self.collisionType == CollisionType.continuous and self.vertices.len > 1)
 
-proc linesIntersect(point1, point2, point3, point4: Vector2): bool =
-  var ua = (point4.x - point3.x) * (point1.y - point3.y) -
-           (point4.y - point3.y) * (point1.x - point3.x)
-  var ub = (point2.x - point1.x) * (point1.y - point3.y) -
-           (point2.y - point1.y) * (point1.x - point3.x)
-  let denominator = (point4.y - point3.y) * (point2.x - point1.x) -
-                    (point4.x - point3.x) * (point2.y - point1.y)
+proc linesIntersect(line1, line2: Line): bool =
+  var ua = (line2[1].x - line2[0].x) * (line1[0].y - line2[0].y) -
+           (line2[1].y - line2[0].y) * (line1[0].x - line2[0].x)
+  var ub = (line1[1].x - line1[0].x) * (line1[0].y - line2[0].y) -
+           (line1[1].y - line1[0].y) * (line1[0].x - line2[0].x)
+  let denominator = (line2[1].y - line2[0].y) * (line1[1].x - line1[0].x) -
+                    (line2[1].x - line2[0].x) * (line1[1].y - line1[0].y)
   if denominator == 0.0:
       return ua == 0.0 and ub == 0.0
   else:
@@ -46,15 +61,50 @@ proc linesIntersect(point1, point2, point3, point4: Vector2): bool =
     ub /= denominator;
     return ua >= 0 and ua <= 1 and ub >= 0 and ub <= 1
 
+proc sameSide(p1, p2, a, b: Vector2): bool =
+  let cp1 = (b-a).cross(p1-a)
+  let cp2 = (b-a).cross(p2-a)
+  result = cp1 * cp2 >= 0
+
+proc pointInTriangle(p: Vector2, a: Triangle): bool =
+  sameSide(p,a[0], a[1],a[2]) and sameSide(p,a[1], a[0], a[2]) and sameSide(p, a[2], a[0], a[1])
+
+proc trianglesIntersect(a, b: Triangle): bool =
+  linesIntersect([a[0], a[1]], [b[0], b[1]]) or
+    linesIntersect([a[1], a[2]], [b[0], b[1]]) or
+    pointInTriangle(a[0], b) or pointInTriangle(a[1], b) or pointInTriangle(a[2], b) or
+    pointInTriangle(b[0], a) or pointInTriangle(b[1], a) or pointInTriangle(b[2], a)
+
+proc lineIntersectsTriangle(a: Line, b: Triangle): bool =
+  linesIntersect(a, [b[0], b[1]]) or linesIntersect(a, [b[1], b[2]]) or
+    pointInTriangle(a[0], b) or pointInTriangle(a[1], b)
+
+
 proc intersects* (self: Shape, other: Shape): bool =
   if other.collisionType == CollisionType.none or
       not self.boundingBox.overlaps(other.boundingBox):
     return false
 
-  for line in self.collisionLines:
-    for otherLine in other.collisionLines:
-      if linesIntersect(line[0], line[1], otherLine[0], otherLine[1]):
-        return true
+  if self.hasCollisionTriangles and other.hasCollisionTriangles:
+    for triangle in self.collisionTriangles:
+      for otherTriangle in other.collisionTriangles:
+        if trianglesIntersect(triangle, otherTriangle):
+          return true
+  elif self.hasCollisionTriangles and not other.hasCollisionTriangles:
+    for triangle in self.collisionTriangles:
+      for line in other.collisionLines:
+        if lineIntersectsTriangle(line, triangle):
+          return true
+  elif not other.hasCollisionTriangles:
+    for line in self.collisionLines:
+      for triangle in self.collisionTriangles:
+        if lineIntersectsTriangle(line, triangle):
+          return true
+  else:
+    for line in self.collisionLines:
+      for otherLine in other.collisionLines:
+        if linesIntersect(line, otherLine):
+          return true
 
 proc update* (self: var Shape, transform: Transform) =
   if not self.absolutePosition:
@@ -107,7 +157,8 @@ proc newShape* (vertices: seq[Vector2], drawStyle = DrawStyle.none,
                 lineColor = Color(), fillColor = Color(), closed = true,
                 collisionType = CollisionType.none, absolutePosition = false): Shape =
   result = Shape(drawStyle: drawStyle, lineColor: lineColor, fillColor: fillColor,
-                 absolutePosition: absolutePosition, collisionType: collisionType)
+                 absolutePosition: absolutePosition, collisionType: collisionType,
+                 closed: closed)
   result.setVertices(vertices)
 
 proc createIsoTriangle* (width: float, height: float, drawStyle = DrawStyle.none,
