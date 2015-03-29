@@ -30,8 +30,10 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
 
 method updateBehaviour* (self: PlayerShip, dt: float) =
   self.moveDir = input.moveDir()
-  let flameLength = random(0.5, 1.0) * max(0.25, (self.moveDir.y + 1) / 2)
-  self.shapes[1].relativeVertices[1] = vec2(0, -flameLength)
+  var flameLength = max(0.25, (self.moveDir.y + 1 ) / 2, abs(self.moveDir.x / 2))
+  let flameDir = vec2(-self.moveDir.x* 0.05, min(-0.25, (self.moveDir.y - 1) / 2)).normalize
+  flameLength *= random(0.5, 1.0)
+  self.shapes[1].relativeVertices[1] = flameDir * flameLength
   self.shapes[1].lineColor = color(1, flameLength, 0)
   self.shapes[1].fillColor = color(0.375, flameLength * 0.375, 0)
 
