@@ -38,8 +38,8 @@ const
   zoomPadding = 4
   minBoundsMinY = -7.0
   minBoundsMaxY = 25.0
-  maxBoundsMinY = -27.5
-  maxBoundsMaxY = 40.0
+  maxBoundsMinY = -22.5
+  maxBoundsMaxY = 35.0
 
 var mainCamera*: Camera
 
