@@ -117,6 +117,17 @@ proc update* (self: var Shape, transform: Transform) =
       self.vertices[i] = transform.apply(self.relativeVertices[i])
       self.boundingBox.expandTo(self.vertices[i])
 
+proc init* (self: var Shape, transform: Transform) =
+  if not self.absolutePosition:
+    for i in 0..high(self.vertices):
+      self.vertices[i] = transform.apply(self.relativeVertices[i])
+    if self.collisionType == CollisionType.continuous:
+      self.lastVertices = self.vertices
+
+  self.boundingBox = minimalBoundingBox()
+  for i in 0..high(self.vertices):
+    self.boundingBox.expandTo(self.vertices[i])
+
 proc glVertex2d(v:Vector2) =
   glVertex2d(v.x, v.y)
 

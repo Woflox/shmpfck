@@ -18,6 +18,7 @@ type
     boundingBox*: BoundingBox
     destroyed*: bool
     collisionTag*: CollisionTag
+    onScreen*: bool
 
 const
   numTags = 4
@@ -73,6 +74,11 @@ proc updateShapeTransforms(self: Entity) =
     self.shapes[i].update(self.transform)
     self.boundingBox.expandTo(self.shapes[i].boundingBox)
 
+proc initShapeTransforms(self: Entity) =
+  self.boundingBox = minimalBoundingBox()
+  for i in 0..self.shapes.len-1:
+    self.shapes[i].init(self.transform)
+    self.boundingBox.expandTo(self.shapes[i].boundingBox)
 
 
 proc updatePhysics(self: Entity, dt: float) =
@@ -95,9 +101,6 @@ proc updatePhysics(self: Entity, dt: float) =
 
     of Movement.none:
       discard
-
-  if self.collidable and not (self.movement == Movement.none):
-    self.updateShapeTransforms()
 
 proc collides(tag1: CollisionTag, tag2: CollisionTag): bool =
   case tag1:
@@ -137,14 +140,17 @@ proc init* (self: Entity, rotation = identity()) =
     self.rotation = matrixFromDirection(self.position.normalize)
   else:
     self.rotation = rotation
-  self.updateShapeTransforms()
+  self.initShapeTransforms()
 
+proc reposition* (self: Entity, position: Vector2) =
+  self.position = position
+  self.initShapeTransforms()
 
 proc update* (self: Entity, dt: float) =
   self.updateBehaviour(dt)
   self.updatePhysics(dt)
   self.updatePostPhysics(dt)
-  if (not self.collidable) and not (self.movement == Movement.none):
+  if not (self.movement == Movement.none):
     self.updateShapeTransforms()
 
 proc getVelocity* (self:Entity): Vector2 =
@@ -156,9 +162,11 @@ proc getVelocity* (self:Entity): Vector2 =
     result = self.velocity
 
 proc renderLine* (self: Entity) =
-  for shape in self.shapes:
-      shape.renderLine()
+  if self.onScreen:
+    for shape in self.shapes:
+        shape.renderLine()
 
 proc renderSolid* (self: Entity) =
-  for shape in self.shapes:
-      shape.renderSolid()
+  if self.onScreen:
+    for shape in self.shapes:
+        shape.renderSolid()

@@ -110,6 +110,9 @@ method updateBehaviour*(self: Enemy, dt: float) =
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
 
   if length(self.position) <= self.minPolarY + 0.1:
-    self.position = self.position.normalize * 100
+    self.reposition(self.position.normalize * 100)
+
+  if length(self.position) >= 200:
+    self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
   procCall Ship(self).updateBehaviour(dt)

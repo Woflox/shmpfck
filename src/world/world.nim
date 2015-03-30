@@ -74,6 +74,7 @@ proc render* () =
   glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
   glBegin(GL_TRIANGLES)
   for entity in entities:
+    entity.onScreen = mainCamera.isOnScreen(entity.boundingBox)
     entity.renderSolid()
   glEnd()
   glBegin(GL_LINES)

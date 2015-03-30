@@ -19,8 +19,10 @@ type
     zoomOutThreshold*: float
     t: float
     rotation: float
+    rotationMatrix: Matrix2x2
     position: Vector2
     velocity*: Vector2
+    bounds: BoundingBox
 
 const
   smoothing = 0.25
@@ -164,9 +166,28 @@ proc update* (self: Camera, dt: float) =
     self.lastTargetPos = self.target.position
 
   self.velocity = (self.position - lastPos) / dt
+  self.bounds = boundingBox(vec2(-aspectRatio / 2, -0.5) * self.zoom,
+                            vec2(aspectRatio / 2, 0.5) * self.zoom)
+  self.rotationMatrix = matrixFromAngle(-self.rotation)
+
+proc getBounds* (self: Camera): BoundingBox {.inline.} = self.bounds
 
 proc applyTransform* (self: Camera) =
   glLoadIdentity()
   glScaled(2 / self.zoom, 2 / self.zoom, 1)
   glRotated(radToDeg(-self.rotation), 0, 0, -1)
   glTranslated(-self.position.x, -self.position.y, 0)
+
+proc worldToViewSpace* (self: Camera, point: Vector2): Vector2 =
+  self.rotationMatrix * (point - self.position)
+
+proc isOnScreen* (self: Camera, point: Vector2): bool =
+  self.bounds.contains(self.worldToViewSpace(point))
+
+proc isOnScreen* (self: Camera, box: BoundingBox): bool =
+  var screenSpaceBox = minimalBoundingBox()
+  screenSpaceBox.expandTo(self.worldToViewSpace(box.minPos))
+  screenSpaceBox.expandTo(self.worldToViewSpace(box.maxPos))
+  screenSpaceBox.expandTo(self.worldToViewSpace(vec2(box.minPos.x, box.maxPos.y)))
+  screenSpaceBox.expandTo(self.worldToViewSpace(vec2(box.maxPos.x, box.minPos.y)))
+  result = self.bounds.overlaps(screenSpaceBox)
