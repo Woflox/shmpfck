@@ -38,10 +38,10 @@ proc generate* () =
       addEntity(generateEnemy(species, pos))
 
   addEntity(ship)
+  sayProse()
 
 
 playSound(newAmbientNode(), -4.0, 0.0)
-sayProse()
 
 proc update* (dt: float) =
   if (input.buttonPressed(input.restart)):
@@ -64,7 +64,6 @@ proc update* (dt: float) =
 
   if entityOfType[PlayerShip]() == nil:
     generate()
-    sayProse()
 
   mainCamera.update(dt)
 

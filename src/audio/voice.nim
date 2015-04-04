@@ -3,6 +3,7 @@ import flite
 import flite/rms
 import math
 import common
+import threadpool
 
 type
   VoiceNodeObj = object of AudioNodeObj
@@ -55,7 +56,5 @@ proc createAndPlayVoiceNode(text: string) =
   let node = newVoiceNode(text)
   playSound(node, -1.0, 0.0)
 
-
 proc say*(text: string) =
-  #TODO: Separate thread. Spawn is Segfaulting...
-  createAndPlayVoiceNode(text)
+  spawn createAndPlayVoiceNode(text)
