@@ -28,7 +28,7 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
   result.shapes = @[shape, flameShape]
   result.init()
 
-method updateBehaviour* (self: PlayerShip, dt: float) =
+method update* (self: PlayerShip, dt: float) =
   self.moveDir = input.moveDir()
   var flameLength = max(0.25, (self.moveDir.y + 1 ) / 2, abs(self.moveDir.x / 2))
   let flameDir = vec2(-self.moveDir.x* 0.05, min(-0.25, (self.moveDir.y - 1) / 2)).normalize
@@ -37,7 +37,7 @@ method updateBehaviour* (self: PlayerShip, dt: float) =
   self.shapes[1].lineColor = color(1, flameLength, 0)
   self.shapes[1].fillColor = color(0.375, flameLength * 0.375, 0)
 
-  procCall Ship(self).updateBehaviour(dt)
+  procCall Ship(self).update(dt)
 
 
 method updatePostPhysics* (self: PlayerShip, dt: float) =

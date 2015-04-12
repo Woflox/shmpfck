@@ -65,7 +65,7 @@ proc generateTestSpecies* (): Species =
   species.brain.randomize()
   result = species
 
-method updateBehaviour*(self: Enemy, dt: float) =
+method update*(self: Enemy, dt: float) =
   self.t += dt
 
   let inverseRotation = self.rotation.transpose
@@ -115,4 +115,4 @@ method updateBehaviour*(self: Enemy, dt: float) =
   if length(self.position) >= 200:
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
-  procCall Ship(self).updateBehaviour(dt)
+  procCall Ship(self).update(dt)

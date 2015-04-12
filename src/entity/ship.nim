@@ -18,5 +18,6 @@ proc startWeaponAction* (self: Ship, index: int) =
 proc stopWeaponAction* (self: Ship, index: int) =
   discard
 
-method updateBehaviour* (self: Ship, dt: float) =
+method update* (self: Ship, dt: float) =
   self.velocity = self.moveDir * self.moveSpeed
+  procCall Entity(self).update(dt)

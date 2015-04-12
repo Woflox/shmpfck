@@ -173,7 +173,6 @@ proc update* (self: Camera, dt: float) =
 proc getBounds* (self: Camera): BoundingBox {.inline.} = self.bounds
 
 proc applyTransform* (self: Camera) =
-  glLoadIdentity()
   glScaled(2 / self.zoom, 2 / self.zoom, 1)
   glRotated(radToDeg(-self.rotation), 0, 0, -1)
   glTranslated(-self.position.x, -self.position.y, 0)

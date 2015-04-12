@@ -2,6 +2,8 @@ import sdl2
 import opengl
 import util/util
 import globals/globals
+import ui/screen
+import ui/text
 from audio/audio import nil
 from input/input import nil
 from world/world import nil
@@ -14,7 +16,7 @@ var context = window.glCreateContext()
 # Initialize OpenGL
 loadExtensions()
 glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to black and opaque
-glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST) # Nice perspective corrections
+glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST)
 
 proc resize() =
   var width, height: cint
@@ -40,13 +42,18 @@ proc update() =
 
   input.update(dt)
   world.update(dt)
+  currentScreen.update(dt)
+  TextObject(currentScreen.innerElements[0]).setText("FPS: " & $int(1 / dt))
 
 proc render() =
   glClear(GL_COLOR_BUFFER_BIT)
   glMatrixMode(GL_MODELVIEW)
+  glLineWidth(1)
+  glPointSize(1)
   glLoadIdentity()
 
   world.render()
+  currentScreen.render()
 
   window.glSwapWindow()
 

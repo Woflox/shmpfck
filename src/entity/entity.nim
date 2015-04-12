@@ -24,7 +24,7 @@ const
   numTags = 4
 
 proc transform*(self: Entity): Transform {.inline.} =
-  Transform(position: self.position, rotation: self.rotation)
+  Transform(position: self.position, matrix: self.rotation)
 
 method updateBehaviour*(self: Entity, dt: float) =
   discard
@@ -146,7 +146,7 @@ proc reposition* (self: Entity, position: Vector2) =
   self.position = position
   self.initShapeTransforms()
 
-proc update* (self: Entity, dt: float) =
+method update* (self: Entity, dt: float) =
   self.updateBehaviour(dt)
   self.updatePhysics(dt)
   self.updatePostPhysics(dt)

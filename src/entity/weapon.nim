@@ -62,7 +62,7 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result.shapes = @[renderShape, collisionShape]
   result.init(matrixFromDirection(result.velocity.normalize))
 
-method updateBehaviour(self: Projectile, dt: float) =
+method update(self: Projectile, dt: float) =
   self.t += dt
   if (self.t > lifetime):
     self.destroyed = true
@@ -72,3 +72,5 @@ method updateBehaviour(self: Projectile, dt: float) =
   let stretch = min(self.velocity.length / 60, originDistance)
   self.shapes[0].relativeVertices[0] = (vec2(0, -stretch)) +
     (self.rotation.transpose * mainCamera.velocity) / 120
+
+  procCall Entity(self).update(dt)

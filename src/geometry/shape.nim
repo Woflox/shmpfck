@@ -128,10 +128,10 @@ proc init* (self: var Shape, transform: Transform) =
   for i in 0..high(self.vertices):
     self.boundingBox.expandTo(self.vertices[i])
 
-proc glVertex2d(v:Vector2) =
+proc glVertex2d* (v:Vector2) =
   glVertex2d(v.x, v.y)
 
-proc glColor4d(c:Color) =
+proc glColor4d* (c:Color) =
   glColor4d(c.r, c.g, c.b, c.a)
 
 proc renderLine* (self: Shape) =

@@ -10,9 +10,10 @@ import ../geometry/shape
 import ../audio/audio
 import ../audio/ambient
 import ../audio/poetry
+import ../ui/text
+import ../ui/uiobject
 from ../input/input import nil
 from ../entity/camera import nil
-
 
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
@@ -68,6 +69,7 @@ proc update* (dt: float) =
   mainCamera.update(dt)
 
 proc render* () =
+  glPushMatrix()
   mainCamera.applyTransform()
   glEnable (GL_BLEND);
   glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_COLOR);
@@ -80,3 +82,4 @@ proc render* () =
   for entity in entities:
     entity.renderLine()
   glEnd()
+  glPopMatrix()

@@ -11,7 +11,7 @@ type
   Matrix2x2* = array[2, array[2, float]]
   Transform* = object
     position*: Vector2
-    rotation*: Matrix2x2
+    matrix*: Matrix2x2
   BoundingBox* = object
     minPos*, maxPos*: Vector2
 
@@ -96,7 +96,7 @@ proc `$`*(a: Matrix2x2): string =
   "[[" & $a[0][0] & ", " & $a[0][1] & "]\n [" & $a[1][0] & ", " & $a[1][1] & "]]"
 
 proc apply* (transform: Transform, v: Vector2): Vector2 =
-  result = transform.position + transform.rotation*v
+  result = transform.position + transform.matrix*v
 
 proc lerp* (a, b: auto, ratio: float): auto =
   a*(1-ratio) + b*ratio
@@ -123,6 +123,13 @@ proc matrixFromDirection* (dir: Vector2): Matrix2x2 =
 
 proc matrixFromAngle* (a: float): Matrix2x2 =
   matrixFromDirection(directionFromAngle(a))
+
+proc matrixFromScale* (scale: Vector2): Matrix2x2 =
+  [[scale.x, 0.0],
+   [0.0, scale.y]]
+
+proc matrixFromScale* (scale: float): Matrix2x2 =
+  matrixFromScale(vec2(scale, scale))
 
 proc transpose* (a: Matrix2x2): Matrix2x2 =
   for x in 0..1:
