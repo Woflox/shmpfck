@@ -217,12 +217,12 @@ proc initAudio* =
   if openAudio(addr(audioSpec), addr(obtained)) != 0:
     echo("Couldn't open audio device. " & $getError() & "\n")
     return
-
-  echo("frequency: ", obtained.freq)
-  echo("format: ", obtained.format)
-  echo("channels: ", obtained.channels)
-  echo("samples: ", obtained.samples)
-  echo("padding: ", obtained.padding)
+  echo "Audio:"
+  echo("  sample rate: ", obtained.freq)
+  echo("  format: ", obtained.format)
+  echo("  channels: ", obtained.channels)
+  echo("  buffer size: ", obtained.samples)
+  echo("  padding: ", obtained.padding)
   if obtained.format != AUDIO_S16:
     echo("Couldn't open 16-bit audio channel.")
     return

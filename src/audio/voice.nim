@@ -23,9 +23,10 @@ proc newVoiceNode(text: string): VoiceNode =
   result[] = VoiceNodeObj()
   result.wave = fliteTextToWave(text, voice)
   if result.wave != nil:
-    echo "Voice: ", voice.name
-    echo "Sample rate: ", result.wave.sampleRate
-    echo "Num channels: ", result.wave.numChannels
+    echo "Voice node:"
+    echo "  voice: ", voice.name
+    echo "  sample rate: ", result.wave.sampleRate
+    echo "  channels: ", result.wave.numChannels
 
 method destruct*(self: VoiceNode) =
   self.wave.delete()

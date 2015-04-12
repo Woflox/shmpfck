@@ -10,13 +10,14 @@ from world/world import nil
 
 # Initialize SDL
 discard init(INIT_EVERYTHING)
-var window = createWindow("SHMPFCK", 100, 100, 800, 600, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
+var window = createWindow("SHMPFCK", 100, 100, 683, 384, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
 var context = window.glCreateContext()
 
 # Initialize OpenGL
 loadExtensions()
 glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to black and opaque
 glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST)
+echo "OpenGL version ", cast[cstring](glGetString(GL_VERSION))
 
 proc resize() =
   var width, height: cint
