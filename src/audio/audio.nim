@@ -190,13 +190,11 @@ proc playSound*(node: AudioNode, volume, pan: float) =
   masterMixer.addInput(node, dbToAmplitude(volume), pan)
   unlockAudio()
 
-var t = 0.0
 # Write amplitude direct to hardware buffer
 proc audioCallback(userdata: pointer; stream: ptr uint8; len: cint) {.cdecl, thread, gcsafe.} =
   let dt = 1.0 / float(obtained.freq)
   var i = 0
   while i < int16(obtained.samples)*2-1:
-    t += dt
     var leftSamplePtr = cast[ptr int16](cast[int](stream) + i * bytesPerSample)
     var rightSamplePtr = cast[ptr int16](cast[int](leftSamplePtr) + bytesPersample)
     masterLimiter.setUnvisited()
