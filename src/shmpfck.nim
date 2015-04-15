@@ -4,6 +4,8 @@ import util/util
 import globals/globals
 import ui/screen
 import ui/text
+import render/render
+import render/shader
 from audio/audio import nil
 from input/input import nil
 from world/world import nil
@@ -17,6 +19,7 @@ var context = window.glCreateContext()
 loadExtensions()
 glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to black and opaque
 glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST)
+initShaders()
 echo "OpenGL version ", cast[cstring](glGetString(GL_VERSION))
 
 proc resize() =
@@ -42,6 +45,7 @@ proc update() =
   t = now
 
   input.update(dt)
+  basicShader.apply()
   world.update(dt)
   currentScreen.update(dt)
   TextObject(currentScreen.innerElements[0]).setText("FPS: " & $int(1 / dt))
