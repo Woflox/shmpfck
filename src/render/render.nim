@@ -7,4 +7,4 @@ include shaders/basic.vert
 var basicShader* : ShaderProgram
 
 proc initShaders* =
-  basicShader = newShaderProgram(basicFrag, basicVert)
+  basicShader = newShaderProgram(basicVert, basicFrag)

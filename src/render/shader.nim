@@ -27,7 +27,7 @@ proc newShaderProgram* (vs, ps: string): ShaderProgram =
   glAttachShader(result, fragmentShaderObject)
   glLinkProgram(result)
   var linked: GLint
-  glGetShaderiv(result, GLenum(GL_LINK_STATUS), addr linked)
+  glGetProgramiv(result, GLenum(GL_LINK_STATUS), addr linked)
   if linked == GL_FALSE:
     var messageLength: GLint
     glGetProgramiv(result, GLenum(GL_INFO_LOG_LENGTH), addr messageLength)
