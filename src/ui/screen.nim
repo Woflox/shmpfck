@@ -18,9 +18,8 @@ hudScreen.innerElements.add(newTextObject("FPS: ", hudTextStyle, vec2(0.5, -0.5)
 var currentScreen* = hudScreen
 
 method update* (self: Screen, dt: float) =
-  let aspect = screenSize.x / screenSize.y
-  self.bounds = boundingBox(vec2(-baseScreenHeight * aspect / 2, -baseScreenHeight / 2),
-                            vec2(baseScreenHeight * aspect / 2, baseScreenHeight / 2))
+  self.bounds = boundingBox(vec2(-baseScreenHeight * screenAspectRatio / 2, -baseScreenHeight / 2),
+                            vec2(baseScreenHeight * screenAspectRatio / 2, baseScreenHeight / 2))
   for element in self.innerElements:
     element.updateLayout(self.bounds)
   procCall UIObject(self).update(dt)

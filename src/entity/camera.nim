@@ -67,9 +67,8 @@ proc update* (self: Camera, dt: float) =
   #expand bounds to include enemies
   let inverseTargetRotation = self.target.rotation.transpose
 
-  let aspectRatio = screenSize.x / screenSize.y
-  let minWidth = (minBoundsMaxY - minBoundsMinY) * aspectRatio
-  let maxWidth = (maxBoundsMaxY - maxBoundsMinY) * aspectRatio
+  let minWidth = (minBoundsMaxY - minBoundsMinY) * screenAspectRatio
+  let maxWidth = (maxBoundsMaxY - maxBoundsMinY) * screenAspectRatio
   var targetBox = boundingBox(vec2(-minWidth / 2 + zoomPadding, minBoundsMinY + zoomPadding),
                               vec2(minWidth / 2 - zoomPadding, minBoundsMaxY - zoomPadding))
   let maxBounds = boundingBox(vec2(-maxWidth / 2 + zoomPadding, maxBoundsMinY + zoomPadding),
@@ -88,15 +87,15 @@ proc update* (self: Camera, dt: float) =
   let targetBoxAspect = targetBox.size.x / targetBox.size.y
 
   #expand the box so that it has the correct aspect ratio
-  if targetBoxAspect > aspectRatio:
+  if targetBoxAspect > screenAspectRatio:
     let totalRoom = paddedMaxBounds.size.y - targetBox.size.y
-    let toAdd = targetBox.size.x / aspectRatio - targetBox.size.y
+    let toAdd = targetBox.size.x / screenAspectRatio - targetBox.size.y
     let ratio = toAdd / totalRoom
     targetBox.minPos.y = lerp(targetBox.minPos.y, paddedMaxBounds.minPos.y, ratio)
     targetBox.maxPos.y = lerp(targetBox.maxPos.y, paddedMaxBounds.maxPos.y, ratio)
   else:
     let totalRoom = paddedMaxBounds.size.x - targetBox.size.x
-    let toAdd = targetBox.size.y * aspectRatio - targetBox.size.x
+    let toAdd = targetBox.size.y * screenAspectRatio - targetBox.size.x
     let ratio = toAdd / totalRoom
     targetBox.minPos.x = lerp(targetBox.minPos.x, paddedMaxBounds.minPos.x, ratio)
     targetBox.maxPos.x = lerp(targetBox.maxPos.x, paddedMaxBounds.maxPos.x, ratio)
@@ -166,8 +165,8 @@ proc update* (self: Camera, dt: float) =
     self.lastTargetPos = self.target.position
 
   self.velocity = (self.position - lastPos) / dt
-  self.bounds = boundingBox(vec2(-aspectRatio / 2, -0.5) * self.zoom,
-                            vec2(aspectRatio / 2, 0.5) * self.zoom)
+  self.bounds = boundingBox(vec2(-screenAspectRatio / 2, -0.5) * self.zoom,
+                            vec2(screenAspectRatio / 2, 0.5) * self.zoom)
   self.rotationMatrix = matrixFromAngle(-self.rotation)
 
 proc getBounds* (self: Camera): BoundingBox {.inline.} = self.bounds
