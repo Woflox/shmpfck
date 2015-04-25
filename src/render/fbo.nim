@@ -1,9 +1,11 @@
 import opengl
+import ../util/util
 
 type
   FrameBuffer* = object
     texture*: GluInt
     fbo* : GluInt
+    width*, height*: int
 
 
 proc createFrameBuffer* (width, height: int): FrameBuffer =
@@ -27,10 +29,14 @@ proc createFrameBuffer* (width, height: int): FrameBuffer =
   if int(status) != GL_FRAMEBUFFER_COMPLETE:
     echo "Error: Couldn't create Frame Buffer"
   glBindFrameBuffer(GL_FRAMEBUFFER, 0)
+  fb.width = width
+  fb.height = height
   result = fb
 
-proc resize* (self: FrameBuffer, width, height: int) =
+proc resize* (self: var FrameBuffer, width, height: int) =
   glBindTexture(GL_TEXTURE_2D, self.texture)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, GLsizei(width), GLsizei(height), 0,
                GL_RGBA, GL_UNSIGNED_BYTE, nil)
   glBindTexture(GL_TEXTURE_2D, 0)
+  self.width = width
+  self.height = height

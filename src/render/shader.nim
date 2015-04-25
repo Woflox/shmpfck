@@ -39,13 +39,15 @@ proc apply* (self: ShaderProgram) =
   glUseProgram(self)
 
 proc getParameterLocation(self: ShaderProgram, name: string): GLint =
-  result = glGetUniformLocation(self, name.cstring)
+  glGetUniformLocation(self, name.cstring)
 
 proc setParameter* (self: ShaderProgram, name: string, value: float) =
-  glUniform1d(self.getParameterLocation(name), value)
+  self.apply()
+  glUniform1f(self.getParameterLocation(name), value)
 
 proc setParameter* (self: ShaderProgram, name: string, value: Vector2) =
-  glUniform2d(self.getParameterLocation(name), value.x, value.y)
+  self.apply()
+  glUniform2f(self.getParameterLocation(name), value.x, value.y)
 
 proc setTexture* (self: ShaderProgram, name: string, texture: GluInt) =
   glActiveTexture(GL_TEXTURE0)

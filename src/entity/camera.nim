@@ -172,7 +172,8 @@ proc update* (self: Camera, dt: float) =
 proc getBounds* (self: Camera): BoundingBox {.inline.} = self.bounds
 
 proc applyTransform* (self: Camera) =
-  glScaled(2 / self.zoom, 2 / self.zoom, 1)
+  #glScaled(2 / self.zoom, 2 / self.zoom, 1)
+  glScaled(2 / (maxBoundsMaxY - maxBoundsMinY), 2 / (maxBoundsMaxY - maxBoundsMinY), 1)
   glRotated(radToDeg(-self.rotation), 0, 0, -1)
   glTranslated(-self.position.x, -self.position.y, 0)
 
@@ -189,3 +190,6 @@ proc isOnScreen* (self: Camera, box: BoundingBox): bool =
   screenSpaceBox.expandTo(self.worldToViewSpace(vec2(box.minPos.x, box.maxPos.y)))
   screenSpaceBox.expandTo(self.worldToViewSpace(vec2(box.maxPos.x, box.minPos.y)))
   result = self.bounds.overlaps(screenSpaceBox)
+
+proc getPostZoom* (self: Camera): float =
+  return self.zoom / (maxBoundsMaxY - maxBoundsMinY)

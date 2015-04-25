@@ -38,6 +38,7 @@ proc update() =
   input.update(dt)
   world.update(dt)
   currentScreen.update(dt)
+  renderer.update(dt)
   TextObject(currentScreen.innerElements[0]).setText("FPS: " & $int(1 / dt))
 
 proc render() =

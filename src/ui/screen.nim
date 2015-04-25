@@ -24,9 +24,10 @@ method update* (self: Screen, dt: float) =
     element.updateLayout(self.bounds)
   procCall UIObject(self).update(dt)
 
-proc render* (self: Screen) =
+proc render* (self: Screen, zoom: float) =
   glPushMatrix()
-  glScaled(1 / (baseScreenHeight / 2), 1 / (baseScreenHeight / 2), 1)
+  let scale = 1 / (baseScreenHeight / (2 * zoom))
+  glScaled(scale, scale, 1)
 
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
