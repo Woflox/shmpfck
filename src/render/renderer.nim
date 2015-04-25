@@ -18,7 +18,7 @@ var postShader: ShaderProgram
 var frameBuffer: FrameBuffer
 var t: float
 
-const frameBufferHeight = 720;
+const maxFrameBufferHeight = 720;
 const targetScanLineFrequency = 0.5;
 
 proc init* =
@@ -29,17 +29,16 @@ proc init* =
 
   basicShader = newShaderProgram(basicVert, basicFrag)
   postShader = newShaderProgram(postVert, postFrag)
-  frameBuffer = createFrameBuffer(1366, 768)
+  frameBuffer = createFrameBuffer(int(maxFrameBufferHeight * (16.0 / 9)),
+                                  maxFrameBufferHeight)
 
 proc resize* =
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
   glMatrixMode(GL_PROJECTION)
   glLoadIdentity()
   glOrtho(-screenAspectRatio, screenAspectRatio, -1, 1, -1, 1)
-  frameBuffer.resize(int(screenAspectRatio * frameBufferHeight), frameBufferHeight)
-
-proc setPostZoom* (zoom: float) =
-  postShader.setParameter("zoom", zoom)
+  frameBuffer.resize(min(int(screenAspectRatio * maxFrameBufferHeight), screenWidth),
+                     min(maxFrameBufferHeight, screenHeight))
 
 proc fullscreenQuad =
   glBegin(GL_TRIANGLE_FAN)
@@ -64,7 +63,7 @@ proc render* =
   glLoadIdentity()
 
   basicShader.apply()
-
+  mainCamera.setPostZoomThreshold(float(frameBuffer.height) / float(maxFrameBufferHeight))
   world.render()
 
   #render UI
@@ -76,7 +75,7 @@ proc render* =
   #post processing
 
   let targetScanLines = float(frameBuffer.height) * targetScanLineFrequency
-  let scanLinePeriod = max(1, floor(screenSize.y / (targetScanLines * zoom)))
+  let scanLinePeriod = max(2, floor(screenSize.y / (targetScanLines * zoom)))
   let scanLineFrequency = 1 / scanLinePeriod
   let scanLines = screenSize.y * scanLineFrequency;
 
@@ -86,6 +85,7 @@ proc render* =
   postShader.setParameter("t", t)
   postShader.setParameter("scanLines", scanLines)
   postShader.setParameter("screenHeight", screenSize.y)
+  postShader.setParameter("aspectRatio", screenAspectRatio)
   postShader.setTexture("sceneTex", frameBuffer.texture)
   postShader.apply()
   fullscreenQuad()

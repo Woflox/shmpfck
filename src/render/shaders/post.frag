@@ -4,13 +4,14 @@ uniform sampler2D sceneTex;
 uniform float t;
 uniform float scanLines;
 uniform float zoom;
+uniform float aspectRatio;
 
 varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
 const float scanLineOpacity = 0.9;
 const float contrastBoost = 2;
-const float chromaticAberration = 0.00187;
+const float chromaticAberration = 0.004;
 
 void main (void)
 {
@@ -22,7 +23,7 @@ void main (void)
 	x = mod(x, 0.01);
 	x *= 100;
 
-  vec2 offset = vec2(chromaticAberration * zoom, 0);
+  vec2 offset = vec2(chromaticAberration * zoom / aspectRatio, 0);
   gl_FragColor.r = texture(sceneTex, texCoords - offset).r;
   gl_FragColor.g = texture(sceneTex, texCoords).g;
   gl_FragColor.b = texture(sceneTex, texCoords + offset).b;
