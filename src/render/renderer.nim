@@ -18,8 +18,8 @@ var postShader: ShaderProgram
 var frameBuffer: FrameBuffer
 var t: float
 
-const maxFrameBufferHeight = 720;
-const targetScanLineFrequency = 0.5;
+const maxFrameBufferHeight = 720
+const targetScanLineFrequency = 0.5
 
 proc init* =
   loadExtensions()
