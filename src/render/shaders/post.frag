@@ -10,7 +10,7 @@ varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
 const float contrastBoost = 1.75;
-const float chromaticAberration = 0.00275;
+const float chromaticAberration = 0.003;
 
 float noise(float x)
 {
@@ -23,6 +23,10 @@ float noise(float x)
 void main (void)
 {
   float scanLine = mod(screenTexCoords.y * scanLines, 1);
+  if (scanLine > 0.6)
+    scanLine = 1;
+  else if (scanLine < 0.4)
+    scanLine = 0;
 
   float filmGrain = noise(texCoords.x * texCoords.y * t * 1000);
   vec2 colorOffset = vec2(chromaticAberration / aspectRatio, 0);
