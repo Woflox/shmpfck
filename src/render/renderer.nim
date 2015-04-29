@@ -67,13 +67,10 @@ proc render* =
   world.render()
 
   #render UI
-
   let zoom = mainCamera.getPostZoom()
-
   currentScreen.render(zoom)
 
   #post processing
-
   let targetScanLines = float(frameBuffer.height) * targetScanLineFrequency
   let scanLinePeriod = max(2, floor(screenSize.y / (targetScanLines * zoom)))
   let scanLineFrequency = 1 / scanLinePeriod
@@ -81,7 +78,7 @@ proc render* =
 
   glBindFrameBuffer(GL_FRAMEBUFFER, 0)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
-  postShader.setParameter("zoom", mainCamera.getPostZoom())
+  postShader.setParameter("zoom", zoom)
   postShader.setParameter("t", t)
   postShader.setParameter("scanLines", scanLines)
   postShader.setParameter("screenHeight", screenSize.y)

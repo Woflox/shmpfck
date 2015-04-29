@@ -3,7 +3,6 @@ const postFrag = """
 uniform sampler2D sceneTex;
 uniform float t;
 uniform float scanLines;
-uniform float zoom;
 uniform float aspectRatio;
 
 varying vec2 texCoords;
