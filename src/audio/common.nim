@@ -12,3 +12,7 @@ proc slowReleaseCurve* (x: float): float =
 
 proc sCurve* (x: float): float =
   (1 - cos(x*Pi))/2
+
+proc bitCrush* (x: float, numBits: int): float =
+  let intSize = pow(2.0, float(numBits - 1))
+  result = float(round(x * intSize)) / intSize

@@ -55,7 +55,7 @@ proc releaseRef(self: AudioNode) =
     self.destruct()
     freeShared(self)
 
-proc addInput(self: AudioNode, node: AudioNode, volume = 1.0, pan = 0.0) =
+proc addInput*(self: AudioNode, node: AudioNode, volume = 1.0, pan = 0.0) =
   var toAdd = createShared(AudioInputObj)
   toAdd[] = AudioInputObj(node: node, volume: volume, pan: pan)
 
@@ -175,6 +175,26 @@ method updateOutputs(self: LimiterNode, dt: float) =
 type
   CompressorNodeObj = object of AudioNodeObj
     threshold, ratio, attack, release, gain: float
+
+
+###################
+#
+#  BitcrusherNode
+
+type
+  BitcrusherNodeObj* = object of AudioNodeObj
+    numBits: int
+  BitcrusherNode = ptr BitcrusherNodeObj
+
+proc newBitCrusherNode*(numBits: int): BitcrusherNode =
+  result = createShared(BitcrusherNodeObj)
+  result[] = BitcrusherNodeObj(numBits: numBits, stopOnNoInput: true)
+
+method updateOutputs(self: BitcrusherNode, dt: float) =
+  for channel in 0..1:
+    let input = self.getInputNode(0).output[channel]
+    self.output[channel] = bitcrush(input, self.numBits)
+
 
 
 ###################

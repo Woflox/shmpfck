@@ -4,6 +4,7 @@ import flite/rms
 import math
 import common
 import threadpool
+import ../util/util
 
 type
   VoiceNodeObj = object of AudioNodeObj
@@ -15,8 +16,12 @@ let fliteSuccess = fliteInit()
 let voice = registerCmuUsRms(nil)
 
 const speed = 1.0
-const volumeBoost = 4.0
-const saturation = -1.0
+const volumeBoost = 2.5
+const saturation = -0.5
+const numBits = 4
+const downSample = 8
+const bitcrushedSaturation = 1.0
+const bitcrushMix = 0.075
 
 proc newVoiceNode(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
@@ -38,15 +43,19 @@ method updateOutputs*(self: VoiceNode, dt: float) =
     return
 
   let index = int(self.t * speed * float(self.wave.sampleRate))
+  let downSampledIndex = int(index / downSample) * downSample
   if index >= self.wave.numSamples:
     self.stop()
     return
 
-  var output = float(self.wave[index]) / float(high(int16))
+  var sample = float(self.wave[index]) / float(high(int16))
+  var bitcrushedSample = float(self.wave[downSampledIndex]) / float(high(int16))
+  bitcrushedSample = bitcrush(bitcrushedSample, numBits)
+  bitcrushedSample = saturate(bitcrushedSample, bitcrushedSaturation)
+  sample = saturate(sample, saturation)
+  var output = lerp(sample, bitcrushedSample, bitcrushMix)
 
-  output = saturate(output, saturation)
-
-  output = clamp(output*volumeBoost, -1, 1)
+  output *= volumeBoost
 
   self.output[0] = output
   self.output[1] = output
