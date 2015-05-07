@@ -38,7 +38,7 @@ void main (void)
 	vec3 lerpfactor = vec3(pow(gl_FragColor.r, 0.15),
                          pow(gl_FragColor.g, 0.15),
                          pow(gl_FragColor.b, 0.15));
-  gl_FragColor.rgb = lerpfactor * gl_FragColor * (scanLine * 0.25 + 0.75) +
+  gl_FragColor.rgb = lerpfactor * gl_FragColor * (scanLine * 0.5 + 0.5) +
                     (1-lerpfactor) * gl_FragColor * filmGrain * scanLine * 2;
   gl_FragColor.rgb *= contrastBoost;
 }
