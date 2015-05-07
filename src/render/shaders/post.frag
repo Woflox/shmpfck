@@ -9,7 +9,7 @@ varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
 const float contrastBoost = 1.75;
-const float chromaticAberration = 0.003;
+const float chromaticAberration = 0.002;
 
 float noise(float x)
 {
