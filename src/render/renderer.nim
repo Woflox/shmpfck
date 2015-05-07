@@ -23,7 +23,7 @@ const targetScanLineFrequency = 0.5
 
 proc init* =
   loadExtensions()
-  glClearColor(0.025, 0.025, 0.025, 1.0)                  # Set background color to black and opaque
+  glClearColor(0, 0, 0, 1.0)                  # Set background color to black and opaque
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST)
   echo "OpenGL version ", cast[cstring](glGetString(GL_VERSION))
 
