@@ -21,7 +21,7 @@ const saturation = -0.5
 const numBits = 4
 const downSample = 8
 const bitcrushedSaturation = 1.0
-const bitcrushMix = 0.1
+const bitcrushMix = 0.075
 
 proc newVoiceNode(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
