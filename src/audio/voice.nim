@@ -21,8 +21,7 @@ const saturation = -0.5
 const numBits = 4
 const downSample = 8
 const bitcrushedSaturation = 1.0
-const bitcrushMix = 0.075
-const stereoDelay = 0.005
+const bitcrushMix = 0.1
 
 proc newVoiceNode(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
@@ -43,23 +42,23 @@ method updateOutputs*(self: VoiceNode, dt: float) =
     self.stop()
     return
 
-  for channel in 0..1:
-    let index = int((self.t + stereoDelay * float(channel)) * speed * float(self.wave.sampleRate))
-    let downSampledIndex = int(index / downSample) * downSample
-    if index >= self.wave.numSamples:
-      self.stop()
-      return
+  let index = int(self.t * speed * float(self.wave.sampleRate))
+  let downSampledIndex = int(index / downSample) * downSample
+  if index >= self.wave.numSamples:
+    self.stop()
+    return
 
-    var sample = float(self.wave[index]) / float(high(int16))
-    var bitcrushedSample = float(self.wave[downSampledIndex]) / float(high(int16))
-    bitcrushedSample = bitcrush(bitcrushedSample, numBits)
-    bitcrushedSample = saturate(bitcrushedSample, bitcrushedSaturation)
-    sample = saturate(sample, saturation)
-    var output = lerp(sample, bitcrushedSample, bitcrushMix)
+  var sample = float(self.wave[index]) / float(high(int16))
+  var bitcrushedSample = float(self.wave[downSampledIndex]) / float(high(int16))
+  bitcrushedSample = bitcrush(bitcrushedSample, numBits)
+  bitcrushedSample = saturate(bitcrushedSample, bitcrushedSaturation)
+  sample = saturate(sample, saturation)
+  var output = lerp(sample, bitcrushedSample, bitcrushMix)
 
-    output *= volumeBoost
+  output *= volumeBoost
 
-    self.output[channel] = output
+  self.output[0] = output
+  self.output[1] = output
 
   self.t += dt
 
