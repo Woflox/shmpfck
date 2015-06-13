@@ -18,7 +18,7 @@ from ../entity/camera import nil
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
   let shape = createIsoTriangle(width =0.2, height = 0.2, drawStyle = DrawStyle.solid,
-                                 fillColor = color(0.25, 0.25, 0.25))
+                                 fillColor = color(0.5, 0.5, 0.5))
   result.shapes = @[shape]
   result.init()
 
@@ -26,13 +26,13 @@ proc generate* () =
   clearEntities()
   for x in -25..25:
     for y in -25..25:
-      addEntity(testShape(vec2(float(x*4),float(y*4))))
+      addEntity(testShape(vec2(float(x*8),float(y*8))))
   let ship = generatePlayerShip(vec2(0,10))
   var camera = newCamera(ship.position)
   camera.target = ship
 
   for i in 0..20:
-    let speciesPos = randomDirection() * 100
+    let speciesPos = randomDirection() * random(100.0, 300.0)
     var species = generateTestSpecies()
     for j in 0..10:
       let pos = speciesPos + randomDirection() * random(0.0, 25.0)

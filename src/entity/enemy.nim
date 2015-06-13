@@ -20,6 +20,8 @@ type
   Enemy = ref object of Ship
     species *: Species
     brain: NeuralNet
+    timeSinceShoot: float
+    wantsToShoot: bool
     t: float
 
 const
@@ -47,7 +49,7 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
   result.init()
 
 proc generateTestSpecies* (): Species =
-  var species = Species(moveSpeed: random(5.0,20.0))
+  var species = Species(moveSpeed: random(5.0,20.0), shapes: @[])
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   let index = random(0, 2)
   case index:
@@ -55,13 +57,23 @@ proc generateTestSpecies* (): Species =
     of 1: color.g = 1
     of 2: color.b = 1
     else: discard
-  var fillColor = color(color.r * 0.375, color.g * 0.375, color.b * 0.375)
+  for i in 0..random(1, 6):
+    let size = random(0.25, 1)
+    let point1 = vec2(random(-size, size),random(-size, size))
+    let point2 = vec2(random(-size, size),random(-size, size))
+    let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
+    let shape = newShape(vertices = @[point1, point2],
+                             drawStyle = DrawStyle.line,
+                             lineColor = lineColor,
+                             collisionType = CollisionType.continuous)
+    let shape2 = newShape(vertices = @[vec2(point1.x * -1, point1.y), vec2(point2.x * -1, point2.y)],
+                             drawStyle = DrawStyle.line,
+                             lineColor = lineColor,
+                             collisionType = CollisionType.continuous)
+    species.shapes.add(shape)
+    species.shapes.add(shape2)
 
-  let shape = createIsoTriangle(width = random(0.5, 1.5), height = -random(0.5, 1.5), drawStyle = DrawStyle.filledOutline,
-                                lineColor = color, fillColor = fillColor,
-                                collisionType = CollisionType.continuous)
-  species.shapes = @[shape]
-  species.brain = newNeuralNet(inputs = 15, outputs = 2)
+  species.brain = newNeuralNet(inputs = 15, outputs = 3)
   species.brain.randomize()
   result = species
 
@@ -110,9 +122,19 @@ method update*(self: Enemy, dt: float) =
   self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
 
   if length(self.position) <= self.minPolarY + 0.1:
-    self.reposition(self.position.normalize * 100)
+    self.reposition(self.position.normalize * 200)
 
-  if length(self.position) >= 200:
+  if length(self.position) >= 400:
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
   procCall Ship(self).update(dt)
+
+
+method updatePostPhysics* (self: Enemy, dt: float) =
+  self.wantsToShoot = self.brain.getOutput(2) > 0.1
+  if self.wantsToShoot and self.timeSinceShoot > 2.0:
+    addEntity(newEnemyProjectile(self.position + self.rotation*vec2(0,1), self.getVelocity()))
+    self.timeSinceshoot = 0
+
+  self.timeSinceShoot += dt
+

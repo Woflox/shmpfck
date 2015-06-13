@@ -1,5 +1,3 @@
-const postVert = """
-
 uniform float zoom;
 
 varying vec2 texCoords;
@@ -13,4 +11,3 @@ void main(void)
    screenTexCoords = (pos.xy + 1) / 2;
    gl_Position = pos;
 }
-"""

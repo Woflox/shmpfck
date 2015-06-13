@@ -8,17 +8,17 @@ import ../world/world
 import ../ui/screen
 import ../entity/camera
 
-include shaders/basic.frag
-include shaders/basic.vert
-include shaders/post.frag
-include shaders/post.vert
+const basicFrag = staticRead("../src/render/shaders/basic.frag")
+const basicVert = staticRead("../src/render/shaders/basic.vert")
+const postFrag = staticRead("../src/render/shaders/post.frag")
+const postVert = staticRead("../src/render/shaders/post.vert")
 
 var basicShader: ShaderProgram
 var postShader: ShaderProgram
 var frameBuffer: FrameBuffer
 var t: float
 
-const maxFrameBufferHeight = 720
+const maxFrameBufferHeight = 600
 const targetScanLineFrequency = 0.5
 
 proc init* =

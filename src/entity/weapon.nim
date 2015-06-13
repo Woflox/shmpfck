@@ -29,6 +29,7 @@ type
   Projectile = ref object of Entity
     t: float
     origin: Vector2
+    lifetime: float
   Blast = ref object of Entity
   Obstruction = ref object of Entity
 
@@ -39,6 +40,8 @@ type
 const
   speed = 60.0
   lifetime = 0.5
+  enemySpeed = 25.0
+  enemyLifetime = 0.75
 
 method onCollision*(self: Projectile, other: Entity) =
   other.destroyed = true
@@ -50,7 +53,8 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
                       drawable: true,
                       position: position,
                       origin: position,
-                      collisionTag: CollisionTag.playerWeapon)
+                      collisionTag: CollisionTag.playerWeapon,
+                      lifetime: lifetime)
   let fireDir = position.normalize()
   result.velocity = sourceVelocity + fireDir * speed
   let renderShape = newShape(vertices = @[vec2(0,0),vec2(0,0)],
@@ -62,9 +66,28 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result.shapes = @[renderShape, collisionShape]
   result.init(matrixFromDirection(result.velocity.normalize))
 
+proc newEnemyProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
+  result = Projectile(movement: Movement.normal,
+                      drawable: true,
+                      position: position,
+                      origin: position,
+                      collisionTag: CollisionTag.enemyWeapon,
+                      lifetime: enemyLifetime)
+  let fireDir = position.normalize() * (-1)
+  result.velocity = sourceVelocity + fireDir * enemySpeed
+  let renderShape = newShape(vertices = @[vec2(0,0),vec2(0,0)],
+                             drawStyle = DrawStyle.line,
+                             lineColor = color(1, 1, 0.5))
+  let collisionShape = newShape(vertices = @[vec2(0,0)],
+                                collisionType = CollisionType.continuous,
+                                closed = false)
+  result.shapes = @[renderShape, collisionShape]
+  result.init(matrixFromDirection(result.velocity.normalize))
+
+
 method update(self: Projectile, dt: float) =
   self.t += dt
-  if (self.t > lifetime):
+  if (self.t > self.lifetime):
     self.destroyed = true
 
   #update render shape

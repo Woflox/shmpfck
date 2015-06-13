@@ -1,5 +1,3 @@
-const postFrag = """
-
 uniform sampler2D sceneTex;
 uniform float t;
 uniform float scanLines;
@@ -10,7 +8,7 @@ varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
 const float contrastBoost = 2.0;
-const float chromaticAberration = 0.0045;
+const float chromaticAberration = 0.0025;
 
 float noise(float x)
 {
@@ -46,4 +44,3 @@ void main (void)
                     (1-lerpfactor) * gl_FragColor * filmGrain * 2 - scanLine * 0.5;
   gl_FragColor.rgb *= contrastBoost;
 }
-"""

@@ -1,5 +1,3 @@
-const basicVert = """
-
 varying vec4 vColor;
 
 void main(void)
@@ -9,4 +7,3 @@ void main(void)
    gl_Position = gl_ModelViewProjectionMatrix * pos;
    vColor = gl_Color;
 }
-"""
