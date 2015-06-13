@@ -23,7 +23,7 @@ method updateOutputs*(self: AmbientNode, dt: float) =
   let noiseVal2 = (fractalNoise((self.t + 100) / noiseFrequency, noiseOctaves) + 1) / 2
   output = ((self.t * 40) mod 1.0) * 2 - 1
   output *= lerp(1.0, uniformRandom(), noiseVal)
-  output = lerp(output, fractalNoise(self.t * 50, 10), noiseVal2)
+  output = lerp(output*0.5, fractalNoise(self.t * 30, 30), noiseVal2)
 
   self.output[0] = output
   self.output[1] = output
