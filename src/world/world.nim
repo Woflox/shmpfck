@@ -18,7 +18,7 @@ import math
 
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
-  let maxSize = min(25.0, pos.length / 3)
+  let maxSize = min(50.0, pos.length / 5)
   let shape = createIsoTriangle(width = random(0.0, maxSize),
                                 height = random(0.0, maxSize),
                                 drawStyle = DrawStyle.filledOutline,
@@ -30,7 +30,7 @@ proc testShape (pos: Vector2): Entity =
 proc generate* () =
   clearEntities()
   for i in 0..2000:
-    addEntity(testShape(vec2(random(-300.0, 300.0), random(-300.0, 300.0))))
+    addEntity(testShape(randomDirection()*expRandom(1.0 / 200.0)))
   let ship = generatePlayerShip(vec2(0,10))
   var camera = newCamera(ship.position)
   camera.target = ship

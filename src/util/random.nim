@@ -44,3 +44,6 @@ proc randomChoice* (sequence): auto =
 proc randomDirection* : Vector2 =
   mt.randomDirection()
 
+proc expRandom* (frequency: float) : float =
+  -ln(uniformRandom()) / frequency
+
