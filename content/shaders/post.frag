@@ -9,7 +9,7 @@ uniform float brightnessCompensation;
 varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
-const float contrastBoost = 2.25;
+const float contrastBoost = 2;
 const float chromaticAberration = 0.0025;
 
 float noise(float x)
