@@ -15,11 +15,20 @@ proc newScreen(): Screen =
 let hudScreen* = newScreen()
 hudScreen.innerElements.add(newTextObject("FPS: ", hudTextStyle, vec2(0.5, -0.5), HAlign.left, VAlign.top))
 
+var subtitles = newTextObject("", hudTextStyle, vec2(0, 0.5), HAlign.center, VAlign.bottom)
+
+hudScreen.innerELements.add(subtitles)
+
 var currentScreen* = hudScreen
+var timeSinceSubtitleShow: float
+var timeToShowSubtitle: float
 
 method update* (self: Screen, dt: float) =
   self.bounds = boundingBox(vec2(-baseScreenHeight * screenAspectRatio / 2, -baseScreenHeight / 2),
                             vec2(baseScreenHeight * screenAspectRatio / 2, baseScreenHeight / 2))
+  timeSinceSubtitleShow += dt
+  if timeSinceSubtitleShow > timeToShowSubtitle:
+    subtitles.setText("")
   for element in self.innerElements:
     element.updateLayout(self.bounds)
   procCall UIObject(self).update(dt)
@@ -44,3 +53,8 @@ proc render* (self: Screen, zoom: float) =
     element.renderPoint()
   glEnd()
   glPopMatrix()
+
+proc showSubtitle* (text: string) =
+  subtitles.setText(text)
+  timeSinceSubtitleShow = 0
+  timeToShowSubtitle = float(text.len) * 0.1

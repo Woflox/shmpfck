@@ -5,6 +5,7 @@ import math
 import common
 import threadpool
 import ../util/util
+import ../ui/screen
 
 type
   VoiceNodeObj = object of AudioNodeObj
@@ -27,11 +28,6 @@ proc newVoiceNode(text: string): VoiceNode =
   result = createShared(VoiceNodeObj)
   result[] = VoiceNodeObj()
   result.wave = fliteTextToWave(text, voice)
-  if result.wave != nil:
-    echo "Voice node:"
-    echo "  voice: ", voice.name
-    echo "  sample rate: ", result.wave.sampleRate
-    echo "  channels: ", result.wave.numChannels
 
 method destruct*(self: VoiceNode) =
   self.wave.delete()
@@ -68,3 +64,4 @@ proc createAndPlayVoiceNode(text: string) =
 
 proc say*(text: string) =
   spawn createAndPlayVoiceNode(text)
+  showSubtitle(text)

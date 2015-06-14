@@ -9,24 +9,28 @@ import ../util/random
 import ../geometry/shape
 import ../audio/audio
 import ../audio/ambient
-import ../audio/poetry
+import ../audio/prose
 import ../ui/text
 import ../ui/uiobject
 from ../input/input import nil
 from ../entity/camera import nil
+import math
 
 proc testShape (pos: Vector2): Entity =
   result = Entity(drawable: true, position: pos)
-  let shape = createIsoTriangle(width =0.2, height = 0.2, drawStyle = DrawStyle.solid,
-                                 fillColor = color(0.5, 0.5, 0.5))
+  let maxSize = min(25.0, pos.length / 3)
+  let shape = createIsoTriangle(width = random(0.0, maxSize),
+                                height = random(0.0, maxSize),
+                                drawStyle = DrawStyle.filledOutline,
+                                fillColor = color(0.04, 0.04, 0.06),
+                                lineColor = color(0.08, 0.08, 0.12))
   result.shapes = @[shape]
-  result.init()
+  result.init(rotation = matrixFromAngle(random(0.0, 2*Pi)))
 
 proc generate* () =
   clearEntities()
-  for x in -25..25:
-    for y in -25..25:
-      addEntity(testShape(vec2(float(x*8),float(y*8))))
+  for i in 0..2000:
+    addEntity(testShape(vec2(random(-300.0, 300.0), random(-300.0, 300.0))))
   let ship = generatePlayerShip(vec2(0,10))
   var camera = newCamera(ship.position)
   camera.target = ship

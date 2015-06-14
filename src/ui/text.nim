@@ -83,6 +83,7 @@ let letters =
     ',': @[@[vec2(0.75,0), vec2(1,0.25), vec2(1,0.5)]],
     '"': @[@[vec2(0.75,3), vec2(0.75,2.5)],
            @[vec2(1.25,3), vec2(1.25,2.5)]],
+    '\'': @[@[centerTop, vec2(1,2.5)]],
     ';': @[@[vec2(0.75,0), vec2(1,0.25), vec2(1,0.5)],
            @[vec2(1,2.5)]],
     '-': @[@[centerLeft, centerRight]],
@@ -113,7 +114,7 @@ let hudTextStyle* = TextStyle(color: color(1,1,1,1), size: 0.25)
 
 proc setText* (self: TextObject, text: string) =
   self.text = text
-  self.size = vec2(self.style.size * ((baseLetterSize.x + baseLetterSpacing) * float(text.len) - baseLetterSpacing) / baseLetterSize.y,
+  self.size = vec2(self.style.size * ((baseLetterSize.x + baseLetterSpacing) * float(self.text.len) - baseLetterSpacing) / baseLetterSize.y,
                    self.style.size)
 
 proc newTextObject* (text: string, style: TextStyle, position: Vector2, hAlign: HAlign, vAlign: VAlign): TextObject =
@@ -133,10 +134,14 @@ method renderLine(self: TextObject) =
   glColor4d(self.style.color)
   for letter in self.text:
     if letter != ' ':
-      for vertexList in letters[toLowercase(letter)]:
-        for i in 0..high(vertexList) - 1:
-          glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
-          glVertex2d(vertexList[i+1]*scale + self.bounds.minPos + vec2(offset, 0))
+      let lowerCase = toLowercase(letter)
+      if letters.hasKey(lowerCase):
+        for vertexList in letters[toLowercase(letter)]:
+          for i in 0..high(vertexList) - 1:
+            glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
+            glVertex2d(vertexList[i+1]*scale + self.bounds.minPos + vec2(offset, 0))
+      else:
+        echo "MISSING GEOMETRY FOR LETTER: ",letter
     offset += increment
 
 method renderPoint(self: TextObject) =
@@ -147,6 +152,6 @@ method renderPoint(self: TextObject) =
   for letter in self.text:
     if letter != ' ':
       for vertexList in letters[toLowercase(letter)]:
-        if vertexList.len == 1:
-          glVertex2d(vertexList[0]*scale + self.bounds.minPos + vec2(offset, 0))
+        for i in 0..high(vertexList):
+          glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
     offset += increment
