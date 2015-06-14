@@ -9,7 +9,7 @@ uniform float brightnessCompensation;
 varying vec2 texCoords;
 varying vec2 screenTexCoords;
 
-const float contrastBoost = 2.0;
+const float contrastBoost = 2.25;
 const float chromaticAberration = 0.0025;
 
 float noise(float x)
@@ -36,13 +36,8 @@ void main (void)
   gl_FragColor.g = texture(sceneTex, noiseTexCoords).g;
   gl_FragColor.b = texture(sceneTex, noiseTexCoords + colorOffset).b;
   gl_FragColor.a = 1;
-
-	vec3 lerpfactor = vec3(pow(gl_FragColor.r, 0.15),
-                         pow(gl_FragColor.g, 0.15),
-                         pow(gl_FragColor.b, 0.15));
-  gl_FragColor.rgb = lerpfactor * gl_FragColor +
-                    (1-lerpfactor) * gl_FragColor * filmGrain * 2 - scanLine * 0.5;
-  gl_FragColor.rgb *= contrastBoost;
+  gl_FragColor.rgb = (gl_FragColor - (1 - filmGrain) * 0.015 ) - scanLine * 0.5;
+  gl_FragColor.rgb *= contrastBoost * (0.75 + filmGrain * 0.25);
   gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, 1);
   gl_FragColor.rgb *= gl_FragColor.rgb +
                      (1 - gl_FragColor.rgb) * brightnessCompensation;
