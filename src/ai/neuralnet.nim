@@ -2,7 +2,7 @@ import math
 import ../util/random
 
 const
-  activationThreshold = 0.15
+  activationThreshold = 0.025
   numNeurons = 50
   numSynapsesPerNeuron = 8
   updateRate = 1 / 120.0
@@ -31,6 +31,7 @@ proc randomize* (self: var NeuralNet) =
       self.neurons[i].synapses[j].weight = random(-1.0, 1.0)
 
 proc activate(self: var Neuron) =
+  self.value *= abs(self.value) * 2
   self.value = self.value / (1 + abs(self.value))
   if abs(self.value) < activationThreshold:
     self.value = 0
