@@ -38,7 +38,7 @@ const
   speedShakeBoost = 0.375
   rotationSpeedShakeBoost = 8
   zoomSpeed = 0.5
-  zoomHysteresis = 0.25
+  zoomHysteresis = 1.25
   zoomPadding = 4
   minBoundsMinY = -7.0
   minBoundsMaxY = 25.0
@@ -153,14 +153,14 @@ proc update* (self: Camera, dt: float) =
         self.zoom = desiredZoom
       else:
         self.zoom += zoomAmount
-      self.zoomInThreshold = self.zoom * (1 - zoomHysteresis)
+      self.zoomInThreshold = self.zoom / zoomHysteresis
   else:
     if desiredZoom < self.zoomInThreshold:
       if self.zoom - desiredZoom < zoomAmount:
         self.zoom = desiredZoom
       else:
         self.zoom -= zoomAmount
-      self.zoomOutThreshold = self.zoom * (1 + zoomHysteresis)
+      self.zoomOutThreshold = self.zoom * zoomHysteresis
 
   if self.target != nil:
     self.lastTargetPos = self.target.position

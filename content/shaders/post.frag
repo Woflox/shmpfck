@@ -36,7 +36,7 @@ void main (void)
   gl_FragColor.g = texture(sceneTex, noiseTexCoords).g;
   gl_FragColor.b = texture(sceneTex, noiseTexCoords + colorOffset).b;
   gl_FragColor.a = 1;
-  gl_FragColor.rgb = (gl_FragColor - (1 - filmGrain) * 0.015 ) - scanLine * 0.5;
+  gl_FragColor.rgb = (gl_FragColor.rgb - (1 - filmGrain) * 0.015 ) - scanLine * 0.5;
   gl_FragColor.rgb *= contrastBoost * (0.75 + filmGrain * 0.25);
   gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, 1);
   gl_FragColor.rgb *= gl_FragColor.rgb +
