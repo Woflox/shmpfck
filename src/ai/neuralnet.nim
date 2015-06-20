@@ -1,16 +1,18 @@
 import math
 import ../util/random
+import ../util/util
 
 const
-  activationThreshold = 0.025
-  numNeurons = 50
+  numNeurons = 64
   numSynapsesPerNeuron = 8
   updateRate = 1 / 120.0
   maxUpdates = 8
+  responseSmoothing = 0.75
 
 type
   Neuron* = object
     value: float
+    intermediateValue: float
     synapses: array[numSynapsesPerNeuron, Synapse]
   Synapse = object
     neuronIndex: int
@@ -31,10 +33,9 @@ proc randomize* (self: var NeuralNet) =
       self.neurons[i].synapses[j].weight = random(-1.0, 1.0)
 
 proc activate(self: var Neuron) =
-  self.value *= abs(self.value) * 2
-  self.value = self.value / (1 + abs(self.value))
-  if abs(self.value) < activationThreshold:
-    self.value = 0
+  self.intermediateValue *= abs(self.intermediateValue) * 2
+  self.intermediateValue = self.intermediateValue / (1 + abs(self.intermediateValue))
+  self.value = lerp(self.intermediateValue, self.value, responseSmoothing)
 
 proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
   self.timeSinceUpdate += dt
@@ -48,9 +49,9 @@ proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
     inc numUpdates
 
     for i in self.inputs..high(self.neurons):
-      self.neurons[i].value = 0
+      self.neurons[i].intermediateValue = 0
       for j in 0..high(self.neurons[i].synapses):
-        self.neurons[i].value += self.neurons[self.neurons[i].synapses[j].neuronIndex].value *
+        self.neurons[i].intermediateValue += self.neurons[self.neurons[i].synapses[j].neuronIndex].value *
                                  self.neurons[i].synapses[j].weight
       self.neurons[i].activate()
 

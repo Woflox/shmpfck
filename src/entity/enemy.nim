@@ -29,6 +29,7 @@ const
   noiseOctaves = 3
   waveFrequency = 0.25
   closeRange = pow(5, 2)
+  outputDeadZone = 0.1
 
 method onCollision(self: Enemy, other: PlayerShip) =
   playSound(newExplosionNode(), 0.0, 0.0)
@@ -119,7 +120,13 @@ method update*(self: Enemy, dt: float) =
                       closeObstacleDir.x, closeObstacleDir.y,
                       obstacleMoveDir.x, obstacleMoveDir.y)
 
-  self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1)).normalize
+  self.moveDir = vec2(self.brain.getOutput(0), self.brain.getOutput(1))
+  if abs(self.moveDir.x) < outputDeadZone:
+    self.moveDir.x = 0
+  if abs(self.moveDir.y) < outputDeadZone:
+    self.moveDir.y = 0
+  self.moveDir = self.moveDir.normalize
+
 
   if length(self.position) <= self.minPolarY + 0.1:
     self.reposition(self.position.normalize * 200)
@@ -131,7 +138,7 @@ method update*(self: Enemy, dt: float) =
 
 
 method updatePostPhysics* (self: Enemy, dt: float) =
-  self.wantsToShoot = self.brain.getOutput(2) > 0.1
+  self.wantsToShoot = self.brain.getOutput(2) > outputDeadZone
   if self.wantsToShoot and self.timeSinceShoot > 2.0:
     addEntity(newEnemyProjectile(self.position + self.rotation*vec2(0,1), self.getVelocity()))
     self.timeSinceshoot = 0
