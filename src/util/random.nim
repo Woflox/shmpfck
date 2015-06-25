@@ -47,3 +47,5 @@ proc randomDirection* : Vector2 =
 proc expRandom* (frequency: float) : float =
   -ln(uniformRandom()) / frequency
 
+proc relativeRandom* (median: float, maxMultiplier: float) : float =
+  median * (pow(maxMultiplier, random(-1.0, 1.0)))

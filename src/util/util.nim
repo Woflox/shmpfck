@@ -15,6 +15,46 @@ type
   BoundingBox* = object
     minPos*, maxPos*: Vector2
 
+proc `[]`* (a: Vector2, index: int): float =
+  case index:
+    of 0:
+      result = a.x
+    of 1:
+      result = a.y
+    else:
+      result = 0
+
+proc `[]`* (a: Color, index: int): float =
+  case index:
+    of 0:
+      result = a.r
+    of 1:
+      result = a.g
+    of 2:
+      result = a.b
+    else:
+      result = 0
+
+proc `[]=`* (a: var Vector2, index: int, value: float) =
+  case index:
+    of 0:
+      a.x = value
+    of 1:
+      a.y = value
+    else:
+      discard
+
+proc `[]=`* (a: var Color, index: int, value: float) =
+  case index:
+    of 0:
+      a.r = value
+    of 1:
+      a.g = value
+    of 2:
+      a.b = value
+    else:
+      discard
+
 proc `+`*(a, b: Vector2): Vector2 =
   result.x = a.x + b.x
   result.y = a.y + b.y

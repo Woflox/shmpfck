@@ -17,6 +17,9 @@ type
     shapes*: seq[Shape]
     brain*: NeuralNet
     weapon*: Weapon
+    noise1Frequency*: float
+    noise2Frequency*: float
+    waveFrequency*: float
   Enemy = ref object of Ship
     species *: Species
     brain: NeuralNet
@@ -25,9 +28,11 @@ type
     t: float
 
 const
-  noiseFrequency = 0.5
+  medianNoiseFrequency = 0.5
+  maxNoiseMultiplier = 2
   noiseOctaves = 3
-  waveFrequency = 0.25
+  medianWaveFrequency = 0.25
+  maxWavemultiplier = 2
   closeRange = pow(5, 2)
   outputDeadZone = 0.1
 
@@ -52,13 +57,8 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
 proc generateTestSpecies* (): Species =
   var species = Species(moveSpeed: random(5.0,20.0), shapes: @[])
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
-  let index = random(0, 2)
-  case index:
-    of 0: color.r = 1
-    of 1: color.g = 1
-    of 2: color.b = 1
-    else: discard
-  for i in 0..random(1, 6):
+  color[random(0, 2)] = 1
+  for i in 0..random(2, 6):
     let size = random(0.25, 1)
     let point1 = vec2(random(-size, size),random(-size, size))
     let point2 = vec2(random(-size, size),random(-size, size))
@@ -76,6 +76,9 @@ proc generateTestSpecies* (): Species =
 
   species.brain = newNeuralNet(inputs = 15, outputs = 3)
   species.brain.randomize()
+  species.noise1Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
+  species.noise2Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
+  species.waveFrequency = relativeRandom(medianWaveFrequency, maxWaveMultiplier)
   result = species
 
 method update*(self: Enemy, dt: float) =
@@ -86,9 +89,9 @@ method update*(self: Enemy, dt: float) =
   let ship = entityOfType[PlayerShip]()
   let dirToShip = inverseRotation * (ship.position - self.position).normalize()
   let shipMoveDir = inverseRotation * ship.getVelocity().normalize()
-  let waveVal = sin(self.t * waveFrequency * Pi * 2 )
-  let noiseVal = fractalNoise(self.t * noiseFrequency, noiseOctaves)
-  let noiseVal2 = fractalNoise((self.t + 100) * noiseFrequency, noiseOctaves)
+  let waveVal = sin(self.t * self.species.waveFrequency * Pi * 2 )
+  let noiseVal = fractalNoise(self.t * self.species.noise1Frequency, noiseOctaves)
+  let noiseVal2 = fractalNoise((self.t + 100) * self.species.noise2Frequency, noiseOctaves)
   let closeShipDir = if self.position.distanceSquared(ship.position) < closeRange:
                         dirToShip else: vec2(0,0)
   var obstacle: Entity

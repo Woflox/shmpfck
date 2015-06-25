@@ -4,7 +4,8 @@ import ../util/util
 
 const
   numNeurons = 64
-  numSynapsesPerNeuron = 8
+  numSynapsesPerNeuron = 4
+  sigmoidMultiplier = 8.0
   updateRate = 1 / 120.0
   maxUpdates = 8
   responseSmoothing = 0.75
@@ -33,7 +34,7 @@ proc randomize* (self: var NeuralNet) =
       self.neurons[i].synapses[j].weight = random(-1.0, 1.0)
 
 proc activate(self: var Neuron) =
-  self.intermediateValue *= abs(self.intermediateValue) * 2
+  self.intermediateValue *= abs(self.intermediateValue) * sigmoidMultiplier
   self.intermediateValue = self.intermediateValue / (1 + abs(self.intermediateValue))
   self.value = lerp(self.intermediateValue, self.value, responseSmoothing)
 
