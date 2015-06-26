@@ -59,7 +59,7 @@ proc generateTestSpecies* (): Species =
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   color[random(0, 2)] = 1
   for i in 0..random(2, 6):
-    let size = random(0.25, 1)
+    let size = relativeRandom(0.5, 2)
     let point1 = vec2(random(-size, size),random(-size, size))
     let point2 = vec2(random(-size, size),random(-size, size))
     let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
