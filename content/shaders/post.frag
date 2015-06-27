@@ -2,7 +2,7 @@ uniform sampler2D sceneTex;
 uniform float t;
 uniform float aspectRatio;
 uniform float zoom;
-uniform float screenHeight;
+uniform float scanLineOffset;
 uniform float scanLines;
 uniform float brightnessCompensation;
 
@@ -11,6 +11,7 @@ varying vec2 screenTexCoords;
 
 const float contrastBoost = 2;
 const float chromaticAberration = 0.0025;
+const float pi2 = 3.1415926536 * 2;
 
 float noise(float x)
 {
@@ -22,9 +23,7 @@ float noise(float x)
 
 void main (void)
 {
-  float scanLineOffset = 0.5 / screenHeight;
-  float scanLine = mod((screenTexCoords.y - scanLineOffset) * scanLines, 1);
-  scanLine = 1 - abs((scanLine * 2) - 1);
+  float scanLine = cos((screenTexCoords.y - scanLineOffset) * scanLines * pi2) * (-0.5) + 0.5;
 
   float filmGrain = noise(texCoords.x * texCoords.y * t * 1000);
   float aberrationBoost = clamp(pow(noise(texCoords.y * t + 1000), 10) * 0.01, 0, 1);

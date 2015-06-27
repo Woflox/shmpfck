@@ -75,7 +75,7 @@ proc render* =
   let scanLinePeriod = max(2, floor(screenSize.y / (targetScanLines * zoom)))
   let scanLineFrequency = 1 / scanLinePeriod
   let scanLines = screenSize.y * scanLineFrequency;
-  let brightnessCompensation = scanLinePeriod / 2;
+  let brightnessCompensation = min(scanLinePeriod / 2, 2);
 
   glBindFrameBuffer(GL_FRAMEBUFFER, 0)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
@@ -83,7 +83,7 @@ proc render* =
   postShader.setParameter("t", t)
   postShader.setParameter("scanLines", scanLines)
   postShader.setParameter("brightnessCompensation", brightnessCompensation)
-  postShader.setParameter("screenHeight", screenSize.y)
+  postShader.setParameter("scanLineOffset", 0.5 / screenSize.y)
   postShader.setParameter("aspectRatio", screenAspectRatio)
   postShader.setTexture("sceneTex", frameBuffer.texture)
   postShader.apply()
