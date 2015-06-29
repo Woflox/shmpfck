@@ -5,6 +5,8 @@ uniform float zoom;
 uniform float scanLineOffset;
 uniform float scanLines;
 uniform float brightnessCompensation;
+uniform float screenHeight;
+uniform float blur;
 
 varying vec2 texCoords;
 varying vec2 screenTexCoords;
@@ -23,13 +25,20 @@ float noise(float x)
 
 void main (void)
 {
-  float scanLine = cos((screenTexCoords.y - scanLineOffset) * scanLines * pi2) * (-0.5) + 0.5;
 
   float filmGrain = noise(texCoords.x * texCoords.y * t * 1000);
+  float noise2 = noise(texCoords.x * texCoords.y * t * 10000);
   float aberrationBoost = clamp(pow(noise(texCoords.y * t + 1000), 10) * 0.01, 0, 1);
+  float r = sqrt(noise2);
+  float angle = filmGrain * pi2;
+  vec2 discOffset = vec2(r * cos(angle), r * sin(angle)) * blur;
   vec2 noiseTexCoords = texCoords;
-  noiseTexCoords.x += aberrationBoost * 0.4 / (aspectRatio / zoom);
+  noiseTexCoords.x += (aberrationBoost * 0.4 + discOffset.x) / (aspectRatio / zoom);
+  noiseTexCoords.y += discOffset.y / zoom;
   vec2 colorOffset = vec2((chromaticAberration + aberrationBoost) / (aspectRatio / zoom), 0);
+
+  float scanLine = cos((screenTexCoords.y + int(discOffset.y * screenHeight) / screenHeight - scanLineOffset)
+                       * scanLines * pi2) * (-0.5) + 0.5;
 
   gl_FragColor.r = texture(sceneTex, noiseTexCoords - colorOffset * 0.75).r;
   gl_FragColor.g = texture(sceneTex, noiseTexCoords).g;

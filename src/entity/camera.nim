@@ -24,6 +24,7 @@ type
     velocity*: Vector2
     bounds: BoundingBox
     postZoomThreshold: float
+    blur: float
 
 const
   smoothing = 0.25
@@ -44,6 +45,9 @@ const
   minBoundsMaxY = 23.0
   maxBoundsMinY = -22.5
   maxBoundsMaxY = 35.0
+  blurRate = 0.01
+  unblurRate = 0.025
+  maxBlur = 0.0025
 
 var mainCamera*: Camera
 
@@ -147,20 +151,34 @@ proc update* (self: Camera, dt: float) =
 
   let desiredZoom = targetBox.size.y
   let zoomAmount = self.zoom * zoomSpeed * dt
+  var zooming = false
   if desiredZoom > self.zoom:
     if desiredZoom > self.zoomOutThreshold:
       if desiredZoom - self.zoom < zoomAmount:
         self.zoom = desiredZoom
       else:
+        zooming = true
         self.zoom += zoomAmount
+        self.blur = min(maxBlur, self.blur + blurRate * dt)
       self.zoomInThreshold = self.zoom / zoomHysteresis
   else:
     if desiredZoom < self.zoomInThreshold:
       if self.zoom - desiredZoom < zoomAmount:
         self.zoom = desiredZoom
       else:
+        zooming = true
         self.zoom -= zoomAmount
+        self.blur = max(-maxBlur, self.blur - blurRate * dt)
       self.zoomOutThreshold = self.zoom * zoomHysteresis
+
+  if not zooming:
+    if self.blur > 0:
+      self.blur = max(0, self.blur - unblurRate * dt)
+    else:
+      self.blur = min(0, self.blur + unblurRate * dt)
+
+
+
 
   if self.target != nil:
     self.lastTargetPos = self.target.position
@@ -205,3 +223,5 @@ proc setPostZoomThreshold* (self: Camera, value: float) =
     self.postZoomThreshold = maxBoundsMaxY - maxBoundsMinY
   else:
     self.postZoomThreshold = (maxBoundsMaxY - maxBoundsMinY) * value
+
+proc getBlur* (self: Camera): float = abs(self.blur)
