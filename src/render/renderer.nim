@@ -12,10 +12,14 @@ const basicFrag = staticRead("../content/shaders/basic.frag")
 const basicVert = staticRead("../content/shaders/basic.vert")
 const postFrag = staticRead("../content/shaders/post.frag")
 const postVert = staticRead("../content/shaders/post.vert")
+const post2Frag = staticRead("../content/shaders/post2.frag")
+const post2Vert = staticRead("../content/shaders/post2.vert")
 
 var basicShader: ShaderProgram
 var postShader: ShaderProgram
+var post2Shader: ShaderProgram
 var frameBuffer: FrameBuffer
+var postFrameBuffer: FrameBuffer
 var t: float
 
 const maxFrameBufferHeight = 720
@@ -29,7 +33,10 @@ proc init* =
 
   basicShader = newShaderProgram(basicVert, basicFrag)
   postShader = newShaderProgram(postVert, postFrag)
+  post2Shader = newShaderProgram(post2Vert, post2Frag)
   frameBuffer = createFrameBuffer(int(maxFrameBufferHeight * (16.0 / 9)),
+                                  maxFrameBufferHeight)
+  postFrameBuffer = createFrameBuffer(int(maxFrameBufferHeight * (16.0 / 9)),
                                   maxFrameBufferHeight)
 
 proc resize* =
@@ -39,6 +46,7 @@ proc resize* =
   glOrtho(-screenAspectRatio, screenAspectRatio, -1, 1, -1, 1)
   frameBuffer.resize(min(int(screenAspectRatio * maxFrameBufferHeight), screenWidth),
                      min(maxFrameBufferHeight, screenHeight))
+  postFrameBuffer.resize(screenWidth, screenHeight)
 
 proc fullscreenQuad =
   glBegin(GL_TRIANGLE_FAN)
@@ -77,16 +85,23 @@ proc render* =
   let scanLines = screenSize.y * scanLineFrequency;
   let brightnessCompensation = min(scanLinePeriod / 2, 2);
 
-  glBindFrameBuffer(GL_FRAMEBUFFER, 0)
+  glBindFrameBuffer(GL_FRAMEBUFFER, postFrameBuffer.fbo)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
   postShader.setParameter("zoom", zoom)
   postShader.setParameter("t", t)
   postShader.setParameter("scanLines", scanLines)
-  postShader.setParameter("brightnessCompensation", brightnessCompensation)
   postShader.setParameter("scanLineOffset", 0.5 / screenSize.y)
   postShader.setParameter("screenHeight", screenSize.y)
   postShader.setParameter("aspectRatio", screenAspectRatio)
   postShader.setTexture("sceneTex", frameBuffer.texture)
-  postShader.setParameter("blur", mainCamera.getBlur())
   postShader.apply()
+  fullscreenQuad()
+
+  glBindFrameBuffer(GL_FRAMEBUFFER, 0)
+  post2Shader.setParameter("t", t)
+  post2Shader.setParameter("blur", mainCamera.getBlur())
+  post2Shader.setParameter("aspectRatio", screenAspectRatio)
+  post2Shader.setParameter("brightnessCompensation", brightnessCompensation)
+  post2Shader.setTexture("sceneTex", postFrameBuffer.texture)
+  post2Shader.apply()
   fullscreenQuad()
