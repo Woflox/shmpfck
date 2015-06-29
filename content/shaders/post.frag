@@ -28,7 +28,7 @@ void main (void)
   float filmGrain = noise(texCoords.x * texCoords.y * t * 1000);
   float aberrationBoost = clamp(pow(noise(texCoords.y * t + 1000), 10) * 0.01, 0, 1);
   vec2 noiseTexCoords = texCoords;
-  noiseTexCoords.x += aberrationBoost * 0.2;
+  noiseTexCoords.x += aberrationBoost * 0.4 / (aspectRatio / zoom);
   vec2 colorOffset = vec2((chromaticAberration + aberrationBoost) / (aspectRatio / zoom), 0);
 
   gl_FragColor.r = texture(sceneTex, noiseTexCoords - colorOffset * 0.75).r;
