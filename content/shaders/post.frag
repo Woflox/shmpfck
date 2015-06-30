@@ -34,6 +34,4 @@ void main (void)
   gl_FragColor.b = texture(sceneTex, noiseTexCoords + colorOffset).b;
   gl_FragColor.a = 1;
   gl_FragColor.rgb -= scanLine * 0.5;
-  gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, 1);
-  gl_FragColor.rgb *= gl_FragColor.rgb;
 }
