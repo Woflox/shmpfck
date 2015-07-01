@@ -1,3 +1,5 @@
+#version 130
+
 uniform float zoom;
 
 varying vec2 texCoords;

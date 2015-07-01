@@ -44,11 +44,15 @@ void main (void)
   gl_FragColor.g = sqrt(gl_FragColor.g);
   gl_FragColor.b = sqrt(gl_FragColor.b);
 
-  gl_FragColor.rgb = (gl_FragColor.rgb + 0.15) * (0.9 + filmGrain * 0.2) - 0.15;
+  vec3 lerpfactor = vec3(pow(gl_FragColor.r, 0.2),
+                         pow(gl_FragColor.g, 0.2),
+                         pow(gl_FragColor.b, 0.2));
+  gl_FragColor.rgb = lerpfactor * gl_FragColor +
+                    (1-lerpfactor) * gl_FragColor * filmGrain * 2;
 
   gl_FragColor.rgb *= contrastBoost;
   gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, 1);
-  gl_FragColor.r *= lerp(brightnessCompensation, 1, sqrt(gl_FragColor.r));
-  gl_FragColor.g *= lerp(brightnessCompensation, 1, sqrt(gl_FragColor.g));
-  gl_FragColor.b *= lerp(brightnessCompensation, 1, sqrt(gl_FragColor.b));
+  gl_FragColor.r *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.r));
+  gl_FragColor.g *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.g));
+  gl_FragColor.b *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.b));
 }
