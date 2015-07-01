@@ -1,34 +1,36 @@
+#version 130
+
 uniform sampler2D sceneTex;
 uniform float t;
 uniform float aspectRatio;
 uniform float blur;
-uniform float brightnessCompensation;
 
-varying vec2 texCoords;
-
-const float pi2 = 3.1415926536 * 2;
+const float pi2 = 3.1415926536 * 2.0;
 const int numSamples = 6;
-const float contrastBoost = 2;
+const float contrastBoost = 4.0;
+const float gamma = 2.2;
+
+in vec2 texCoords;
+
+out vec4 color;
 
 float noise(float x)
 {
-  x = mod(x, 13) * mod(x, 123);
+  x = mod(x, 13.0) * mod(x, 123.0);
 	x = mod(x, 0.01);
-	x *= 100;
+	x *= 100.0;
   return x;
 }
 
 void main (void)
 {
-  gl_FragColor = vec4(0, 0, 0, 1);
-
-  float filmGrain;
+  color = vec4(0.0, 0.0, 0.0, 1.0);
 
   for (int i = 0; i < numSamples; i++)
   {
-    filmGrain = noise(texCoords.x * texCoords.y * (t + i) * 1000);
-    float noise2 = noise(texCoords.x * texCoords.y * (t + i) * 10000);
-    float r = sqrt(filmGrain);
+    float noise1 = noise(texCoords.x * texCoords.y * (t + float(i)) * 1000.0);
+    float noise2 = noise(texCoords.x * texCoords.y * (t + float(i)) * 10000.0);
+    float r = sqrt(noise1);
     float angle = noise2 * pi2;
     vec2 discOffset = vec2(r * cos(angle), r * sin(angle)) * blur;
     vec2 offsetTexCoords = texCoords;
@@ -36,23 +38,15 @@ void main (void)
     offsetTexCoords.y += discOffset.y;
 
     vec3 sample = texture(sceneTex, offsetTexCoords).rgb;
-    gl_FragColor.rgb += sample * sample;
+    color.r += pow(sample.r, 2.2);
+    color.g += pow(sample.g, 2.2);
+    color.b += pow(sample.b, 2.2);
   }
-  gl_FragColor.rgb /= numSamples;
+  color.rgb /= float(numSamples);
 
-  gl_FragColor.r = sqrt(gl_FragColor.r);
-  gl_FragColor.g = sqrt(gl_FragColor.g);
-  gl_FragColor.b = sqrt(gl_FragColor.b);
+  color.rgb *= contrastBoost;
 
-  vec3 lerpfactor = vec3(pow(gl_FragColor.r, 0.2),
-                         pow(gl_FragColor.g, 0.2),
-                         pow(gl_FragColor.b, 0.2));
-  gl_FragColor.rgb = lerpfactor * gl_FragColor +
-                    (1-lerpfactor) * gl_FragColor * filmGrain * 2;
-
-  gl_FragColor.rgb *= contrastBoost;
-  gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, 1);
-  gl_FragColor.r *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.r));
-  gl_FragColor.g *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.g));
-  gl_FragColor.b *= mix(brightnessCompensation, 1, sqrt(gl_FragColor.b));
+  color.r = pow(color.r, 1.0 / 2.2);
+  color.g = pow(color.g, 1.0 / 2.2);
+  color.b = pow(color.b, 1.0 / 2.2);
 }

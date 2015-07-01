@@ -2,14 +2,16 @@
 
 uniform float zoom;
 
-varying vec2 texCoords;
-varying vec2 screenTexCoords;
+in vec2 vertex;
+
+out vec2 texCoords;
+out vec2 screenTexCoords;
 
 void main(void)
 {
-   vec4 pos = vec4(gl_Vertex.xy, 0, 1);
+   vec4 pos = vec4(vertex.x, vertex.y, 0.0, 1.0);
 
-   texCoords = (pos.xy * zoom + 1) / 2;
-   screenTexCoords = (pos.xy + 1) / 2;
+   texCoords = (pos.xy * zoom + 1.0) / 2.0;
+   screenTexCoords = (pos.xy + 1.0) / 2.0;
    gl_Position = pos;
 }

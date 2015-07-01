@@ -15,7 +15,7 @@ proc compileShader(source: var cstring, shaderType: GLenum): GLuint =
     glGetShaderiv(result, GLenum(GL_INFO_LOG_LENGTH), addr messageLength)
     var message = newString(messageLength).cstring
     glGetShaderInfoLog(result, messageLength, nil, message)
-    echo message , " (", source, ")"
+    echo source, message
 
 proc newShaderProgram* (vs, ps: string): ShaderProgram =
   var vsCstring = vs.cstring
@@ -42,12 +42,13 @@ proc getParameterLocation(self: ShaderProgram, name: string): GLint =
   glGetUniformLocation(self, name.cstring)
 
 proc setParameter* (self: ShaderProgram, name: string, value: float) =
-  self.apply()
   glUniform1f(self.getParameterLocation(name), value)
 
 proc setParameter* (self: ShaderProgram, name: string, value: Vector2) =
-  self.apply()
   glUniform2f(self.getParameterLocation(name), value.x, value.y)
+
+proc setParameter* (self: ShaderProgram, name: string, value: int) =
+  glUniform1i(self.getParameterLocation(name), GLint(value))
 
 proc setTexture* (self: ShaderProgram, name: string, texture: GluInt) =
   glActiveTexture(GL_TEXTURE0)

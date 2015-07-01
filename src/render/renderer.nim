@@ -85,23 +85,25 @@ proc render* =
   let scanLines = screenSize.y * scanLineFrequency;
   let brightnessCompensation = min(scanLinePeriod / 2, 2);
 
+  let numBlurSamples = min(12, 1 + int(mainCamera.getBlur() * 1500));
+
   glBindFrameBuffer(GL_FRAMEBUFFER, postFrameBuffer.fbo)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
+  postShader.apply()
   postShader.setParameter("zoom", zoom)
   postShader.setParameter("t", t)
   postShader.setParameter("scanLines", scanLines)
   postShader.setParameter("scanLineOffset", 0.5 / screenSize.y)
   postShader.setParameter("screenHeight", screenSize.y)
   postShader.setParameter("aspectRatio", screenAspectRatio)
+  postShader.setParameter("brightnessCompensation", brightnessCompensation)
   postShader.setTexture("sceneTex", frameBuffer.texture)
-  postShader.apply()
   fullscreenQuad()
 
   glBindFrameBuffer(GL_FRAMEBUFFER, 0)
+  post2Shader.apply()
   post2Shader.setParameter("t", t)
   post2Shader.setParameter("blur", mainCamera.getBlur())
   post2Shader.setParameter("aspectRatio", screenAspectRatio)
-  post2Shader.setParameter("brightnessCompensation", brightnessCompensation)
   post2Shader.setTexture("sceneTex", postFrameBuffer.texture)
-  post2Shader.apply()
   fullscreenQuad()
