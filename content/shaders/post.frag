@@ -17,33 +17,31 @@ in vec2 screenTexCoords;
 
 out vec4 color;
 
-float noise(float x)
+float uniformRandom(float x)
 {
   x = mod(x, 13.0) * mod(x, 123.0);
-	x = mod(x, 0.01);
-	x *= 100.0;
-  return x;
+	return fract(x * 100.0);
 }
 
 void main (void)
 {
   float scanLine = cos((screenTexCoords.y - scanLineOffset) * scanLines * pi2) * (-0.5) + 0.5;
 
-  float filmGrain = noise(texCoords.x * texCoords.y * t * 1000.0);
-  float aberrationBoost = clamp(pow(noise(texCoords.y * t + 1000.0), 10.0) * 0.01, 0.0, 1.0);
+  float filmGrain = uniformRandom(texCoords.x * texCoords.y * t * 1000.0);
+  float aberrationBoost = clamp(pow(uniformRandom(texCoords.y * t + 1000.0), 7.0) * 0.005, 0.0, 1.0);
   vec2 noiseTexCoords = texCoords;
-  noiseTexCoords.x += aberrationBoost * 0.6 / (aspectRatio / zoom);
-  vec2 colorOffset = vec2((chromaticAberration + aberrationBoost) / (aspectRatio / zoom), 0);
+  noiseTexCoords.x += aberrationBoost * 0.6 * zoom / aspectRatio;
+  vec2 colorOffset = vec2((chromaticAberration + aberrationBoost) * zoom / aspectRatio, 0);
 
   color.r = texture(sceneTex, noiseTexCoords - colorOffset * 0.75).r;
   color.g = texture(sceneTex, noiseTexCoords).g;
   color.b = texture(sceneTex, noiseTexCoords + colorOffset).b;
   color.a = 1.0;
 
-  color.rgb = (color.rgb - (1.0 - filmGrain) * 0.02 ) - scanLine * 0.5;
+  color.rgb -= (1.0 - filmGrain) * 0.02 + scanLine * 0.5;
   color.rgb *= 0.9 + filmGrain * 0.1;
 
   color.r *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.r) * 2.0, 0.0, 1.0));
   color.g *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.g) * 2.0, 0.0, 1.0));
-  color.b *= mix(brightnessCompensation, 1, clamp(sqrt(color.b) * 2.0, 0.0, 1.0));
+  color.b *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.b) * 2.0, 0.0, 1.0));
 }
