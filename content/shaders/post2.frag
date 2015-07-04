@@ -30,7 +30,7 @@ void main (void)
     float noise2 = uniformRandom(texCoords.x * texCoords.y * (t + float(i)) * 10000.0);
     float radius = sqrt(noise1) * blur;
     float angle = noise2 * pi2;
-    vec2 blurOffset = vec2(cos(angle), sin(angle) / aspectRatio) * radius;
+    vec2 blurOffset = vec2(cos(angle) / aspectRatio, sin(angle)) * radius;
 
     vec3 sample = texture(sceneTex, texCoords + blurOffset).rgb;
     color.r += pow(sample.r, gamma);
