@@ -45,7 +45,7 @@ const
   minBoundsMaxY = 23.0
   maxBoundsMinY = -22.5
   maxBoundsMaxY = 35.0
-  blurRate = 0.005
+  blurRate = 0.004
   unblurRate = 0.01
   maxBlur = 0.01
 
@@ -224,4 +224,5 @@ proc setPostZoomThreshold* (self: Camera, value: float) =
   else:
     self.postZoomThreshold = (maxBoundsMaxY - maxBoundsMinY) * value
 
-proc getBlur* (self: Camera): float = abs(self.blur)
+proc getBlur* (self: Camera): float =
+  abs(self.blur) / (self.zoom / (maxBoundsMaxY - maxBoundsMinY))
