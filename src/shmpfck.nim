@@ -9,8 +9,14 @@ from input/input import nil
 from world/world import nil
 from render/renderer import nil
 
+const fullScreen = true
+
+var windowFlags = SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE
+if fullScreen:
+  windowFlags = SDL_WINDOW_OPENGL or SDL_WINDOW_FULLSCREEN_DESKTOP
+
 discard init(INIT_EVERYTHING)
-var window = createWindow("SHMPFCK", 100, 100, 683, 384, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE)
+var window = createWindow("SHMPFCK", 100, 100, 683, 384, windowFlags)
 var context = window.glCreateContext()
 
 proc resize() =
