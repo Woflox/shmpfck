@@ -81,8 +81,7 @@ proc render* =
   #post processing
   let targetScanLines = float(frameBuffer.height) * targetScanLineFrequency
   let scanLinePeriod = max(2, floor(screenSize.y / (targetScanLines * zoom)))
-  let scanLineFrequency = 1 / scanLinePeriod
-  let scanLines = screenSize.y * scanLineFrequency;
+  let scanLines = screenSize.y / scanLinePeriod;
   let brightnessCompensation = min(scanLinePeriod / 2, 2);
 
   let numBlurSamples = min(12, 1 + int(mainCamera.getBlur() * 1500));
