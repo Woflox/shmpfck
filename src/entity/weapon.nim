@@ -92,8 +92,12 @@ method update(self: Projectile, dt: float) =
 
   #update render shape
   let originDistance = ((self.position + self.velocity * dt) - self.origin).length
-  let stretch = min(self.velocity.length / 60, originDistance)
-  self.shapes[0].relativeVertices[0] = (vec2(0, -stretch)) + (self.rotation.transpose * mainCamera.velocity) / 120
-  self.shapes[0].relativeVertices[1] = -(self.rotation.transpose * mainCamera.velocity) / 120
+  var stretch = self.velocity.length / 60
+  let stretchFraction = min(1, originDistance / stretch)
+  stretch *= stretchFraction
+  let cameraStretch = (self.rotation.transpose * mainCamera.velocity) *
+                        stretchFraction/ 120
+  self.shapes[0].relativeVertices[0] = (vec2(0, -stretch)) + cameraStretch
+  self.shapes[0].relativeVertices[1] = -cameraStretch
 
   procCall Entity(self).update(dt)
