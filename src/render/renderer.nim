@@ -84,8 +84,6 @@ proc render* =
   let scanLines = screenSize.y / scanLinePeriod;
   let brightnessCompensation = min(scanLinePeriod / 2, 2);
 
-  let numBlurSamples = min(12, 1 + int(mainCamera.getBlur() * 1500));
-
   glBindFrameBuffer(GL_FRAMEBUFFER, postFrameBuffer.fbo)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
   postShader.apply()
