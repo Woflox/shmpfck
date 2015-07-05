@@ -22,7 +22,7 @@ var frameBuffer: FrameBuffer
 var postFrameBuffer: FrameBuffer
 var t: float
 
-const maxFrameBufferHeight = 720
+const maxFrameBufferHeight = 540
 const targetScanLineFrequency = 0.5
 
 proc init* =

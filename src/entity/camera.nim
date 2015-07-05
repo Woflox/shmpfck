@@ -43,11 +43,11 @@ const
   zoomPadding = 4
   minBoundsMinY = -9.0
   minBoundsMaxY = 23.0
-  maxBoundsMinY = -22.5
-  maxBoundsMaxY = 35.0
-  blurRate = 0.003
-  unblurRate = 0.012
-  maxBlur = 0.005
+  maxBoundsMinY = -18.0
+  maxBoundsMaxY = 25.0
+  blurRate = 0.012
+  unblurRate = 0.048
+  maxBlur = 0.02
 
 var mainCamera*: Camera
 

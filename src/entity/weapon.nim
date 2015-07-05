@@ -39,7 +39,7 @@ type
 
 const
   speed = 60.0
-  lifetime = 0.5
+  lifetime = 0.35
   enemySpeed = 25.0
   enemyLifetime = 0.75
 
