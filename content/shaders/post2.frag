@@ -27,7 +27,7 @@ void main (void)
   for (int i = 0; i < numSamples; i++)
   {
     float noise1 = uniformRandom(texCoords.x * texCoords.y * (t + float(i)) * 1000.0);
-    float noise2 = uniformRandom(texCoords.x * texCoords.y * (t + float(i)) * 10000.0);
+    float noise2 = uniformRandom(texCoords.x * texCoords.y * (t + 100 + float(i)) * 1000.0);
     float radius = sqrt(noise1) * blur;
     float angle = noise2 * pi2;
     vec2 blurOffset = vec2(cos(angle) / aspectRatio, sin(angle)) * radius;
