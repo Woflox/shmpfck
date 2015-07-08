@@ -40,11 +40,11 @@ const
   rotationSpeedShakeBoost = 8
   zoomSpeed = 0.5
   zoomHysteresis = 1.25
-  zoomPadding = 4
-  minBoundsMinY = -9.0
-  minBoundsMaxY = 23.0
-  maxBoundsMinY = -18.0
-  maxBoundsMaxY = 25.0
+  zoomPadding = 3
+  minBoundsMinY = -9.5
+  minBoundsMaxY = 22.5
+  maxBoundsMinY = -18.5
+  maxBoundsMaxY = 24.5
   blurRate = 0.012
   unblurRate = 0.048
   maxBlur = 0.02
