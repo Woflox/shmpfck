@@ -28,7 +28,7 @@ type
 
 const
   smoothing = 0.25
-  targetMoveSpeed = 20 + 20
+  targetMoveSpeed = playerMoveSpeed * 2
   velocityOffsetCoefficient = 0.75
   rotationSpeed = 1.5
   rotationSmoothing = 0.25
@@ -38,16 +38,16 @@ const
   noiseOctaves = 3
   speedShakeBoost = 0.375
   rotationSpeedShakeBoost = 8
-  zoomSpeed = 0.5
+  zoomSpeed = 0.55
   zoomHysteresis = 1.25
   zoomPadding = 3
-  minBoundsMinY = -9.5
+  minBoundsMinY = -10.5
   minBoundsMaxY = 22.5
-  maxBoundsMinY = -18.5
-  maxBoundsMaxY = 24.5
+  maxBoundsMinY = -19.5
+  maxBoundsMaxY = 25.5
   blurRate = 0.012
   unblurRate = 0.048
-  maxBlur = 0.02
+  maxBlur = 0.01
 
 var mainCamera*: Camera
 
@@ -104,8 +104,6 @@ proc update* (self: Camera, dt: float) =
     let ratio = toAdd / totalRoom
     targetBox.minPos.x = lerp(targetBox.minPos.x, paddedMaxBounds.minPos.x, ratio)
     targetBox.maxPos.x = lerp(targetBox.maxPos.x, paddedMaxBounds.maxPos.x, ratio)
-
-
 
   let offsetTargetPos = self.target.position + self.target.rotation * targetBox.center + velocityOffset
   self.smoothedTargetPos += targetMovement
@@ -176,9 +174,6 @@ proc update* (self: Camera, dt: float) =
       self.blur = max(0, self.blur - unblurRate * dt)
     else:
       self.blur = min(0, self.blur + unblurRate * dt)
-
-
-
 
   if self.target != nil:
     self.lastTargetPos = self.target.position

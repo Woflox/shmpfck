@@ -90,11 +90,11 @@ proc updatePhysics(self: Entity, dt: float) =
       let dirFromCenter = normalize(self.position)
       self.position += self.velocity.y * dt * dirFromCenter
       var length =  self.position.length
-      # circumference is 2 * Pi * length, but the 2pi cancels out because
-      # deltaAngle is 2 * Pi * (velocity.y / circumference)
       if length < self.minPolarY:
         length = self.minPolary
         self.velocity.y = 0
+      # circumference is 2 * Pi * length, but the 2pi cancels out because
+      # deltaAngle is 2 * Pi * (velocity.y / circumference)
       let deltaAngle = self.velocity.x * dt / length
       self.rotation = matrixFromDirection(dirFromCenter) * matrixFromAngle(deltaAngle)
       self.position = directionFromMatrix(self.rotation) * length

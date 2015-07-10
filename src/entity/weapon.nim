@@ -12,7 +12,7 @@ type
   WeaponEffectType{.pure.} = enum
     projectile
     blast
-    obstruction
+    shard
   WeaponDeathType{.pure.} = enum
     timed
     probability

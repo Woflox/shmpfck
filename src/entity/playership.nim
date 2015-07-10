@@ -6,6 +6,7 @@ import entity
 import weapon
 import ../audio/audio
 import ../audio/shot
+import ../globals/globals
 from ../input/input import nil
 
 type
@@ -18,7 +19,7 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
                 drawable: true,
                 position: position,
                 minPolarY: 10,
-                moveSpeed: 20,
+                moveSpeed: playerMoveSpeed,
                 collisionTag: CollisionTag.player)
 
   let shape = createIsoTriangle(width = goldenRatio, height = 1.0, drawStyle = DrawStyle.filledOutline,
