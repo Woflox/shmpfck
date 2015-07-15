@@ -137,7 +137,7 @@ method renderLine(self: TextObject) =
       let lowerCase = toLowercase(letter)
       if letters.hasKey(lowerCase):
         for vertexList in letters[toLowercase(letter)]:
-          for i in 0..high(vertexList) - 1:
+          for i in 0..vertexList.high - 1:
             glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
             glVertex2d(vertexList[i+1]*scale + self.bounds.minPos + vec2(offset, 0))
       else:
@@ -152,6 +152,6 @@ method renderPoint(self: TextObject) =
   for letter in self.text:
     if letter != ' ':
       for vertexList in letters[toLowercase(letter)]:
-        for i in 0..high(vertexList):
+        for i in 0..vertexList.high:
           glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
     offset += increment

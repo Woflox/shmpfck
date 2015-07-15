@@ -21,26 +21,26 @@ type
   Triangle* = array[3, Vector2]
 
 iterator collisionLines(self: Shape): Line =
-  for i in 0..high(self.vertices)-1:
+  for i in 0..<self.vertices.high:
     yield [self.vertices[i], self.vertices[i+1]]
   if self.closed:
-    yield [self.vertices[high(self.vertices)], self.vertices[0]]
+    yield [self.vertices[self.vertices.high], self.vertices[0]]
   if self.collisionType == CollisionType.continuous:
     yield [self.vertices[0], self.lastVertices[0]]
 
 iterator collisionTriangles(self: Shape): Triangle =
   if self.closed:
-    for i in 1..high(self.vertices)-1:
+    for i in 1..<self.vertices.high:
       yield [self.vertices[0], self.vertices[i], self.vertices[i+1]]
   if self.collisionType == CollisionType.continuous:
-    for i in 0..high(self.vertices)-1:
+    for i in 0..<self.vertices.high:
       yield [self.vertices[i], self.lastVertices[i], self.lastVertices[i+1]]
       yield [self.vertices[i], self.vertices[i+1], self.lastVertices[i+1]]
     if self.closed:
-      yield [self.vertices[high(self.vertices)],
-             self.lastVertices[high(self.vertices)],
+      yield [self.vertices[self.vertices.high],
+             self.lastVertices[self.vertices.high],
              self.lastVertices[0]]
-      yield [self.vertices[high(self.vertices)],
+      yield [self.vertices[self.vertices.high],
              self.vertices[0],
              self.lastVertices[0]]
 
@@ -111,21 +111,21 @@ proc update* (self: var Shape, transform: Transform) =
     self.boundingBox = minimalBoundingBox()
     if self.collisionType == CollisionType.continuous:
       self.lastVertices = self.vertices
-      for i in 0..high(self.lastVertices):
+      for i in 0..self.lastVertices.high:
         self.boundingBox.expandTo(self.lastVertices[i])
-    for i in 0..high(self.vertices):
+    for i in 0..self.vertices.high:
       self.vertices[i] = transform.apply(self.relativeVertices[i])
       self.boundingBox.expandTo(self.vertices[i])
 
 proc init* (self: var Shape, transform: Transform) =
   if not self.absolutePosition:
-    for i in 0..high(self.vertices):
+    for i in 0..self.vertices.high:
       self.vertices[i] = transform.apply(self.relativeVertices[i])
     if self.collisionType == CollisionType.continuous:
       self.lastVertices = self.vertices
 
   self.boundingBox = minimalBoundingBox()
-  for i in 0..high(self.vertices):
+  for i in 0..self.vertices.high:
     self.boundingBox.expandTo(self.vertices[i])
 
 proc glVertex2d* (v:Vector2) =
@@ -139,11 +139,11 @@ proc renderLine* (self: Shape) =
     return
 
   glColor4d(self.lineColor)
-  for i in 0..high(self.vertices)-1:
+  for i in 0..<self.vertices.high:
     glVertex2d(self.vertices[i])
     glVertex2d(self.vertices[i+1])
   if self.closed:
-    glVertex2d(self.vertices[high(self.vertices)])
+    glVertex2d(self.vertices[self.vertices.high])
     glVertex2d(self.vertices[0])
 
 proc renderSolid* (self: Shape) =
@@ -151,7 +151,7 @@ proc renderSolid* (self: Shape) =
     return
 
   glColor4d(self.fillColor)
-  for i in 0..high(self.vertices)-1:
+  for i in 0..<self.vertices.high:
     glVertex2d(self.vertices[0])
     glVertex2d(self.vertices[i])
     glVertex2d(self.vertices[i+1])
@@ -159,7 +159,7 @@ proc renderSolid* (self: Shape) =
 proc setVertices (self: var Shape, vertices: seq[Vector2]) =
   self.vertices = vertices
   if self.absolutePosition:
-    for i in 0..high(self.vertices):
+    for i in 0..self.vertices.high:
       self.boundingBox.expandTo(self.vertices[i])
   else:
     self.relativeVertices = vertices

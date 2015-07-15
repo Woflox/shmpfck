@@ -28,10 +28,10 @@ proc newNeuralNet* (inputs: int, outputs: int): NeuralNet =
   result = NeuralNet(inputs: inputs, outputs: outputs)
 
 proc randomize* (self: var NeuralNet) =
-  for i in self.inputs..high(self.neurons):
-    for j in 0..high(self.neurons[i].synapses):
-      self.neurons[i].synapses[j].neuronIndex = random(0, high(self.neurons))
-      self.neurons[i].synapses[j].weight = random(-maxWeight, maxWeight)
+  for i in self.inputs..self.neurons.high:
+    for synapse in self.neurons[i].synapses.mitems:
+      synapse.neuronIndex = random(0, self.neurons.high)
+      synapse.weight = random(-maxWeight, maxWeight)
 
 proc activate(self: var Neuron) =
   self.intermediateValue *= abs(self.intermediateValue)
@@ -42,23 +42,22 @@ proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
   self.timeSinceUpdate += dt
   var numUpdates = 0
 
-  for i in 0..self.inputs-1:
+  for i in 0..<self.inputs:
     self.neurons[i].value = inputs[i]
 
   while self.timeSinceUpdate > updateRate and numUpdates < maxUpdates:
     self.timeSinceUpdate -= updateRate
     inc numUpdates
 
-    for i in self.inputs..high(self.neurons):
+    for i in self.inputs..self.neurons.high:
       self.neurons[i].intermediateValue = 0
-      for j in 0..high(self.neurons[i].synapses):
-        self.neurons[i].intermediateValue += self.neurons[self.neurons[i].synapses[j].neuronIndex].value *
-                                 self.neurons[i].synapses[j].weight
+      for synapse in self.neurons[i].synapses:
+        self.neurons[i].intermediateValue += self.neurons[synapse.neuronIndex].value * synapse.weight
       self.neurons[i].activate()
 
 proc getOutput* (self: NeuralNet, index): float =
   self.neurons[index + self.neurons.len - self.outputs].value
 
 iterator outputs* (self: NeuralNet): float =
-  for i in self.neurons.len - self.outputs .. high(self.neurons):
+  for i in (self.neurons.len - self.outputs)..self.neurons.high:
     yield self.neurons[i].value

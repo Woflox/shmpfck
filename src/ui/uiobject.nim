@@ -17,8 +17,8 @@ type
 
 
 method update*(self: UIObject, dt: float) =
-  for i in 0..high(self.shapes):
-    self.shapes[i].update(Transform(position: self.bounds.minPos, matrix: identity()))
+  for shape in self.shapes.mitems:
+    shape.update(Transform(position: self.bounds.minPos, matrix: identity()))
   for element in self.innerElements:
     element.update(dt)
 

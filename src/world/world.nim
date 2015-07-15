@@ -52,16 +52,16 @@ proc update* (dt: float) =
   if (input.buttonPressed(input.restart)):
     generate()
   var i = 0
-  while i <= high(entities):
+  while i <= entities.high:
     entities[i].update(dt)
     inc i
   for entityList in entitiesByTag:
     i = 0
-    while i <= high(entityList):
+    while i <= entityList.high:
       entityList[i].checkForCollisions(i, dt)
       inc i
   i = 0
-  while i <= high(entities):
+  while i <= entities.high:
     if entities[i].destroyed:
       removeEntity(i)
     else:

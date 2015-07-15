@@ -12,16 +12,16 @@ proc newRandom* (seed: int): MersenneTwister =
   newMersenneTwister(seed)
 
 proc random* (self: var MersenneTwister, minValue, maxValue: int): int =
-  result = ((self.getNum() and high(int)) mod (maxValue + 1 - minValue)) + minValue
+  result = ((self.getNum() and int.high) mod (maxValue + 1 - minValue)) + minValue
 
 proc random* (self: var MersenneTwister, minValue, maxValue: float): float =
-  float(self.rand()) * ((maxValue - minValue) / float(high(uint32))) + minValue
+  float(self.rand()) * ((maxValue - minValue) / float(uint32.high)) + minValue
 
 proc uniformRandom* (self: var MersenneTwister): float =
-  float(self.rand()) / float(high(uint32))
+  float(self.rand()) / float(uint32.high)
 
 proc randomChoice* (self: var MersenneTwister, sequence): auto =
-  sequence[self.random(low(sequence), high(sequence))]
+  sequence[self.random(sequence.low, sequence.high)]
 
 proc randomDirection* (self: var MersenneTwister): Vector2 =
   directionFromAngle(self.random(0, 2*Pi))

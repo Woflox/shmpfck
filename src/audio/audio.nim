@@ -219,8 +219,8 @@ proc audioCallback(userdata: pointer; stream: ptr uint8; len: cint) {.cdecl, thr
     var rightSamplePtr = cast[ptr int16](cast[int](leftSamplePtr) + bytesPersample)
     masterLimiter.setUnvisited()
     masterLimiter.update(dt)
-    leftSamplePtr[] = int16(masterLimiter.output[0] * float(high(int16)))
-    rightSamplePtr[] = int16(masterLimiter.output[1] * float(high(int16)))
+    leftSamplePtr[] = int16(masterLimiter.output[0] * float(int16.high))
+    rightSamplePtr[] = int16(masterLimiter.output[1] * float(int16.high))
     i += 2
 
 proc initAudio* =

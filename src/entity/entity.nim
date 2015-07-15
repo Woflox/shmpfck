@@ -38,7 +38,7 @@ var
 
 proc clearEntities* =
   entities = @[]
-  for i in low(entitiesByTag)..high(entitiesByTag):
+  for i in entitiesByTag.low..entitiesByTag.high:
     entitiesByTag[i] = @[]
 
 proc addEntity*(entity: Entity) =
@@ -127,7 +127,7 @@ proc isColliding (self: Entity, other: Entity): bool =
           return true
 
 proc checkForCollisions* (self: Entity, index: int, dt: float) =
-  for tag in low(entitiesByTag)..high(entitiesByTag):
+  for tag in entitiesByTag.low..entitiesByTag.high:
     if collides(self.collisionTag, CollisionTag(tag)):
       for i in 0..high(entitiesByTag[tag]):
         var other = entitiesByTag[tag][i]

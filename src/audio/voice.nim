@@ -44,8 +44,8 @@ method updateOutputs*(self: VoiceNode, dt: float) =
     self.stop()
     return
 
-  var sample = float(self.wave[index]) / float(high(int16))
-  var bitcrushedSample = float(self.wave[downSampledIndex]) / float(high(int16))
+  var sample = float(self.wave[index]) / float(int16.high)
+  var bitcrushedSample = float(self.wave[downSampledIndex]) / float(int16.high)
   bitcrushedSample = bitcrush(bitcrushedSample, numBits)
   bitcrushedSample = saturate(bitcrushedSample, bitcrushedSaturation)
   sample = saturate(sample, saturation)
