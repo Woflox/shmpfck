@@ -41,7 +41,7 @@ const
   zoomSpeed = 0.55
   zoomHysteresis = 1.25
   zoomPadding = 3
-  minBoundsMinY = -11.5
+  minBoundsMinY = -10.5
   minBoundsMaxY = 22.5
   maxBoundsMinY = -19.5
   maxBoundsMaxY = 25.5
