@@ -36,12 +36,12 @@ const
   rotationShake = 0.005
   noiseFrequency = 0.5
   noiseOctaves = 3
-  speedShakeBoost = 0.375
-  rotationSpeedShakeBoost = 8
+  speedShakeBoost = 0.25
+  rotationSpeedShakeBoost = 6
   zoomSpeed = 0.55
   zoomHysteresis = 1.25
   zoomPadding = 3
-  minBoundsMinY = -10.5
+  minBoundsMinY = -11.5
   minBoundsMaxY = 22.5
   maxBoundsMinY = -19.5
   maxBoundsMaxY = 25.5
