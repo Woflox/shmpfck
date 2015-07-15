@@ -44,7 +44,7 @@ const
   minBoundsMinY = -10.5
   minBoundsMaxY = 22.5
   maxBoundsMinY = -19.5
-  maxBoundsMaxY = 25.5
+  maxBoundsMaxY = 24.5
   blurRate = 0.012
   unblurRate = 0.048
   maxBlur = 0.01
@@ -78,8 +78,6 @@ proc update* (self: Camera, dt: float) =
                               vec2(minWidth / 2 - zoomPadding, minBoundsMaxY - zoomPadding))
   let maxBounds = boundingBox(vec2(-maxWidth / 2 + zoomPadding, maxBoundsMinY + zoomPadding),
                               vec2(maxWidth / 2 - zoomPadding, maxBoundsMaxY - zoomPadding))
-  let paddedMaxBounds = boundingBox(vec2(-maxWidth / 2, maxBoundsMinY),
-                                    vec2(maxWidth / 2, maxBoundsMaxY))
 
   for enemy in entitiesByTag[int(CollisionTag.enemy)]:
     let transformedPos = inverseTargetRotation * (enemy.position - self.target.position)
@@ -88,22 +86,6 @@ proc update* (self: Camera, dt: float) =
 
   targetBox.minPos -= vec2(zoomPadding, zoomPadding)
   targetBox.maxPos += vec2(zoomPadding, zoomPadding)
-
-  let targetBoxAspect = targetBox.size.x / targetBox.size.y
-
-  #expand the box so that it has the correct aspect ratio
-  if targetBoxAspect > screenAspectRatio:
-    let totalRoom = paddedMaxBounds.size.y - targetBox.size.y
-    let toAdd = targetBox.size.x / screenAspectRatio - targetBox.size.y
-    let ratio = toAdd / totalRoom
-    targetBox.minPos.y = lerp(targetBox.minPos.y, paddedMaxBounds.minPos.y, ratio)
-    targetBox.maxPos.y = lerp(targetBox.maxPos.y, paddedMaxBounds.maxPos.y, ratio)
-  else:
-    let totalRoom = paddedMaxBounds.size.x - targetBox.size.x
-    let toAdd = targetBox.size.y * screenAspectRatio - targetBox.size.x
-    let ratio = toAdd / totalRoom
-    targetBox.minPos.x = lerp(targetBox.minPos.x, paddedMaxBounds.minPos.x, ratio)
-    targetBox.maxPos.x = lerp(targetBox.maxPos.x, paddedMaxBounds.maxPos.x, ratio)
 
   let offsetTargetPos = self.target.position + self.target.rotation * targetBox.center + velocityOffset
   self.smoothedTargetPos += targetMovement
@@ -147,7 +129,7 @@ proc update* (self: Camera, dt: float) =
 
   self.rotation += fractalNoise(self.t * noiseFrequency, noiseOctaves) * rotShake
 
-  let desiredZoom = targetBox.size.y
+  let desiredZoom = max(targetBox.size.y, targetBox.size.x / screenAspectRatio)
   let zoomAmount = self.zoom * zoomSpeed * dt
   var zooming = false
   if desiredZoom > self.zoom:
