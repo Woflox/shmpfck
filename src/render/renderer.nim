@@ -14,10 +14,12 @@ const postFrag = staticRead("../content/shaders/post.frag")
 const postVert = staticRead("../content/shaders/post.vert")
 const post2Frag = staticRead("../content/shaders/post2.frag")
 const post2Vert = staticRead("../content/shaders/post2.vert")
+const pixelAlignedVert = staticRead("../content/shaders/pixelAligned.vert")
 
 var basicShader: ShaderProgram
 var postShader: ShaderProgram
 var post2Shader: ShaderProgram
+var uiShader: ShaderProgram
 var frameBuffer: FrameBuffer
 var postFrameBuffer: FrameBuffer
 var t: float
@@ -34,6 +36,7 @@ proc init* =
   basicShader = newShaderProgram(basicVert, basicFrag)
   postShader = newShaderProgram(postVert, postFrag)
   post2Shader = newShaderProgram(post2Vert, post2Frag)
+  uiShader = newShaderProgram(pixelAlignedVert, basicFrag)
   frameBuffer = createFrameBuffer(int(maxFrameBufferHeight * (16.0 / 9)),
                                   maxFrameBufferHeight)
   postFrameBuffer = createFrameBuffer(int(maxFrameBufferHeight * (16.0 / 9)),
@@ -75,6 +78,8 @@ proc render* =
   world.render()
 
   #render UI
+  uiShader.apply()
+  uiShader.setParameter("screenSize", screenSize);
   let zoom = mainCamera.getPostZoom()
   currentScreen.render(zoom)
 
