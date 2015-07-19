@@ -26,6 +26,15 @@ proc randomChoice* (self: var MersenneTwister, sequence): auto =
 proc randomDirection* (self: var MersenneTwister): Vector2 =
   directionFromAngle(self.random(0, 2*Pi))
 
+proc randomPointInDisc* (self: var MersenneTwister, radius: float): Vector2 =
+  self.randomDirection() * sqrt(self.uniformRandom()) * radius
+
+proc expRandom* (self: var MersenneTwister, frequency: float) : float =
+  -ln(self.uniformRandom()) / frequency
+
+proc relativeRandom* (self: var MersenneTwister, median: float, maxMultiplier: float) : float =
+  median * (pow(maxMultiplier, self.random(-1.0, 1.0)))
+
 proc seed* (seed: int) =
   mt = newMersenneTwister(seed)
 
@@ -44,8 +53,11 @@ proc randomChoice* (sequence): auto =
 proc randomDirection* : Vector2 =
   mt.randomDirection()
 
+proc randomPointInDisc* (radius: float) : Vector2 =
+  mt.randomPointInDisc(radius)
+
 proc expRandom* (frequency: float) : float =
-  -ln(uniformRandom()) / frequency
+  mt.expRandom(frequency)
 
 proc relativeRandom* (median: float, maxMultiplier: float) : float =
-  median * (pow(maxMultiplier, random(-1.0, 1.0)))
+  mt.relativeRandom(median, maxMultiplier)

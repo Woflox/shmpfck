@@ -20,6 +20,7 @@ type
     noise1Frequency*: float
     noise2Frequency*: float
     waveFrequency*: float
+    shapeParentIndices*: seq[int]
   Enemy = ref object of Ship
     species *: Species
     brain: NeuralNet
@@ -55,24 +56,34 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
   result.init()
 
 proc generateTestSpecies* (): Species =
-  var species = Species(moveSpeed: relativeRandom(12.5, 2), shapes: @[])
+  var species = Species(moveSpeed: relativeRandom(12.5, 2), shapes: @[], shapeParentIndices: @[])
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   color[random(0, 2)] = 1
+
+  #TODO: Min size, scale up if necessary
+
   for i in 0..random(2, 6):
     let size = relativeRandom(0.5, 2)
-    let point1 = vec2(random(-size, size),random(-size, size))
-    let point2 = vec2(random(-size, size),random(-size, size))
+    var parentIndex = random(-1, i-1) * 2
+
+    var position = vec2(0, 0)
+    if parentIndex >= 0:
+      position = species.shapes[parentIndex].position + species.shapes[parentIndex].vertices[1]
+    let point2 = randomPointInDisc(size)
     let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
-    let shape = createShape(vertices = @[point1, point2],
+    var shape = createShape(vertices = @[vec2(0, 0), point2],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous)
-    let shape2 = createShape(vertices = @[vec2(point1.x * -1, point1.y), vec2(point2.x * -1, point2.y)],
+    var shape2 = createShape(vertices = @[vec2(0, 0), vec2(-point2.x, point2.y)],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous)
+    shape.position = position
+    shape2.position = vec2(-position.x, position.y)
     species.shapes.add(shape)
     species.shapes.add(shape2)
+    species.shapeParentIndices.add(parentIndex)
 
   species.brain = newNeuralNet(inputs = 15)
   species.brain.randomize()
@@ -138,10 +149,18 @@ method update*(self: Enemy, dt: float) =
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
   for i in 0..<(self.shapes.len div 2):
-    let shapeRotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 15)
-    let invShapeRotation = shapeRotation.transpose
-    self.shapes[i * 2].rotation = shapeRotation
-    self.shapes[i * 2 + 1].rotation = invShapeRotation
+    var rotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 30)
+    var position = vec2(0, 0)
+    let parentIndex = self.species.shapeParentIndices[i]
+    if parentIndex >= 0:
+      rotation = rotation * self.shapes[parentIndex].rotation
+      position += self.shapes[parentIndex].rotation * self.shapes[parentIndex].relativeVertices[1] +
+                  self.shapes[parentIndex].position
+
+    self.shapes[i * 2].rotation = rotation
+    self.shapes[i * 2].position = position
+    self.shapes[i * 2 + 1].rotation = rotation.transpose
+    self.shapes[i * 2 + 1].position = vec2(-position.x, position.y)
 
   procCall Ship(self).update(dt)
 

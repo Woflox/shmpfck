@@ -18,6 +18,7 @@ type
     closed* : bool
     boundingBox*: BoundingBox
     rotation* : Matrix2x2
+    position* : Vector2
   Line* = array[2, Vector2]
   Triangle* = array[3, Vector2]
 
@@ -115,7 +116,7 @@ proc update* (self: var Shape, transform: Transform) =
       for i in 0..self.lastVertices.high:
         self.boundingBox.expandTo(self.lastVertices[i])
     for i in 0..self.vertices.high:
-      self.vertices[i] = transform.apply(self.rotation * self.relativeVertices[i])
+      self.vertices[i] = transform.apply((self.rotation * self.relativeVertices[i]) + self.position)
       self.boundingBox.expandTo(self.vertices[i])
 
 proc init* (self: var Shape, transform: Transform) =
