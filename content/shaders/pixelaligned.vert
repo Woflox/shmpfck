@@ -13,8 +13,8 @@ void main(void)
 
    gl_Position = gl_ModelViewProjectionMatrix * pos;
    gl_Position.xy *= screenSize;
-   gl_Position.x = round(gl_Position.x);
-   gl_Position.y = round(gl_Position.y);
+   gl_Position.x = floor(gl_Position.x) + 0.5;
+   gl_Position.y = floor(gl_Position.y) + 0.5;
    gl_Position.xy /= screenSize;
    vColor = gl_Color;
 }

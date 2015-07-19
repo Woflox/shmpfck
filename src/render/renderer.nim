@@ -79,7 +79,7 @@ proc render* =
 
   #render UI
   uiShader.apply()
-  uiShader.setParameter("screenSize", screenSize);
+  uiShader.setParameter("screenSize", vec2(float(frameBuffer.width), float(frameBuffer.height)));
   let zoom = mainCamera.getPostZoom()
   currentScreen.render(zoom)
 
