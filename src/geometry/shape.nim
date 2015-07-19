@@ -17,6 +17,7 @@ type
     absolutePosition* : bool
     closed* : bool
     boundingBox*: BoundingBox
+    rotation* : Matrix2x2
   Line* = array[2, Vector2]
   Triangle* = array[3, Vector2]
 
@@ -114,7 +115,7 @@ proc update* (self: var Shape, transform: Transform) =
       for i in 0..self.lastVertices.high:
         self.boundingBox.expandTo(self.lastVertices[i])
     for i in 0..self.vertices.high:
-      self.vertices[i] = transform.apply(self.relativeVertices[i])
+      self.vertices[i] = transform.apply(self.rotation * self.relativeVertices[i])
       self.boundingBox.expandTo(self.vertices[i])
 
 proc init* (self: var Shape, transform: Transform) =
@@ -164,20 +165,21 @@ proc setVertices (self: var Shape, vertices: seq[Vector2]) =
   else:
     self.relativeVertices = vertices
 
-proc newShape* (vertices: seq[Vector2], drawStyle = DrawStyle.none,
+proc createShape* (vertices: seq[Vector2], drawStyle = DrawStyle.none,
                 lineColor = Color(), fillColor = Color(), closed = true,
                 collisionType = CollisionType.none, absolutePosition = false): Shape =
   result = Shape(drawStyle: drawStyle, lineColor: lineColor, fillColor: fillColor,
                  absolutePosition: absolutePosition, collisionType: collisionType,
-                 closed: closed)
+                 closed: closed, rotation: identity())
   result.setVertices(vertices)
 
 proc createIsoTriangle* (width: float, height: float, drawStyle = DrawStyle.none,
                          lineColor = Color(), fillColor = Color(),
                          position = vec2(0,0), collisionType = CollisionType.none,
                          absolutePosition = false): Shape =
-  result = Shape(drawStyle: drawStyle, lineColor: lineColor, fillColor: fillColor, closed: true,
-                 absolutePosition: absolutePosition, collisionType: collisionType)
+  result = Shape(drawStyle: drawStyle, lineColor: lineColor, fillColor: fillColor,
+                 closed: true, absolutePosition: absolutePosition,
+                 collisionType: collisionType, rotation: identity())
   result.setVertices(@[vec2(-width/2, 0) + position,
                        vec2(0, height) + position,
                        vec2(width/2,0) + position])

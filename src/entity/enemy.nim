@@ -63,18 +63,18 @@ proc generateTestSpecies* (): Species =
     let point1 = vec2(random(-size, size),random(-size, size))
     let point2 = vec2(random(-size, size),random(-size, size))
     let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
-    let shape = newShape(vertices = @[point1, point2],
+    let shape = createShape(vertices = @[point1, point2],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous)
-    let shape2 = newShape(vertices = @[vec2(point1.x * -1, point1.y), vec2(point2.x * -1, point2.y)],
+    let shape2 = createShape(vertices = @[vec2(point1.x * -1, point1.y), vec2(point2.x * -1, point2.y)],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous)
     species.shapes.add(shape)
     species.shapes.add(shape2)
 
-  species.brain = newNeuralNet(inputs = 15, outputs = 3)
+  species.brain = newNeuralNet(inputs = 15)
   species.brain.randomize()
   species.noise1Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
   species.noise2Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
@@ -136,6 +136,12 @@ method update*(self: Enemy, dt: float) =
 
   if length(self.position) >= 400:
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
+
+  for i in 0..<(self.shapes.len div 2):
+    let shapeRotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 15)
+    let invShapeRotation = shapeRotation.transpose
+    self.shapes[i * 2].rotation = shapeRotation
+    self.shapes[i * 2 + 1].rotation = invShapeRotation
 
   procCall Ship(self).update(dt)
 

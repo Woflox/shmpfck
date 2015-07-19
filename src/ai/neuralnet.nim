@@ -21,11 +21,10 @@ type
   NeuralNet* = object
     neurons: array[numNeurons, Neuron]
     inputs: int
-    outputs: int
     timeSinceUpdate: float
 
-proc newNeuralNet* (inputs: int, outputs: int): NeuralNet =
-  result = NeuralNet(inputs: inputs, outputs: outputs)
+proc newNeuralNet* (inputs: int): NeuralNet =
+  result = NeuralNet(inputs: inputs)
 
 proc randomize* (self: var NeuralNet) =
   for i in self.inputs..self.neurons.high:
@@ -56,8 +55,4 @@ proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
       self.neurons[i].activate()
 
 proc getOutput* (self: NeuralNet, index): float =
-  self.neurons[index + self.neurons.len - self.outputs].value
-
-iterator outputs* (self: NeuralNet): float =
-  for i in (self.neurons.len - self.outputs)..self.neurons.high:
-    yield self.neurons[i].value
+  self.neurons[index + self.inputs].value

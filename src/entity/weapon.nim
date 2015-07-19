@@ -57,10 +57,10 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
                       lifetime: lifetime)
   let fireDir = position.normalize()
   result.velocity = sourceVelocity + fireDir * speed
-  let renderShape = newShape(vertices = @[vec2(0,0),vec2(0,0)],
+  let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
                              drawStyle = DrawStyle.line,
                              lineColor = color(1, 1, 0.5))
-  let collisionShape = newShape(vertices = @[vec2(0,0)],
+  let collisionShape = createShape(vertices = @[vec2(0,0)],
                                 collisionType = CollisionType.continuous,
                                 closed = false)
   result.shapes = @[renderShape, collisionShape]
@@ -75,10 +75,10 @@ proc newEnemyProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile
                       lifetime: enemyLifetime)
   let fireDir = position.normalize() * (-1)
   result.velocity = sourceVelocity + fireDir * enemySpeed
-  let renderShape = newShape(vertices = @[vec2(0,0),vec2(0,0)],
+  let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
                              drawStyle = DrawStyle.line,
                              lineColor = color(1, 1, 0.5))
-  let collisionShape = newShape(vertices = @[vec2(0,0)],
+  let collisionShape = createShape(vertices = @[vec2(0,0)],
                                 collisionType = CollisionType.continuous,
                                 closed = false)
   result.shapes = @[renderShape, collisionShape]
