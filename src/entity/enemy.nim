@@ -73,11 +73,13 @@ proc generateTestSpecies* (): Species =
     var shape = createShape(vertices = @[vec2(0, 0), point2],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
-                             collisionType = CollisionType.continuous)
+                             collisionType = CollisionType.continuous,
+                             closed = false)
     var shape2 = createShape(vertices = @[vec2(0, 0), vec2(-point2.x, point2.y)],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
-                             collisionType = CollisionType.continuous)
+                             collisionType = CollisionType.continuous,
+                             closed = false)
     shape.position = position
     shape2.position = vec2(-position.x, position.y)
     species.shapes.add(shape)

@@ -59,7 +59,8 @@ proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result.velocity = sourceVelocity + fireDir * speed
   let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
                              drawStyle = DrawStyle.line,
-                             lineColor = color(1, 1, 0.5))
+                             lineColor = color(1, 1, 0.5),
+                             closed = false)
   let collisionShape = createShape(vertices = @[vec2(0,0)],
                                 collisionType = CollisionType.continuous,
                                 closed = false)
