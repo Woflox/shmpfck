@@ -65,17 +65,20 @@ proc generateTestSpecies* (): Species =
   for i in 0..random(2, 6):
     var parentIndex = random(-1, i-1) * 2
 
+    let size = random(0.33, 0.75)
+
     var position = vec2(0, 0)
     if parentIndex >= 0:
       position = species.shapes[parentIndex].position + species.shapes[parentIndex].vertices[1]
-    let point2 = randomDirection() * relativeRandom(0.4, 1.5)
+    let point1 = randomPointInDisc(size * 0.35)
+    let point2 = randomPointInDisc(size)
     let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
-    var shape = createShape(vertices = @[vec2(0, 0), point2],
+    var shape = createShape(vertices = @[point1, point2],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous,
                              closed = false)
-    var shape2 = createShape(vertices = @[vec2(0, 0), vec2(-point2.x, point2.y)],
+    var shape2 = createShape(vertices = @[vec2(-point1.x, point1.y), vec2(-point2.x, point2.y)],
                              drawStyle = DrawStyle.line,
                              lineColor = lineColor,
                              collisionType = CollisionType.continuous,
