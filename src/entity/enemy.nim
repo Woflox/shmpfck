@@ -63,13 +63,12 @@ proc generateTestSpecies* (): Species =
   #TODO: Min size, scale up if necessary
 
   for i in 0..random(2, 6):
-    let size = relativeRandom(0.5, 2)
     var parentIndex = random(-1, i-1) * 2
 
     var position = vec2(0, 0)
     if parentIndex >= 0:
       position = species.shapes[parentIndex].position + species.shapes[parentIndex].vertices[1]
-    let point2 = randomPointInDisc(size)
+    let point2 = randomDirection() * relativeRandom(0.4, 1.5)
     let lineColor = if random(0, 2) == 0: color(1, 1, 1) else: color
     var shape = createShape(vertices = @[vec2(0, 0), point2],
                              drawStyle = DrawStyle.line,
@@ -148,13 +147,13 @@ method update*(self: Enemy, dt: float) =
   if length(self.position) >= 400:
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
-  for i in 0..<(self.shapes.len div 2):
+  for i in 0..self.species.shapeParentIndices.high:
     var rotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 30)
     var position = vec2(0, 0)
     let parentIndex = self.species.shapeParentIndices[i]
     if parentIndex >= 0:
       rotation = rotation * self.shapes[parentIndex].rotation
-      position += self.shapes[parentIndex].rotation * self.shapes[parentIndex].relativeVertices[1] +
+      position = self.shapes[parentIndex].rotation * self.shapes[parentIndex].relativeVertices[1] +
                   self.shapes[parentIndex].position
 
     self.shapes[i * 2].rotation = rotation
