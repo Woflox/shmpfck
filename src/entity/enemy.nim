@@ -148,7 +148,7 @@ method update*(self: Enemy, dt: float) =
     self.reposition(self.position.normalize * (self.minPolarY + 0.2))
 
   for i in 0..self.species.shapeParentIndices.high:
-    var rotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 30)
+    var rotation = matrixFromAngle(self.brain.getOutput(i + 3) * self.moveSpeed / 20)
     var position = vec2(0, 0)
     let parentIndex = self.species.shapeParentIndices[i]
     if parentIndex >= 0:
