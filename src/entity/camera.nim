@@ -46,7 +46,7 @@ const
   maxBoundsMinY = -19.5
   maxBoundsMaxY = 24.5
   blurRate = 0.012
-  unblurRate = 0.048
+  unblurRate = 0.024
   maxBlur = 0.01
 
 var mainCamera*: Camera
