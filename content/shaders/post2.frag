@@ -4,6 +4,7 @@ uniform sampler2D sceneTex;
 uniform float t;
 uniform float aspectRatio;
 uniform float blur;
+uniform float invCorrectedGamma;
 
 const float pi2 = 3.1415926536 * 2.0;
 const int numSamples = 6;
@@ -33,16 +34,12 @@ void main (void)
     vec2 blurOffset = vec2(cos(angle) / aspectRatio, sin(angle)) * radius;
 
     vec3 sample = texture(sceneTex, texCoords + blurOffset).rgb;
-    color.r += pow(sample.r, gamma);
-    color.g += pow(sample.g, gamma);
-    color.b += pow(sample.b, gamma);
+    color.rgb += pow(sample, vec3(gamma, gamma, gamma));
   }
 
   color.rgb /= float(numSamples);
 
   color.rgb *= contrastBoost;
 
-  color.r = pow(color.r, 1.0 / gamma);
-  color.g = pow(color.g, 1.0 / gamma);
-  color.b = pow(color.b, 1.0 / gamma);
+  color.rgb = pow(color.rgb, vec3(invCorrectedGamma, invCorrectedGamma, invCorrectedGamma));
 }

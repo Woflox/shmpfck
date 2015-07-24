@@ -29,7 +29,7 @@ const targetScanLineFrequency = 0.5
 
 proc init* =
   loadExtensions()
-  glClearColor(0, 0, 0, 1.0)                  # Set background color to black and opaque
+  glClearColor(0.0, 0.0, 0.0, 1.0)                  # Set background color to black and opaque
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST)
   echo "OpenGL version ", cast[cstring](glGetString(GL_VERSION))
 
@@ -87,7 +87,13 @@ proc render* =
   let targetScanLines = float(frameBuffer.height) * targetScanLineFrequency
   let scanLinePeriod = max(2, floor(screenSize.y / (targetScanLines * zoom)))
   let scanLines = screenSize.y / scanLinePeriod;
-  let brightnessCompensation = min(scanLinePeriod / 2, 2);
+  var correctedGamma = 2.2
+  if scanLinePeriod >= 4.9:
+    correctedGamma *= 1.1
+  elif scanLinePeriod >= 3.9:
+    correctedGamma *= 1.15
+  elif scanLinePeriod >= 2.9:
+    correctedGamma *= 1.1
 
   glBindFrameBuffer(GL_FRAMEBUFFER, postFrameBuffer.fbo)
   glViewport(0, 0, GLint(screenWidth), GLint(screenHeight))
@@ -98,7 +104,6 @@ proc render* =
   postShader.setParameter("scanLineOffset", 0.5 / screenSize.y)
   postShader.setParameter("screenHeight", screenSize.y)
   postShader.setParameter("aspectRatio", screenAspectRatio)
-  postShader.setParameter("brightnessCompensation", brightnessCompensation)
   postShader.setTexture("sceneTex", frameBuffer.texture)
   fullscreenQuad()
 
@@ -107,5 +112,6 @@ proc render* =
   post2Shader.setParameter("t", t)
   post2Shader.setParameter("blur", mainCamera.getBlur())
   post2Shader.setParameter("aspectRatio", screenAspectRatio)
+  post2Shader.setParameter("invCorrectedGamma", 1.0 / correctedGamma)
   post2Shader.setTexture("sceneTex", postFrameBuffer.texture)
   fullscreenQuad()

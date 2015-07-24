@@ -38,10 +38,6 @@ void main (void)
   color.b = texture(sceneTex, noiseTexCoords + colorOffset).b;
   color.a = 1.0;
 
-  color.rgb -= (1.0 - filmGrain) * 0.02 + scanLine * 0.5;
+  color.rgb -= scanLine * min(color.rgb * 1.5, 0.5) + (1.0 - filmGrain) * 0.02;
   color.rgb *= 0.9 + filmGrain * 0.1;
-
-  color.r *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.r) * 2.0, 0.0, 1.0));
-  color.g *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.g) * 2.0, 0.0, 1.0));
-  color.b *= mix(brightnessCompensation, 1.0, clamp(sqrt(color.b) * 2.0, 0.0, 1.0));
 }
