@@ -1,4 +1,5 @@
 import ../util/util
+import ../util/random
 import entity
 import ../geometry/shape
 import ../audio/audio
@@ -9,22 +10,17 @@ type
   FireType{.pure.} = enum
     automatic
     charge
-  WeaponEffectType{.pure.} = enum
-    projectile
-    blast
-    shard
-  WeaponDeathType{.pure.} = enum
-    timed
-    probability
-  WeaponSpawnType{.pure.} = enum
-    none
-    death
-    probability
   WeaponEffect = ref object
-    effectType: WeaponEffectType
+  ProjectileSpawner = ref object
     directions: seq[Vector2]
     speed: float
+    lifetime: float
     spawnEffect: WeaponEffect
+  ShardSpawner = ref object
+  BlastSpawner = ref object
+    radius: float
+    time: float
+
 
   Projectile = ref object of Entity
     t: float
@@ -35,7 +31,13 @@ type
 
   Weapon* = ref object
     fireType* : FireType
+    fireRate* : float
     effect* : WeaponEffect
+
+  WeaponInstance* = ref object
+    weapon* : Weapon
+    timeSinceFire* : float
+    firing* : bool
 
 const
   speed = 60.0
@@ -47,6 +49,11 @@ method onCollision*(self: Projectile, other: Entity) =
   other.destroyed = true
   self.destroyed = true
   playSound(newExplosionNode(), -2, 0)
+
+proc generateWeapon(): Weapon =
+  result = Weapon()
+  result.fireType = randomEnumValue(FireType)
+
 
 proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
   result = Projectile(movement: Movement.normal,
