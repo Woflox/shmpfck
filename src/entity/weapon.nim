@@ -29,6 +29,8 @@ type
     lifetime: float
     intensity: float
     spawner: ProjectileSpawner
+    fireDirection: Vector2
+    sourceVelocity: Vector2
   Blast = ref object of Entity
   Shard = ref object of Entity
 
@@ -115,15 +117,17 @@ method spawn(self: ProjectileSpawner, position: Vector2, rotation: Matrix2x2,
                       position: position,
                       origin: position,
                       collisionTag: CollisionTag.playerWeapon,
-                      lifetime: self.lifetime,
+                      lifetime: self.lifetime * intensity,
                       spawner: self,
                       intensity: intensity)
     if isPlayer:
       projectile.collisionTag = CollisionTag.playerWeapon
     else:
       projectile.collisionTag = CollisionTag.enemyWeapon
-    projectile.velocity = rotation * relativeDirection * self.speed * intensity +
+    projectile.fireDirection = rotation * relativeDirection
+    projectile.velocity = projectile.fireDirection * self.speed * intensity +
                             velocity
+    projectile.sourceVelocity = velocity
 
     projectile.shapes = @[renderShape, collisionShape]
     projectile.init(matrixFromDirection(projectile.velocity.normalize))
@@ -168,8 +172,8 @@ method update(self: Projectile, dt: float) =
     self.destroyed = true
     if self.spawner.spawnEffect != nil:
       self.spawner.spawnEffect.spawn(self.position,
-                             matrixFromDirection(self.velocity.normalize),
-                             vec2(0,0),
+                             matrixFromDirection(self.fireDirection),
+                             self.sourceVelocity,
                              self.collisionTag == CollisionTag.playerWeapon,
                              self.intensity)
 
