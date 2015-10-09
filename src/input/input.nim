@@ -117,4 +117,3 @@ proc update*(dt: float) =
     buttonMoveDir.y += 1
   if buttonDown(down):
     buttonMoveDir.y -= 1
-

@@ -37,7 +37,7 @@ proc generate* () =
 
   for i in 0..20:
     let speciesPos = randomDirection() * random(100.0, 300.0)
-    var species = generateTestSpecies()
+    var species = generateSpecies()
     for j in 0..10:
       let pos = speciesPos + randomDirection() * random(0.0, 25.0)
       addEntity(generateEnemy(species, pos))

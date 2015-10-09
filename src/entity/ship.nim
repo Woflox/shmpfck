@@ -12,12 +12,17 @@ type
     currentWeapon* : Weapon
     firePoint* : Vector2
 
-proc startWeaponAction* (self: Ship, index: int) =
-  self.currentWeapon = self.weapons[index]
+proc setWeaponFiring* (self: Ship, index: int, fire: bool) =
+  if fire:
+    if (self.currentWeapon == nil) or (not self.currentWeapon.isFiring):
+      self.currentWeapon = self.weapons[index]
+      self.currentWeapon.startFiring()
+  else:
+    self.weapons[index].stopFiring()
 
-proc stopWeaponAction* (self: Ship, index: int) =
-  discard
 
-method update* (self: Ship, dt: float) =
+method updatePostPhysics* (self: Ship, dt: float) =
   self.velocity = self.moveDir * self.moveSpeed
-  procCall Entity(self).update(dt)
+  for weapon in self.weapons:
+    weapon.update(dt)
+  procCall Entity(self).updatePostPhysics(dt)

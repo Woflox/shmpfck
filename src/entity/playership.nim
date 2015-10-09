@@ -11,8 +11,6 @@ from ../input/input import nil
 
 type
   PlayerShip* = ref object of Ship
-    timeSinceShoot: float
-    wantsToShoot: bool
 
 proc generatePlayerShip* (position: Vector2): PlayerShip =
   result = PlayerShip(movement: Movement.polar,
@@ -20,7 +18,11 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
                 position: position,
                 minPolarY: 10,
                 moveSpeed: playerMoveSpeed,
-                collisionTag: CollisionTag.player)
+                collisionTag: CollisionTag.player,
+                weapons: @[])
+
+  for i in 0..3:
+    result.weapons.add(generateWeaponType().generateWeapon(result))
 
   let shape = createIsoTriangle(width = goldenRatio, height = 1.0, drawStyle = DrawStyle.filledOutline,
                                 lineColor = color(0, 1, 0), fillColor = color(0, 0.375, 0),
@@ -38,14 +40,9 @@ method update* (self: PlayerShip, dt: float) =
   self.shapes[1].lineColor = color(1, flameLength, 0)
   self.shapes[1].fillColor = color(0.375, flameLength * 0.375, 0)
 
+  self.setWeaponFiring(0, input.buttonDown(input.fire1))
+  self.setWeaponFiring(1, input.buttonDown(input.fire2))
+  self.setWeaponFiring(2, input.buttonDown(input.fire3))
+  self.setWeaponFiring(3, input.buttonDown(input.fire4))
+
   procCall Ship(self).update(dt)
-
-
-method updatePostPhysics* (self: PlayerShip, dt: float) =
-  self.wantsToShoot = input.buttonDown(input.fire1)
-  if self.wantsToShoot and self.timeSinceShoot > 0.2:
-    addEntity(newProjectile(self.position + self.rotation*vec2(0,1), self.getVelocity()))
-    playSound(newShotNode(), -7, 0.0)
-    self.timeSinceshoot = 0
-
-  self.timeSinceShoot += dt

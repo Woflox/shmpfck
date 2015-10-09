@@ -29,6 +29,9 @@ proc randomChoice* [T](self: var MersenneTwister, choices: varargs[T]): T =
 proc randomEnumValue* [T](self: var MersenneTwister, kind: T): auto =
   T(random(int(T.low), int(T.high)))
 
+proc randomChance* (self: var MersenneTwister, probability: float): bool =
+  return self.uniformRandom() < probability
+
 proc randomDirection* (self: var MersenneTwister): Vector2 =
   directionFromAngle(self.random(0, 2*Pi))
 
@@ -61,6 +64,9 @@ proc randomChoice* [T](choices: varargs[T]): T =
 
 proc randomEnumValue* [T](kind: T): auto =
   mt.randomEnumValue(T)
+
+proc randomChance* (probability: float): bool =
+  mt.randomChance(probability)
 
 proc randomDirection* : Vector2 =
   mt.randomDirection()

@@ -16,16 +16,14 @@ type
     moveSpeed*: float
     shapes*: seq[Shape]
     brain*: NeuralNet
-    weapon*: Weapon
     noise1Frequency*: float
     noise2Frequency*: float
     waveFrequency*: float
     shapeParentIndices*: seq[int]
+    weaponType: WeaponType
   Enemy = ref object of Ship
     species *: Species
     brain: NeuralNet
-    timeSinceShoot: float
-    wantsToShoot: bool
     t: float
 
 const
@@ -51,11 +49,11 @@ proc generateEnemy* (species: Species, position: Vector2): Enemy =
   result.shapes = species.shapes
   result.brain = species.brain
   result.moveSpeed = species.moveSpeed
-  result.weapons = @[species.weapon]
+  result.weapons = @[species.weaponType.generateWeapon(result)]
   result.t = random(0.0, 1000.0)
   result.init()
 
-proc generateTestSpecies* (): Species =
+proc generateSpecies* (): Species =
   var species = Species(moveSpeed: relativeRandom(12.5, 2), shapes: @[], shapeParentIndices: @[])
   var color = color(uniformRandom(),uniformRandom(),uniformRandom())
   color[random(0, 2)] = 1
@@ -94,6 +92,9 @@ proc generateTestSpecies* (): Species =
   species.noise1Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
   species.noise2Frequency = relativeRandom(medianNoiseFrequency, maxNoiseMultiplier)
   species.waveFrequency = relativeRandom(medianWaveFrequency, maxWaveMultiplier)
+
+  species.weaponType = generateWeaponType()
+
   result = species
 
 method update*(self: Enemy, dt: float) =
@@ -166,14 +167,7 @@ method update*(self: Enemy, dt: float) =
     self.shapes[i * 2 + 1].rotation = rotation.transpose
     self.shapes[i * 2 + 1].position = vec2(-position.x, position.y)
 
+  let wantsToShoot = self.brain.getOutput(2) > outputDeadZone
+
   procCall Ship(self).update(dt)
-
-
-method updatePostPhysics* (self: Enemy, dt: float) =
-  self.wantsToShoot = self.brain.getOutput(2) > outputDeadZone
-  if self.wantsToShoot and self.timeSinceShoot > 2.0:
-    addEntity(newEnemyProjectile(self.position + self.rotation*vec2(0,1), self.getVelocity()))
-    self.timeSinceshoot = 0
-
-  self.timeSinceShoot += dt
 

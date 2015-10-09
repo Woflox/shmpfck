@@ -5,19 +5,20 @@ import ../geometry/shape
 import ../audio/audio
 import ../audio/explosion
 import camera
+import math
 
 type
   FireType{.pure.} = enum
     automatic
     charge
-  WeaponEffect = ref object
-  ProjectileSpawner = ref object
+  WeaponEffect = ref object of RootObj
+  ProjectileSpawner = ref object of WeaponEffect
     directions: seq[Vector2]
     speed: float
     lifetime: float
     spawnEffect: WeaponEffect
-  ShardSpawner = ref object
-  BlastSpawner = ref object
+  ShardSpawner = ref object of WeaponEffect
+  BlastSpawner = ref object of WeaponEffect
     radius: float
     time: float
 
@@ -26,77 +27,152 @@ type
     t: float
     origin: Vector2
     lifetime: float
+    intensity: float
+    spawner: ProjectileSpawner
   Blast = ref object of Entity
-  Obstruction = ref object of Entity
+  Shard = ref object of Entity
+
+  WeaponType* = ref object
+    case fireType : FireType
+    of FireType.automatic:
+      fireRate : float
+    of FireType.charge:
+      chargeTime: float
+    effect : WeaponEffect
 
   Weapon* = ref object
-    fireType* : FireType
-    fireRate* : float
-    effect* : WeaponEffect
-
-  WeaponInstance* = ref object
-    weapon* : Weapon
-    timeSinceFire* : float
-    firing* : bool
-
-const
-  speed = 60.0
-  lifetime = 0.35
-  enemySpeed = 25.0
-  enemyLifetime = 0.75
+    weaponType : WeaponType
+    timeSinceFire : float
+    timeCharged : float
+    firing : bool
+    owner: Entity
 
 method onCollision*(self: Projectile, other: Entity) =
   other.destroyed = true
   self.destroyed = true
   playSound(newExplosionNode(), -2, 0)
 
-proc generateWeapon(): Weapon =
-  result = Weapon()
+proc generateBlastSpawner(): BlastSpawner =
+  result = BlastSpawner()
+
+proc generateShardSpawner(): ShardSpawner =
+  result = ShardSpawner()
+
+proc generateProjectileSpawner(): ProjectileSpawner =
+  result = ProjectileSpawner(directions: @[])
+  result.speed = relativeRandom(50, 4)
+  result.lifetime = relativeRandom((50 / result.speed) * 0.35, 3)
+  let numExtraDirections = int(expRandom(0.7))
+  let angleChange = expRandom(Pi / 2)
+  var currentAngle = 0.0
+  if numExtraDirections == 0 or randomChance(0.5):
+    result.directions.add(vec2(0, 1))
+  else:
+    currentAngle -= angleChange / 2
+  for i in 1..numExtraDirections:
+    currentAngle += angleChange
+    let direction = directionFromAngle(currentAngle)
+    result.directions.add(direction)
+    result.directions.add(vec2(-direction.x, direction.y))
+  if randomChance(0.5):
+    case random(1, 4):
+      of 1:
+        result.spawnEffect = generateProjectileSpawner()
+      of 2:
+        result.spawnEffect = generateProjectileSpawner()
+      of 3:
+        result.spawnEffect = generateProjectileSpawner()
+      else: discard
+
+proc generateWeaponType* (): WeaponType =
+  result = WeaponType()
   result.fireType = randomEnumValue(FireType)
+  case result.fireType:
+    of FireType.automatic:
+      result.fireRate = relativeRandom(4, 3)
+    of FireType.charge:
+      result.chargeTime = relativeRandom(0.6, 2)
+  result.effect = generateProjectileSpawner()
 
+proc generateWeapon* (weaponType: WeaponType, owner: Entity): Weapon =
+  result = Weapon(weaponType: weaponType, owner: owner)
+  result.timeSinceFire = 1.0 / weaponType.fireRate
 
-proc newProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
-  result = Projectile(movement: Movement.normal,
+method spawn(self: WeaponEffect, position: Vector2, rotation: Matrix2x2,
+             velocity: Vector2, isPlayer: bool, intensity: float) = discard
+
+method spawn(self: ProjectileSpawner, position: Vector2, rotation: Matrix2x2,
+             velocity: Vector2, isPlayer: bool, intensity: float) =
+  let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
+                                drawStyle = DrawStyle.line,
+                                lineColor = color(1, 1, 0.5))
+  let collisionShape = createShape(vertices = @[vec2(0,0)],
+                                   collisionType = CollisionType.continuous,
+                                   closed = false)
+  for relativeDirection in self.directions:
+    let projectile = Projectile(movement: Movement.normal,
                       drawable: true,
                       position: position,
                       origin: position,
                       collisionTag: CollisionTag.playerWeapon,
-                      lifetime: lifetime)
-  let fireDir = position.normalize()
-  result.velocity = sourceVelocity + fireDir * speed
-  let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
-                             drawStyle = DrawStyle.line,
-                             lineColor = color(1, 1, 0.5),
-                             closed = false)
-  let collisionShape = createShape(vertices = @[vec2(0,0)],
-                                collisionType = CollisionType.continuous,
-                                closed = false)
-  result.shapes = @[renderShape, collisionShape]
-  result.init(matrixFromDirection(result.velocity.normalize))
+                      lifetime: self.lifetime,
+                      spawner: self,
+                      intensity: intensity)
+    if isPlayer:
+      projectile.collisionTag = CollisionTag.playerWeapon
+    else:
+      projectile.collisionTag = CollisionTag.enemyWeapon
+    projectile.velocity = rotation * relativeDirection * self.speed * intensity +
+                            velocity
 
-proc newEnemyProjectile*(position: Vector2, sourceVelocity: Vector2): Projectile =
-  result = Projectile(movement: Movement.normal,
-                      drawable: true,
-                      position: position,
-                      origin: position,
-                      collisionTag: CollisionTag.enemyWeapon,
-                      lifetime: enemyLifetime)
-  let fireDir = position.normalize() * (-1)
-  result.velocity = sourceVelocity + fireDir * enemySpeed
-  let renderShape = createShape(vertices = @[vec2(0,0),vec2(0,0)],
-                             drawStyle = DrawStyle.line,
-                             lineColor = color(1, 1, 0.5))
-  let collisionShape = createShape(vertices = @[vec2(0,0)],
-                                collisionType = CollisionType.continuous,
-                                closed = false)
-  result.shapes = @[renderShape, collisionShape]
-  result.init(matrixFromDirection(result.velocity.normalize))
+    projectile.shapes = @[renderShape, collisionShape]
+    projectile.init(matrixFromDirection(projectile.velocity.normalize))
 
+    addEntity(projectile)
+
+proc fire(self: Weapon, intensity: float = 1.0) =
+  self.weaponType.effect.spawn(self.owner.position,
+                               self.owner.rotation,
+                               self.owner.getVelocity(),
+                               self.owner.collisionTag == CollisionTag.player,
+                               intensity)
+
+proc startFiring *(self: Weapon) =
+  self.firing = true
+
+proc stopFiring *(self: Weapon) =
+  self.firing = false
+
+proc isFiring *(self: Weapon): bool =
+  return self.firing
+
+proc update *(self: Weapon, dt: float) =
+  case self.weaponType.fireType:
+    of FireType.automatic:
+      self.timeSinceFire += dt
+      if self.firing and self.timeSinceFire > 1.0 / self.weaponType.fireRate:
+        self.timeSinceFire = 0
+        self.fire()
+
+    of FireType.charge:
+      if self.firing:
+        self.timeCharged += dt
+      elif self.timeCharged > 0.0:
+        let intensity = min (1.0, self.timeCharged / self.weaponType.chargeTime)
+        self.fire(intensity)
+        self.timeCharged = 0.0
 
 method update(self: Projectile, dt: float) =
   self.t += dt
-  if (self.t > self.lifetime):
+  if self.t > self.lifetime:
     self.destroyed = true
+    if self.spawner.spawnEffect != nil:
+      self.spawner.spawnEffect.spawn(self.position,
+                             matrixFromDirection(self.velocity.normalize),
+                             vec2(0,0),
+                             self.collisionTag == CollisionTag.playerWeapon,
+                             self.intensity)
+
 
   #update render shape
   let originDistance = ((self.position + self.velocity * dt) - self.origin).length
