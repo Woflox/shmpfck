@@ -95,7 +95,7 @@ proc moveDir*(): Vector2 =
   result = if stickMoveDir == vec2(0, 0): buttonMoveDir else: stickMoveDir.normalize()
 
 proc init*() =
-  for i in 0..(numJoysticks() -1):
+  for i in 0..(numJoysticks() - 1):
     if isGameController(i):
       controller = gameControllerOpen(i)
 

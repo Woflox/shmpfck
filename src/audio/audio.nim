@@ -155,7 +155,7 @@ method updateOutputs(self: LimiterNode, dt: float) =
 
   if self.timeSinceLimit < self.release:
     let releaseCurve = sCurve(self.timeSinceLimit / self.release)
-    multiplier = lerp(self.limit, 1, releaseCurve)
+    multiplier = lerp(self.limit, 1.0, releaseCurve)
 
   let peak = max(abs(input[0]), abs(input[1]))
   if peak > self.threshold:

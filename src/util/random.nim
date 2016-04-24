@@ -26,9 +26,9 @@ proc randomChoice* (self: var MersenneTwister, choices: auto): distinct auto =
 proc randomChoice* [T](self: var MersenneTwister, choices: varargs[T]): T =
   randomChoice(choices)
 
-proc randomEnumValue* [T](self: var MersenneTwister, kind: T): auto =
-  T(random(int(T.low), int(T.high)))
-
+template randomEnumValue* (merseneTwister, kind: expr): expr =
+  kind(merseneTwister.random(ord(kind.low), ord(kind.high)))
+  
 proc randomChance* (self: var MersenneTwister, probability: float): bool =
   return self.uniformRandom() < probability
 
@@ -62,8 +62,8 @@ proc randomChoice* (choices: auto): distinct auto =
 proc randomChoice* [T](choices: varargs[T]): T =
   mt.randomChoice(choices)
 
-proc randomEnumValue* [T](kind: T): auto =
-  mt.randomEnumValue(T)
+template randomEnumValue* (kind: expr): expr =
+  kind(random(ord(kind.low), ord(kind.high)))
 
 proc randomChance* (probability: float): bool =
   mt.randomChance(probability)
