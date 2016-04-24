@@ -63,7 +63,6 @@ proc update* (dt: float) =
   t += dt
 
 proc render* =
-
   #render scene
   glBindFrameBuffer(GL_FRAMEBUFFER, frameBuffer.fbo)
   glViewport(0, 0, GLint(frameBuffer.width), GLint(frameBuffer.height))
@@ -115,3 +114,4 @@ proc render* =
   post2Shader.setParameter("invCorrectedGamma", 1.0 / correctedGamma)
   post2Shader.setTexture("sceneTex", postFrameBuffer.texture)
   fullscreenQuad()
+  echo "c"

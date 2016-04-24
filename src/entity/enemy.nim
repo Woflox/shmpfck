@@ -167,7 +167,7 @@ method update*(self: Enemy, dt: float) =
     self.shapes[i * 2 + 1].rotation = rotation.transpose
     self.shapes[i * 2 + 1].position = vec2(-position.x, position.y)
 
-  let wantsToShoot = self.brain.getOutput(2) > outputDeadZone
+  self.setWeaponFiring(0, self.brain.getOutput(2) > outputDeadZone)
 
   procCall Ship(self).update(dt)
 

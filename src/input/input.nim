@@ -8,6 +8,7 @@ var
   stickMoveDir: Vector2
   buttonMoveDir: Vector2
   controller: GameControllerPtr
+  pressedKeyValue: char
 
 type
   Action* = enum

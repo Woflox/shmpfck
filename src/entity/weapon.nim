@@ -11,12 +11,18 @@ type
   FireType{.pure.} = enum
     automatic
     charge
+  MovementType{.pure.} = enum
+    straight
+    slowed
+    sine
   WeaponEffect = ref object of RootObj
   ProjectileSpawner = ref object of WeaponEffect
     directions: seq[Vector2]
     speed: float
     lifetime: float
     spawnEffect: WeaponEffect
+    movementType: MovementType
+
   ShardSpawner = ref object of WeaponEffect
   BlastSpawner = ref object of WeaponEffect
     radius: float
@@ -29,8 +35,10 @@ type
     lifetime: float
     intensity: float
     spawner: ProjectileSpawner
-    fireDirection: Vector2
+    fireVelocity: Vector2
     sourceVelocity: Vector2
+    movementType: MovementType
+
   Blast = ref object of Entity
   Shard = ref object of Entity
 
@@ -64,8 +72,14 @@ proc generateProjectileSpawner(): ProjectileSpawner =
   result = ProjectileSpawner(directions: @[])
   result.speed = relativeRandom(50, 4)
   result.lifetime = relativeRandom((50 / result.speed) * 0.35, 3)
-  let numExtraDirections = int(expRandom(0.7))
-  let angleChange = expRandom(Pi / 2)
+  result.movementType = randomEnumValue(MovementType)
+  case result.movementType:
+    of MovementType.straight: discard
+    of MovementType.slowed:
+      result.speed *= 2
+    of MovementType.sine: discard
+  let numExtraDirections = int(relativeRandom(0.5, 8))
+  let angleChange = expRandom(Pi)
   var currentAngle = 0.0
   if numExtraDirections == 0 or randomChance(0.5):
     result.directions.add(vec2(0, 1))
@@ -119,14 +133,14 @@ method spawn(self: ProjectileSpawner, position: Vector2, rotation: Matrix2x2,
                       collisionTag: CollisionTag.playerWeapon,
                       lifetime: self.lifetime * intensity,
                       spawner: self,
-                      intensity: intensity)
+                      intensity: intensity,
+                      movementType: self.movementType)
     if isPlayer:
       projectile.collisionTag = CollisionTag.playerWeapon
     else:
       projectile.collisionTag = CollisionTag.enemyWeapon
-    projectile.fireDirection = rotation * relativeDirection
-    projectile.velocity = projectile.fireDirection * self.speed * intensity +
-                            velocity
+    projectile.fireVelocity = rotation * relativeDirection * self.speed * intensity
+    projectile.velocity = projectile.fireVelocity + velocity
     projectile.sourceVelocity = velocity
 
     projectile.shapes = @[renderShape, collisionShape]
@@ -135,8 +149,11 @@ method spawn(self: ProjectileSpawner, position: Vector2, rotation: Matrix2x2,
     addEntity(projectile)
 
 proc fire(self: Weapon, intensity: float = 1.0) =
+  var rotation = self.owner.rotation
+  if self.owner.collisionTag != CollisionTag.player:
+    rotation = rotation * matrixFromAngle(Pi) #TODO: this shouldn't be necessary (fix enemy rotation)
   self.weaponType.effect.spawn(self.owner.position,
-                               self.owner.rotation,
+                               rotation,
                                self.owner.getVelocity(),
                                self.owner.collisionTag == CollisionTag.player,
                                intensity)
@@ -171,11 +188,23 @@ method update(self: Projectile, dt: float) =
   if self.t > self.lifetime:
     self.destroyed = true
     if self.spawner.spawnEffect != nil:
+      let velocity = if self.movementType == MovementType.slowed:
+        vec2(0, 0) else: self.sourceVelocity
+
       self.spawner.spawnEffect.spawn(self.position,
-                             matrixFromDirection(self.fireDirection),
-                             self.sourceVelocity,
+                             matrixFromDirection(self.fireVelocity.normalize),
+                             velocity,
                              self.collisionTag == CollisionTag.playerWeapon,
                              self.intensity)
+  else:
+    case self.movementType:
+      of MovementType.straight:
+        discard
+      of MovementType.slowed:
+        self.velocity = (self.fireVelocity + self.sourceVelocity) *
+                          (1 - (self.t / self.lifetime))
+      of MovementType.sine:
+        discard
 
 
   #update render shape
