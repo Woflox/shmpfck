@@ -151,7 +151,9 @@ method renderPoint(self: TextObject) =
   glColor4d(self.style.color)
   for letter in self.text:
     if letter != ' ':
-      for vertexList in letters[toLowercase(letter)]:
-        for i in 0..vertexList.high:
-          glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
+      let lowerCase = toLowercase(letter)
+      if letters.hasKey(lowerCase):
+        for vertexList in letters[lowerCase]:
+          for i in 0..vertexList.high:
+            glVertex2d(vertexList[i]*scale + self.bounds.minPos + vec2(offset, 0))
     offset += increment

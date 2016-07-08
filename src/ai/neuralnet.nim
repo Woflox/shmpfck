@@ -54,5 +54,5 @@ proc simulate* (self: var NeuralNet, dt: float, inputs: varargs[float]) =
         self.neurons[i].intermediateValue += self.neurons[synapse.neuronIndex].value * synapse.weight
       self.neurons[i].activate()
 
-proc getOutput* (self: NeuralNet, index): float =
+proc getOutput* (self: NeuralNet, index: int): float =
   self.neurons[index + self.inputs].value
