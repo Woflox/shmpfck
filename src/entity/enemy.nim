@@ -32,7 +32,7 @@ const
   noiseOctaves = 3
   medianWaveFrequency = 0.25
   maxWavemultiplier = 2
-  closeRange = pow(5, 2)
+  closeRange = pow(5.0, 2.0)
   outputDeadZone = 0.1
 
 method onCollision(self: Enemy, other: PlayerShip) =
@@ -167,7 +167,7 @@ method update*(self: Enemy, dt: float) =
     self.shapes[i * 2 + 1].rotation = rotation.transpose
     self.shapes[i * 2 + 1].position = vec2(-position.x, position.y)
 
-  self.setWeaponFiring(0, self.brain.getOutput(2) > outputDeadZone)
+  self.setWeaponFiring(0, false)#self.brain.getOutput(2) > outputDeadZone)
 
   procCall Ship(self).update(dt)
 

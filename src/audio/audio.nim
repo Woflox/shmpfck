@@ -35,7 +35,7 @@ iterator inputs*(self: AudioNode): AudioInput =
     yield input
     input = input.next
 
-proc getInputNode*(self: AudioNode, index): AudioNode =
+proc getInputNode*(self: AudioNode, index: int): AudioNode =
   var i = 0
   for input in self.inputs:
     if i == index:

@@ -3,16 +3,16 @@ import times
 import util
 import math
 
-var mt = newMersenneTwister(int(epochTime()))
+var mt = newMersenneTwister(uint32(epochTime()))
 
 proc rand(self: var MersenneTwister): uint32 {.inline.}=
-  cast[uint32](self.getNum())
+  self.getNum()
 
-proc newRandom* (seed: int): MersenneTwister =
+proc newRandom* (seed: uint32): MersenneTwister =
   newMersenneTwister(seed)
 
 proc random* (self: var MersenneTwister, minValue, maxValue: int): int =
-  result = (abs(self.getNum()) mod (maxValue + 1 - minValue)) + minValue
+  result = int(self.getNum() mod uint32(maxValue + 1 - minValue)) + minValue
 
 proc random* (self: var MersenneTwister, minValue, maxValue: float): float =
   float(self.rand()) * ((maxValue - minValue) / float(uint32.high)) + minValue
@@ -44,7 +44,7 @@ proc expRandom* (self: var MersenneTwister, frequency: float) : float =
 proc relativeRandom* (self: var MersenneTwister, median: float, maxMultiplier: float) : float =
   median * (pow(maxMultiplier, self.random(-1.0, 1.0)))
 
-proc seed* (seed: int) =
+proc seed* (seed: uint32) =
   mt = newMersenneTwister(seed)
 
 proc random* (minValue, maxValue: int): int =

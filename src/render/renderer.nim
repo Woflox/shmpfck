@@ -8,13 +8,13 @@ import ../world/world
 import ../ui/screen
 import ../entity/camera
 
-const basicFrag = staticRead("../content/shaders/basic.frag")
-const basicVert = staticRead("../content/shaders/basic.vert")
-const postFrag = staticRead("../content/shaders/post.frag")
-const postVert = staticRead("../content/shaders/post.vert")
-const post2Frag = staticRead("../content/shaders/post2.frag")
-const post2Vert = staticRead("../content/shaders/post2.vert")
-const pixelAlignedVert = staticRead("../content/shaders/pixelAligned.vert")
+const basicFrag = staticRead("../../content/shaders/basic.frag")
+const basicVert = staticRead("../../content/shaders/basic.vert")
+const postFrag = staticRead("../../content/shaders/post.frag")
+const postVert = staticRead("../../content/shaders/post.vert")
+const post2Frag = staticRead("../../content/shaders/post2.frag")
+const post2Vert = staticRead("../../content/shaders/post2.vert")
+const pixelAlignedVert = staticRead("../../content/shaders/pixelAligned.vert")
 
 var basicShader: ShaderProgram
 var postShader: ShaderProgram
