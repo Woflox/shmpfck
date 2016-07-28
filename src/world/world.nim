@@ -58,7 +58,8 @@ proc update* (dt: float) =
   for entityList in entitiesByTag:
     i = 0
     while i <= entityList.high:
-      entityList[i].checkForCollisions(i, dt)
+      if (entityList[i].onScreen):
+        entityList[i].checkForCollisions(i, dt)
       inc i
   i = 0
   while i <= entities.high:

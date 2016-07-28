@@ -98,11 +98,14 @@ proc generateSpecies* (): Species =
   result = species
 
 method update*(self: Enemy, dt: float) =
+  if not self.onScreen:
+    return
+
   self.t += dt
 
   let inverseRotation = self.rotation.transpose
 
-  let ship = entityOfType[PlayerShip]()
+  let ship = globalPlayerShip
   let dirToShip = inverseRotation * (ship.position - self.position).normalize()
   let shipMoveDir = inverseRotation * ship.getVelocity().normalize()
   let waveVal = sin(self.t * self.species.waveFrequency * Pi * 2 )

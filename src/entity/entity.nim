@@ -131,7 +131,7 @@ proc checkForCollisions* (self: Entity, index: int, dt: float) =
     if collides(self.collisionTag, CollisionTag(tag)):
       for i in 0..high(entitiesByTag[tag]):
         var other = entitiesByTag[tag][i]
-        if self.isColliding(other):
+        if other.onScreen and self.isColliding(other):
           self.onCollision(other)
           other.onCollision(self)
 

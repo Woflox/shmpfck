@@ -12,6 +12,8 @@ from ../input/input import nil
 type
   PlayerShip* = ref object of Ship
 
+var globalPlayerShip* : PlayerShip = nil
+
 proc generatePlayerShip* (position: Vector2): PlayerShip =
   result = PlayerShip(movement: Movement.polar,
                 drawable: true,
@@ -30,6 +32,7 @@ proc generatePlayerShip* (position: Vector2): PlayerShip =
   let flameShape = createIsoTriangle(width = goldenRatio / 2, height = -0.5, drawStyle = DrawStyle.filledOutline)
   result.shapes = @[shape, flameShape]
   result.init()
+  globalPlayerShip = result
 
 method update* (self: PlayerShip, dt: float) =
   self.moveDir = input.moveDir()
